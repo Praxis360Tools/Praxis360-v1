@@ -1,12 +1,14 @@
-﻿<div class="p360-category-card @(IsSelected ? "selected" : "")"
+﻿@using Praxis360_v1.Models
+
+<div class="p360-category-card @(IsSelected ? "selected" : "")"
      @onclick="HandleClick">
 
     <div class="p360-category-icon">
-        @GetIcon()
+        @GetIcon(Category.Icon)
     </div>
 
     <div class="p360-category-title">
-        @Title
+        @Category.Title
     </div>
 
 </div>
@@ -14,13 +16,7 @@
 @code {
 
     [Parameter]
-    public string Title { get; set; } = "";
-
-    [Parameter]
-    public string Url { get; set; } = "";
-
-    [Parameter]
-    public string Icon { get; set; } = "";
+    public required DocumentCategory Category { get; set; }
 
     [Parameter]
     public bool IsSelected { get; set; }
@@ -34,9 +30,9 @@
             await OnClick.InvokeAsync();
     }
 
-    private string GetIcon()
+    private static string GetIcon(string icon)
     {
-        return Icon switch
+        return icon switch
         {
             "shield" => "🛡",
             "bank" => "🏦",
