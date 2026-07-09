@@ -18,12 +18,11 @@
     <div class="mt-4 mb-4">
         <input class="form-control"
                placeholder="🔍 Rechercher un document..."
-               @bind="SearchText" />
+               @bind="SearchText"
+               @bind:event="oninput" />
     </div>
 
-    <hr />
-
-    <div class="row g-3">
+    <div class="row g-3 mb-4">
 
         @foreach (var category in Categories)
         {
@@ -35,15 +34,43 @@
 
     </div>
 
+    <hr />
+
+    <h4 class="mb-3">Mes documents</h4>
+
+    <DocumentList Documents="FilteredDocuments" />
+
 </div>
 
 @code
 {
     private IEnumerable<DocumentCategory> Categories = [];
-    private string SearchText = string.Empty;
+    private IEnumerable<Document> Documents = [];
+
+    private string searchText = string.Empty;
+
+    private string SearchText
+    {
+        get => searchText;
+        set
+        {
+            searchText = value;
+            FilterDocuments();
+        }
+    }
+
+    private IEnumerable<Document> FilteredDocuments = [];
 
     protected override void OnInitialized()
     {
         Categories = DocumentService.GetCategories();
+        Documents = DocumentService.GetDocuments();
+
+        FilterDocuments();
+    }
+
+    private void FilterDocuments()
+    {
+        FilteredDocuments = DocumentService.SearchDocuments(SearchText);
     }
 }

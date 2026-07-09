@@ -1,58 +1,42 @@
 ﻿@using Praxis360_v1.Models
 
-<div class="document-card">
+<P360Card>
 
-    <div class="document-left">
+    <div class="document-layout">
 
-        <div class="document-icon">
-            @GetIcon()
-        </div>
+        <div class="document-left">
 
-        <div class="document-content">
-
-            <h5>@Document.Title</h5>
-
-            <div class="document-category">
-                @Document.Category
+            <div class="document-icon">
+                📄
             </div>
 
-            <div class="document-footer">
+            <div>
 
-                <span class="badge-file">
-                    @Document.FileType.ToUpper()
-                </span>
+                <div class="document-title">
+                    @Document.Title
+                </div>
 
-                <span class="document-date">
-                    Ajouté le @Document.DateAdded.ToString("dd/MM/yyyy")
-                </span>
+                <div class="document-subtitle">
+                    @Document.Category
+                </div>
 
             </div>
 
         </div>
+
+        @if (Document.Favorite)
+        {
+            <div class="document-right">
+                ⭐
+            </div>
+        }
 
     </div>
 
-    <button class="open-button">
-        Consulter →
-    </button>
+</P360Card>
 
-</div>
-
-@code {
-
+@code
+{
     [Parameter]
     public Document Document { get; set; } = default!;
-
-    private string GetIcon()
-    {
-        return Document.FileType.ToUpper() switch
-        {
-            "PDF" => "📄",
-            "WORD" => "📝",
-            "EXCEL" => "📊",
-            "IMAGE" => "🖼️",
-            _ => "📁"
-        };
-    }
-
 }
