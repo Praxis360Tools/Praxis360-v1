@@ -1,0 +1,85 @@
+﻿@page "/espace/assurances"
+
+@using Praxis360_v1.Models
+@using Praxis360_v1.Services
+
+@inject DocumentService DocumentService
+
+<PageTitle>Assurances</PageTitle>
+
+<div class="container py-4" style="max-width:900px;">
+
+    <h1 class="fw-bold mb-1">
+        Mes assurances
+    </h1>
+
+    <p class="text-muted mb-4">
+        Retrouvez tous vos contrats et documents d'assurance.
+    </p>
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row align-items-center">
+
+                <div class="col">
+
+                    <div class="text-muted">
+                        Documents disponibles
+                    </div>
+
+                    <h3 class="fw-bold mb-0">
+                        @FilteredDocuments.Count()
+                    </h3>
+
+                </div>
+
+                <div class="col text-end">
+
+                    <div class="text-muted">
+                        Dernière synchronisation
+                    </div>
+
+                    <strong>Aujourd'hui</strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <input class="form-control form-control-lg mb-4"
+           placeholder="🔍 Rechercher un document..."
+           @bind="SearchText" />
+
+    @if (FilteredDocuments.Any())
+    {
+        @foreach (var document in FilteredDocuments)
+        {
+            <DocumentCard Document="document" />
+        }
+    }
+    else
+    {
+        <div class="alert alert-light border">
+            Aucun document trouvé.
+        </div>
+    }
+
+</div>
+
+@code
+{
+    private string SearchText = string.Empty;
+
+    private IEnumerable<Document> FilteredDocuments =>
+        DocumentService
+            .GetDocuments()
+            .Where(d => d.Category == "Assurances")
+            .Where(d =>
+                string.IsNullOrWhiteSpace(SearchText) ||
+                d.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+}

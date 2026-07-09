@@ -1,0 +1,16 @@
+﻿<NavLink href="@Url"
+         class="btn btn-light border w-100 p-4 text-start">
+
+    <h5>@Title</h5>
+
+</NavLink>
+
+@code {
+
+    [Parameter]
+    public string Title { get; set; } = "";
+
+    [Parameter]
+    public string Url { get; set; } = "";
+
+}

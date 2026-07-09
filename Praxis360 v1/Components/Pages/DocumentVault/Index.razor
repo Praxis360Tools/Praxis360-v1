@@ -1,0 +1,49 @@
+﻿@page "/espace"
+
+@using Praxis360_v1.Models
+@using Praxis360_v1.Services
+
+@inject DocumentService DocumentService
+
+<PageTitle>Mon espace</PageTitle>
+
+<div class="container mt-4">
+
+    <h1>Mon espace</h1>
+
+    <p class="text-muted">
+        Retrouvez facilement tous vos documents.
+    </p>
+
+    <div class="mt-4 mb-4">
+        <input class="form-control"
+               placeholder="🔍 Rechercher un document..."
+               @bind="SearchText" />
+    </div>
+
+    <hr />
+
+    <div class="row g-3">
+
+        @foreach (var category in Categories)
+        {
+            <div class="col-md-6 col-lg-4">
+                <CategoryCard Title="@category.Title"
+                              Url="@category.Url" />
+            </div>
+        }
+
+    </div>
+
+</div>
+
+@code
+{
+    private IEnumerable<DocumentCategory> Categories = [];
+    private string SearchText = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Categories = DocumentService.GetCategories();
+    }
+}

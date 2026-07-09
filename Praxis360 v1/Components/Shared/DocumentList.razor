@@ -1,0 +1,15 @@
+﻿@using Praxis360_v1.Models
+
+@if (Documents.Any())
+{
+    @foreach (var document in Documents)
+    {
+        <DocumentCard Document="document" />
+    }
+}
+
+@code
+{
+    [Parameter]
+    public IEnumerable<Document> Documents { get; set; } = [];
+}
