@@ -27,8 +27,11 @@
         @foreach (var category in Categories)
         {
             <div class="col-md-6 col-lg-4">
-                <CategoryCard Title="@category.Title"
-                              Url="@category.Url" />
+
+                <CategoryCard Category="category"
+                              IsSelected="SelectedCategory == category.Title"
+                              OnClick="@(() => ToggleCategory(category.Title))" />
+
             </div>
         }
 
@@ -45,9 +48,12 @@
 @code
 {
     private IEnumerable<DocumentCategory> Categories = [];
-    private IEnumerable<Document> Documents = [];
+
+    private IEnumerable<Document> FilteredDocuments = [];
 
     private string searchText = string.Empty;
+
+    private string? SelectedCategory;
 
     private string SearchText
     {
@@ -59,18 +65,27 @@
         }
     }
 
-    private IEnumerable<Document> FilteredDocuments = [];
-
     protected override void OnInitialized()
     {
         Categories = DocumentService.GetCategories();
-        Documents = DocumentService.GetDocuments();
+
+        FilterDocuments();
+    }
+
+    private void ToggleCategory(string category)
+    {
+        if (SelectedCategory == category)
+            SelectedCategory = null;
+        else
+            SelectedCategory = category;
 
         FilterDocuments();
     }
 
     private void FilterDocuments()
     {
-        FilteredDocuments = DocumentService.SearchDocuments(SearchText);
+        FilteredDocuments = DocumentService.GetFilteredDocuments(
+            SearchText,
+            SelectedCategory);
     }
 }

@@ -1,9 +1,15 @@
-﻿<NavLink href="@Url"
-         class="btn btn-light border w-100 p-4 text-start">
+﻿<div class="p360-category-card @(IsSelected ? "selected" : "")"
+     @onclick="HandleClick">
 
-    <h5>@Title</h5>
+    <div class="p360-category-icon">
+        @GetIcon()
+    </div>
 
-</NavLink>
+    <div class="p360-category-title">
+        @Title
+    </div>
+
+</div>
 
 @code {
 
@@ -12,5 +18,34 @@
 
     [Parameter]
     public string Url { get; set; } = "";
+
+    [Parameter]
+    public string Icon { get; set; } = "";
+
+    [Parameter]
+    public bool IsSelected { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync();
+    }
+
+    private string GetIcon()
+    {
+        return Icon switch
+        {
+            "shield" => "🛡",
+            "bank" => "🏦",
+            "car" => "🚗",
+            "house" => "🏠",
+            "lightning" => "⚡",
+            "folder" => "📁",
+            _ => "📄"
+        };
+    }
 
 }

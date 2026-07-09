@@ -48,6 +48,105 @@ public class DocumentService
             Favorite = true,
             Description = "Police protection juridique",
             DateAdded = new DateTime(2025, 9, 20)
+        },
+
+        new()
+        {
+            Title = "Compte Professionnel",
+            Category = "Banque",
+            FileType = "PDF",
+            FileSize = 245860,
+            Favorite = true,
+            Description = "Convention bancaire",
+            DateAdded = new DateTime(2026, 2, 8)
+        },
+
+        new()
+        {
+            Title = "Prêt Professionnel",
+            Category = "Banque",
+            FileType = "PDF",
+            FileSize = 412365,
+            Favorite = false,
+            Description = "Contrat de crédit",
+            DateAdded = new DateTime(2025, 12, 15)
+        },
+
+        new()
+        {
+            Title = "Carte Grise BMW",
+            Category = "Véhicules",
+            FileType = "PDF",
+            FileSize = 89452,
+            Favorite = false,
+            Description = "Certificat d'immatriculation",
+            DateAdded = new DateTime(2026, 4, 2)
+        },
+
+        new()
+        {
+            Title = "Contrôle Technique",
+            Category = "Véhicules",
+            FileType = "PDF",
+            FileSize = 114520,
+            Favorite = false,
+            Description = "Contrôle périodique",
+            DateAdded = new DateTime(2026, 3, 30)
+        },
+
+        new()
+        {
+            Title = "Acte de Propriété",
+            Category = "Habitation",
+            FileType = "PDF",
+            FileSize = 658420,
+            Favorite = true,
+            Description = "Maison principale",
+            DateAdded = new DateTime(2025, 6, 10)
+        },
+
+        new()
+        {
+            Title = "Facture Électricité",
+            Category = "Énergie",
+            FileType = "PDF",
+            FileSize = 75640,
+            Favorite = false,
+            Description = "Facture mensuelle",
+            DateAdded = new DateTime(2026, 4, 10)
+        },
+
+        new()
+        {
+            Title = "Facture Gaz",
+            Category = "Énergie",
+            FileType = "PDF",
+            FileSize = 70215,
+            Favorite = false,
+            Description = "Consommation gaz",
+            DateAdded = new DateTime(2026, 3, 10)
+        },
+
+        new()
+        {
+            Title = "Carte d'Identité",
+            Category = "Administratif",
+            FileType = "PDF",
+            FileSize = 95412,
+            Favorite = true,
+            Description = "Document d'identité",
+            DateAdded = new DateTime(2024, 8, 5)
+        },
+
+        new()
+        {
+            Title = "Passeport",
+            Category = "Administratif",
+            FileType = "PDF",
+            FileSize = 125480,
+            Favorite = false,
+            Description = "Passeport biométrique",
+            DateAdded = new DateTime(2025, 7, 18)
         }
     ];
 
@@ -106,20 +205,26 @@ public class DocumentService
         return _categories;
     }
 
-    public IEnumerable<Document> GetDocumentsByCategory(string category)
+    public IEnumerable<Document> GetFilteredDocuments(
+        string? search = null,
+        string? category = null)
     {
-        return _documents.Where(d =>
-            d.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
-    }
+        IEnumerable<Document> query = _documents;
 
-    public IEnumerable<Document> SearchDocuments(string search)
-    {
-        if (string.IsNullOrWhiteSpace(search))
-            return _documents;
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(d =>
+                d.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                d.Description.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                d.Category.Contains(search, StringComparison.OrdinalIgnoreCase));
+        }
 
-        return _documents.Where(d =>
-            d.Title.Contains(search, StringComparison.OrdinalIgnoreCase)
-            || d.Description.Contains(search, StringComparison.OrdinalIgnoreCase)
-            || d.Category.Contains(search, StringComparison.OrdinalIgnoreCase));
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            query = query.Where(d =>
+                d.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return query;
     }
 }
