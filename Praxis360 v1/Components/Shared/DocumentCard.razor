@@ -10,14 +10,32 @@
                 📄
             </div>
 
-            <div>
+            <div class="document-content">
 
                 <div class="document-title">
                     @Document.Title
                 </div>
 
-                <div class="document-subtitle">
+                <div class="document-category">
                     @Document.Category
+                </div>
+
+                <div class="document-description">
+                    @Document.Description
+                </div>
+
+                <div class="document-meta">
+
+                    <span>@Document.FileType</span>
+
+                    <span>•</span>
+
+                    <span>@FormatSize(Document.FileSize)</span>
+
+                    <span>•</span>
+
+                    <span>@Document.DateAdded.ToString("dd/MM/yyyy")</span>
+
                 </div>
 
             </div>
@@ -38,5 +56,16 @@
 @code
 {
     [Parameter]
-    public Document Document { get; set; } = default!;
+    public required Document Document { get; set; }
+
+    private static string FormatSize(long size)
+    {
+        if (size >= 1024 * 1024)
+            return $"{size / 1024d / 1024d:0.0} Mo";
+
+        if (size >= 1024)
+            return $"{size / 1024d:0} Ko";
+
+        return $"{size} o";
+    }
 }
