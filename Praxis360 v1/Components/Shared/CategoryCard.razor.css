@@ -1,32 +1,23 @@
-@using Praxis360_v1.Models <div class="p360-category-card @(IsSelected ? "selected" : "")" @onclick="HandleClick"> <div class="p360-category-icon"> @GetIcon(Category.Icon) </div> <div class="p360-category-title"> @Category.Title </div> </div> @code {
+.p360-category-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--p360-space-md);
+    min-height: 120px;
+    cursor: pointer;
+    user-select: none;
+}
 
-    [Parameter]
-    public required DocumentCategory Category {
-        get;
-        set;
+    .p360-category-card.selected {
+        border-color: var(--p360-primary);
+        background: #F3FCFA;
     }
 
-    [Parameter]
-    public bool IsSelected {
-        get;
-        set;
-    }
+.p360-category-icon {
+    font-size: 30px;
+}
 
-    [Parameter]
-    public EventCallback OnClick {
-        get;
-        set;
-    }
-
-    private async Task HandleClick() {
-        if (OnClick.HasDelegate) await OnClick.InvokeAsync();
-    }
-
-    private static string GetIcon(string icon) {
-        return icon switch {
-            "shield" => "🛡", "bank" => "🏦", "car" => "🚗", "house" => "🏠", "lightning" => "⚡", "folder" => "📁", _ => "📄"
-        }
-
-        ;
-    }
+.p360-category-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--p360-dark);
 }

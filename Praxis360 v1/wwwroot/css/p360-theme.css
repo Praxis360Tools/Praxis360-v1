@@ -1,0 +1,140 @@
+﻿/* ==========================================================
+   PRAXIS360 DESIGN SYSTEM
+   Version : 1.0
+   ========================================================== */
+
+/* ===========================
+   PALETTE
+=========================== */
+
+:root {
+    /* Brand */
+
+    --p360-primary: #4CB7A8;
+    --p360-dark: #01211E;
+    --p360-navy: #0B1F3A;
+    /* Surfaces */
+
+    --p360-background: #F8F9FB;
+    --p360-surface: #FFFFFF;
+    --p360-border: #E7EAF0;
+    /* Text */
+
+    --p360-text: #1D2939;
+    --p360-text-muted: #667085;
+    /* Status */
+
+    --p360-success: #12B76A;
+    --p360-warning: #F79009;
+    --p360-danger: #F04438;
+    /* Radius */
+
+    --p360-radius-sm: 12px;
+    --p360-radius: 20px;
+    --p360-radius-lg: 28px;
+    /* Shadows */
+
+    --p360-shadow-sm: 0 2px 8px rgba(0,0,0,.04);
+    --p360-shadow: 0 8px 24px rgba(0,0,0,.06);
+    --p360-shadow-lg: 0 18px 45px rgba(0,0,0,.08);
+    /* Animation */
+
+    --p360-transition: .18s ease;
+    /* Spacing */
+
+    --p360-space-xs: 4px;
+    --p360-space-sm: 8px;
+    --p360-space-md: 16px;
+    --p360-space-lg: 24px;
+    --p360-space-xl: 32px;
+    --p360-space-2xl: 48px;
+}
+
+/* ===========================
+   GLOBAL
+=========================== */
+
+html,
+body {
+    background: var(--p360-background);
+    color: var(--p360-text);
+    font-family: "DM Sans", "Segoe UI", sans-serif;
+}
+
+/* ===========================
+   TITRES
+=========================== */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--p360-dark);
+    font-weight: 700;
+    letter-spacing: -.02em;
+}
+
+p {
+    color: var(--p360-text-muted);
+    line-height: 1.6;
+}
+
+/* ===========================
+   LIENS
+=========================== */
+
+a {
+    color: var(--p360-primary);
+    text-decoration: none;
+    transition: var(--p360-transition);
+}
+
+    a:hover {
+        color: var(--p360-dark);
+    }
+
+/* ===========================
+   CARTES
+=========================== */
+
+.p360-surface {
+    background: var(--p360-surface);
+    border: 1px solid var(--p360-border);
+    border-radius: var(--p360-radius);
+    box-shadow: var(--p360-shadow);
+}
+
+/* ===========================
+   ANIMATIONS
+=========================== */
+
+.p360-hover {
+    transition: var(--p360-transition);
+}
+
+    .p360-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--p360-shadow-lg);
+    }
+
+.p360-click:active {
+    transform: scale(.98);
+}
+
+/* ===========================
+   UTILITAIRES
+=========================== */
+
+.p360-text-muted {
+    color: var(--p360-text-muted);
+}
+
+.p360-primary {
+    color: var(--p360-primary);
+}
+
+.p360-bg {
+    background: var(--p360-background);
+}

@@ -1,20 +1,24 @@
 ﻿@using Praxis360_v1.Models
 
-<div class="p360-category-card @(IsSelected ? "selected" : "")"
-     @onclick="HandleClick">
+<P360Card Class="@CardClass">
 
-    <div class="p360-category-icon">
-        @GetIcon(Category.Icon)
+    <div class="p360-category-content"
+         @onclick="HandleClick">
+
+        <div class="p360-category-icon">
+            @GetIcon(Category.Icon)
+        </div>
+
+        <div class="p360-category-title">
+            @Category.Title
+        </div>
+
     </div>
 
-    <div class="p360-category-title">
-        @Category.Title
-    </div>
+</P360Card>
 
-</div>
-
-@code {
-
+@code
+{
     [Parameter]
     public required DocumentCategory Category { get; set; }
 
@@ -23,6 +27,11 @@
 
     [Parameter]
     public EventCallback OnClick { get; set; }
+
+    private string CardClass =>
+        IsSelected
+            ? "p360-category-card selected"
+            : "p360-category-card";
 
     private async Task HandleClick()
     {
@@ -43,5 +52,4 @@
             _ => "📄"
         };
     }
-
 }
