@@ -2,14 +2,15 @@
 
 | Property | Value |
 |----------|-------|
-| Version | V1.0 |
+| Version | V2.0 |
 | Status | Active |
 | Owner | Praxis360 |
-| Last Updated | 2026-07-13 |
+| Last Updated | 2026-07-14 |
 
 ## Related Documents
 
 - Blueprint.md
+- ProductVision.md
 - ProductBook.md
 - Architecture.md
 - Roadmap.md
@@ -32,24 +33,25 @@
 
 # 1. Purpose
 
-The Sprint Book is the official development journal of Praxis360.
+SprintBook is the official development journal of Praxis360.
 
-It records every Sprint completed, the objectives achieved, architectural decisions and future work.
+It records every Sprint, the objectives achieved, major architectural decisions and the future development roadmap.
 
-It serves as the historical reference for the project.
+Each Sprint must leave the project in a better state than before.
 
 ---
 
 # 2. Sprint Methodology
 
-Praxis360 follows a progressive Sprint approach.
+Praxis360 follows an incremental Sprint methodology.
 
 Rules:
 
-- One Sprint = One complete feature.
+- One Sprint = One clear objective.
 - Every Sprint must compile successfully.
-- Documentation is updated before the Sprint is considered complete.
-- No unfinished functionality is left behind.
+- Documentation is updated before a Sprint is considered complete.
+- Business vision always precedes technical implementation.
+- No unfinished functionality is carried into the next Sprint.
 
 ---
 
@@ -63,22 +65,21 @@ Rules:
 | Sprint 2.1 | ✅ Completed |
 | Sprint 2.2 | ✅ Completed |
 | Sprint 2.3 | ✅ Completed |
-| Sprint 2.4 | 🚧 Documentation |
-| Sprint 3 | ⏳ Planned |
+| Sprint 2.4 | ✅ Completed |
+| Sprint 3.0 | ✅ Completed |
+| Sprint 3.1 | 🚧 In Progress |
 
 ---
 
 # 4. Sprint History
 
-## Sprint 0
-
-Project initialization.
+## Sprint 0 – Project Foundation
 
 Objectives
 
 - Create repository
-- Define architecture
 - Configure development environment
+- Define initial architecture
 
 Status
 
@@ -86,9 +87,7 @@ Completed.
 
 ---
 
-## Sprint 1
-
-Foundation of the application.
+## Sprint 1 – Application Foundation
 
 Objectives
 
@@ -102,16 +101,15 @@ Completed.
 
 ---
 
-## Sprint 2
-
-Document management.
+## Sprint 2 – Document Workspace
 
 Objectives
 
 - My Space
-- Document model
+- Document management
 - Shared components
 - Services
+- Scanner foundation
 
 Status
 
@@ -119,50 +117,99 @@ Completed.
 
 ---
 
-## Sprint 2.1
-
-Component stabilization.
-
-Status
-
-Completed.
-
----
-
-## Sprint 2.2
-
-Architecture improvements.
-
-Status
-
-Completed.
-
----
-
-## Sprint 2.3
-
-Shared component improvements.
-
-Status
-
-Completed.
-
----
-
-## Sprint 2.4
-
-Documentation Sprint.
+## Sprint 2.1 – Component Stabilization
 
 Objectives
 
-- Blueprint
-- Architecture
-- Product Book
-- Design Bible
-- Motion Guide
-- Sprint Book
-- Roadmap
-- README
+- Improve reusable components
+- UI consistency
+
+Status
+
+Completed.
+
+---
+
+## Sprint 2.2 – Architecture Improvements
+
+Objectives
+
+- Improve project structure
+- Refine services
+- Improve maintainability
+
+Status
+
+Completed.
+
+---
+
+## Sprint 2.3 – Shared Components
+
+Objectives
+
+- Stabilize reusable components
+- Improve design consistency
+
+Status
+
+Completed.
+
+---
+
+## Sprint 2.4 – AI Workspace
+
+Objectives
+
+- Complete project documentation
+- Standardize AI workflow
+- Introduce GitHub Copilot workflow
+- Create Design Bible
+- Create Motion Guide
+- Create AI Playbook
+- Organize project documentation
+
+Status
+
+Completed.
+
+---
+
+## Sprint 3.0 – Product Foundation
+
+Objectives
+
+- Redefine the product vision
+- Introduce ProductVision.md
+- Reposition Praxis360 around Life Insurance
+- Replace Portfolio vision with Client Understanding
+- Align documentation with the new business strategy
+
+Major Decision
+
+Praxis360 is no longer designed as a portfolio management application.
+
+It becomes a premium client workspace focused on helping customers understand their Life Insurance situation through simple, reassuring and meaningful information.
+
+Status
+
+Completed.
+
+---
+
+## Sprint 3.1 – Domain Model
+
+Objectives
+
+Design the complete business domain before writing any implementation.
+
+Focus areas:
+
+- Insured-centric model
+- Client Workspace
+- Life Insurance contracts
+- Customer-oriented business language
+- Clean business architecture
 
 Status
 
@@ -172,52 +219,78 @@ In Progress.
 
 # 5. Current Sprint
 
-Sprint 2.4
+Sprint 3.1 – Domain Model
 
 Goal
 
-Create the complete project documentation to support long-term development and AI-assisted coding.
+Design the complete business model that will serve as the foundation for every future feature.
+
+No UI.
+
+No Services.
+
+No Imports.
+
+No implementation.
+
+Only the business domain.
 
 ---
 
 # 6. Next Sprint
 
-Sprint 3
+Sprint 3.2 – BRIO Integration
 
 Planned objectives
 
-To be defined after Sprint 2.4 completion.
+- Import BRIO data
+- Map BRIO to Domain Model
+- Validate business transformations
+- Prepare advisor enrichment workflow
 
 ---
 
 # 7. Completed Milestones
 
-- Initial architecture
+- Project foundation
 - Dashboard
-- Document management
-- Shared components
+- Document Workspace
 - Scanner foundation
+- Shared Components
 - Documentation framework
+- AI Workspace
+- Product Vision
+- Development Blueprint
+- Architecture redesign
 
 ---
 
 # 8. Technical Debt
 
-Current known items
+Current priorities
 
-- Continue documentation enrichment
-- Expand Design Bible with component catalog
-- Add screenshots to documentation
-- Complete Product Book as new modules are developed
+- Complete Domain Model
+- Implement BRIO mapping
+- Expand Design Bible with component catalogue
+- Create customer journey diagrams
+- Add architecture diagrams
+
+No critical technical debt identified.
 
 ---
 
 # 9. Lessons Learned
 
-Documentation is considered part of the product.
+Major lessons from Sprint 3:
 
-Architecture should evolve progressively.
+Business vision must always precede technical implementation.
 
-Reusable components reduce maintenance.
+The customer experience is more important than exposing technical data.
 
-Every Sprint should improve both the application and its documentation.
+The Domain Model should represent the customer's reality, not the structure of external systems.
+
+Good documentation significantly improves AI-assisted development.
+
+Praxis360 is not built around contracts.
+
+It is built around customer understanding.

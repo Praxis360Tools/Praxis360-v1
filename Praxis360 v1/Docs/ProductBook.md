@@ -2,14 +2,15 @@
 
 | Property | Value |
 |----------|-------|
-| Version | V1.0 |
+| Version | V2.0 |
 | Status | Active |
 | Owner | Praxis360 |
-| Last Updated | 2026-07-13 |
+| Last Updated | 2026-07-14 |
 
 ## Related Documents
 
 - Blueprint.md
+- ProductVision.md
 - Architecture.md
 - DesignBible.md
 - MotionGuide.md
@@ -23,13 +24,13 @@
 2. Product Structure
 3. Dashboard
 4. My Space
-5. Scanner
-6. Portfolio
-7. Notifications
-8. Search
+5. Client Overview
+6. Scanner
+7. Search
+8. Notifications
 9. Settings
 10. Authentication
-11. Future Modules
+11. Future Evolutions
 12. Business Rules
 13. References
 
@@ -37,206 +38,247 @@
 
 # 1. Purpose
 
-This document describes every functional module of Praxis360.
+ProductBook describes the functional behaviour of Praxis360.
 
-It explains how each feature should behave from the user's perspective.
+It explains what every module does from the customer's perspective.
 
-Technical implementation details belong in Architecture.md.
+Business philosophy belongs in ProductVision.md.
+
+Technical implementation belongs in Architecture.md.
 
 ---
 
 # 2. Product Structure
 
-Current modules
+Version 1 focuses entirely on Life Insurance.
+
+Core modules:
 
 - Dashboard
 - My Space
+- Client Overview
 - Scanner
-
-Planned modules
-
-- Portfolio
-- Notifications
 - Search
-- Authentication
+- Notifications
 - Settings
 
-Future modules
-
-- AI Assistant
-- OCR
-- Microsoft Graph
-- Advisor Collaboration
-- Digital Safe
+Future versions will progressively integrate additional domains while preserving the same customer experience.
 
 ---
 
 # 3. Dashboard
 
-Purpose
+## Purpose
 
-Provide an immediate overview of the user's activity.
+The Dashboard gives the client an immediate understanding of their situation.
 
-Typical content
+It answers one simple question:
 
+**"Is everything in order?"**
+
+Typical information includes:
+
+- Overall situation
+- Important alerts
+- Recent activity
 - Quick actions
-- Recent documents
-- Favorites
-- Important reminders
-- Portfolio summary (future)
+- Advisor recommendations
 
-The Dashboard should always remain simple.
+The Dashboard should never overwhelm the client.
 
 ---
 
 # 4. My Space
 
-Purpose
+## Purpose
 
-Centralize every user document.
+My Space centralizes every document available to the client.
 
-Capabilities
+Capabilities:
 
 - Browse documents
 - Search documents
 - Filter by category
-- Mark favorites
 - View document details
+- Mark favourites
 
-Future improvements
+Future improvements:
 
 - OCR indexing
-- Smart tags
-- Automatic categorization
-- Cloud synchronization
+- Automatic classification
+- Smart document suggestions
+- Secure cloud synchronization
 
 ---
 
-# 5. Scanner
+# 5. Client Overview
 
-Purpose
+## Purpose
 
-Add new documents quickly.
+Client Overview explains the customer's Life Insurance situation in a simple and understandable way.
 
-Capabilities
+The objective is not to display contracts.
+
+The objective is to explain protection.
+
+The information hierarchy always follows ProductVision.md.
+
+Priority information:
+
+- My accumulated savings
+- Protection for my loved ones
+- Income if I cannot work
+- My protected contributions
+
+Technical contract information remains available inside detailed views.
+
+---
+
+# 6. Scanner
+
+## Purpose
+
+Scanner allows the client or advisor to add new documents quickly.
+
+Capabilities:
 
 - Camera capture
-- Import from gallery
+- Gallery import
 - Document preview
-- Automatic enhancement (future)
-- OCR recognition (future)
+- Future OCR recognition
+- Automatic enhancement
+
+The scanning experience should remain simple and intuitive.
 
 ---
 
-# 6. Portfolio
+# 7. Search
 
-Purpose
+## Purpose
 
-Help users understand their financial situation.
+Search allows users to instantly find information.
 
-Planned capabilities
-
-- Insurance overview
-- Investments
-- Pension
-- Assets
-- Financial evolution
-
-Portfolio is an information module, not a banking application.
-
----
-
-# 7. Notifications
-
-Purpose
-
-Inform users about important events.
-
-Examples
-
-- Document expiration
-- Insurance renewal
-- Missing documents
-- New shared document
-
-Notifications should always provide value.
-
----
-
-# 8. Search
-
-Purpose
-
-Find information instantly.
-
-Capabilities
+Capabilities:
 
 - Search by title
 - Search by category
 - Search by keyword
 - Future OCR search
+- Future semantic search
+
+Search should prioritize relevance over quantity.
+
+---
+
+# 8. Notifications
+
+## Purpose
+
+Notifications inform clients about important events requiring attention.
+
+Examples:
+
+- Missing documents
+- Advisor updates
+- Contract evolution
+- Important reminders
+- New available documents
+
+Notifications should always provide value.
 
 ---
 
 # 9. Settings
 
-Purpose
+## Purpose
 
-Allow users to customize the application.
+Settings allow clients to personalize their experience.
 
-Examples
+Examples:
 
 - Profile
-- Security
+- Language
 - Notifications
 - Appearance
-- Language
+- Security
+
+Configuration should remain minimal.
 
 ---
 
 # 10. Authentication
 
-Future authentication methods
+Supported authentication methods include:
 
 - Microsoft Account
 - Biometrics
 - PIN Code
 - Secure Session
 
-Authentication must remain simple and secure.
+Authentication must remain secure while minimizing friction.
 
 ---
 
-# 11. Future Modules
+# 11. Future Evolutions
 
-Long-term vision includes
+Praxis360 expands progressively.
 
-- AI Assistant
-- OCR
-- Digital Safe
-- Microsoft Graph
-- Cloud Synchronization
-- Advisor Collaboration
+Version 1
 
-Future modules must integrate naturally into the existing product.
+Life Insurance
+
+↓
+
+Version 2
+
+Property & Casualty Insurance
+
+↓
+
+Version 3
+
+Energy
+
+↓
+
+Version 4
+
+Telecommunications
+
+↓
+
+Version 5
+
+Real Estate
+
+↓
+
+Future
+
+Complete Client Workspace
+
+Each new domain must integrate seamlessly into the existing customer experience.
 
 ---
 
 # 12. Business Rules
 
-General rules
+Every feature must:
 
-- Every feature must solve a real user need.
-- Simplicity is preferred.
-- Premium user experience is mandatory.
-- Existing components should be reused.
-- New functionality should integrate with existing modules.
+- answer a real customer need;
+- follow ProductVision.md;
+- simplify complex information;
+- preserve the premium experience;
+- reuse existing components whenever possible.
+
+No functionality should expose unnecessary technical complexity.
 
 ---
 
 # 13. References
 
 - Blueprint.md
+- ProductVision.md
 - Architecture.md
 - DesignBible.md
 - MotionGuide.md

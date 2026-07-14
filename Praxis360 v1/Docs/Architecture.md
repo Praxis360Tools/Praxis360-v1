@@ -2,14 +2,15 @@
 
 | Property | Value |
 |----------|-------|
-| Version | V1.0 |
+| Version | V2.0 |
 | Status | Active |
 | Owner | Praxis360 |
-| Last Updated | 2026-07-13 |
+| Last Updated | 2026-07-14 |
 
 ## Related Documents
 
 - Blueprint.md
+- ProductVision.md
 - ProductBook.md
 - DesignBible.md
 - SprintBook.md
@@ -19,19 +20,21 @@
 # Table of Contents
 
 1. Architecture Philosophy
-2. Project Structure
-3. Application Layers
-4. Data Flow
-5. Dependency Injection
-6. Naming Conventions
-7. Shared Components
-8. Services
-9. Models
-10. Pages
-11. Scalability Principles
-12. Development Rules
-13. Definition of Done
-14. References
+2. Architectural Principles
+3. Project Structure
+4. Application Layers
+5. Domain Model
+6. Data Flow
+7. Dependency Injection
+8. Naming Conventions
+9. Shared Components
+10. Services
+11. Models
+12. Pages
+13. Scalability Principles
+14. Development Rules
+15. Definition of Done
+16. References
 
 ---
 
@@ -39,17 +42,34 @@
 
 Praxis360 follows a clean, modular and scalable architecture.
 
-The objective is to make the project easy to understand, easy to maintain and easy to extend over many years.
+The architecture is business-driven.
 
-Every new feature must integrate into the existing architecture rather than creating new patterns.
+The software must model the customer's reality, not the structure of external systems.
 
-Simplicity is preferred over unnecessary abstraction.
+BRIO is a data source.
+
+Praxis360 owns its business model.
 
 ---
 
-# 2. Project Structure
+# 2. Architectural Principles
 
-Typical project structure:
+The architecture follows these principles:
+
+- Business first.
+- Domain-driven thinking.
+- Modular components.
+- Loose coupling.
+- High cohesion.
+- Reusability.
+- Maintainability.
+- Scalability.
+
+Every technical decision should simplify future evolution.
+
+---
+
+# 3. Project Structure
 
 Praxis360-v1
 
@@ -70,65 +90,73 @@ Each folder has a single responsibility.
 
 ---
 
-# 3. Application Layers
+# 4. Application Layers
 
 ## Pages
 
-Responsibilities:
+Display information.
 
-- Display UI
-- Receive user interactions
-- Call Services
-- Compose Shared Components
+Coordinate interactions.
 
-Pages must never contain business logic.
+Call Services.
+
+Never contain business logic.
 
 ---
 
 ## Shared Components
 
-Responsibilities:
+Reusable UI components.
 
-- Reusable UI
-- Common layouts
-- Navigation
-- Cards
-- Buttons
-- Search components
-
-If a component is reused more than once, it should generally belong in Shared.
-
----
-
-## Models
-
-Responsibilities:
-
-- Represent data
-- Define entities
-- Transfer information
-
-Models never contain business logic.
+No business logic.
 
 ---
 
 ## Services
 
-Responsibilities:
+Business logic.
 
-- Business rules
-- Validation
-- Filtering
-- Data manipulation
-- Communication with storage or APIs
+Calculations.
 
-Services should remain independent from the UI.
+Transformations.
+
+Validation.
+
+Imports.
+
+Communication with storage.
 
 ---
 
-# 4. Data Flow
+## Models
 
-Application flow:
+Represent the business domain.
+
+Models describe Praxis360 concepts.
+
+Not BRIO concepts.
+
+---
+
+# 5. Domain Model
+
+The Domain Model is the foundation of Praxis360.
+
+Every feature starts with the business model.
+
+The application is centred around the insured person.
+
+Contracts belong to an insured.
+
+The client workspace belongs to the insured.
+
+External systems adapt to the domain model.
+
+The domain model never adapts to external systems.
+
+---
+
+# 6. Data Flow
 
 User
 
@@ -146,170 +174,147 @@ Service
 
 ↓
 
-Models
+Domain Model
 
 ↓
 
 Storage / API
 
-The flow should always remain simple and predictable.
-
 ---
 
-# 5. Dependency Injection
+# 7. Dependency Injection
 
-Every Service must be registered in Program.cs.
+Every Service is registered in Program.cs.
 
-Services are always injected through constructors.
+Constructor Injection only.
 
 Never instantiate Services manually.
 
-Correct:
+---
 
-Constructor Injection
+# 8. Naming Conventions
 
-Incorrect:
+Names must represent business concepts.
 
-new DocumentService()
+Use explicit names.
+
+Avoid technical abbreviations.
+
+Prefer customer-oriented terminology whenever possible.
 
 ---
 
-# 6. Naming Conventions
+# 9. Shared Components
 
-Pages
+Shared components:
 
-Dashboard.razor
-
-Index.razor
-
-Portfolio.razor
-
-Scanner.razor
-
-Components
-
-DocumentCard
-
-CategoryCard
-
-P360Card
-
-Services
-
-DocumentService
-
-ScannerService
-
-PortfolioService
-
-Models
-
-Document
-
-Category
-
-Portfolio
-
-Naming must remain explicit.
+- reusable
+- UI only
+- lightweight
+- composable
 
 ---
 
-# 7. Shared Components
+# 10. Services
 
-Shared components should:
+Services:
 
-- Be reusable.
-- Remain UI only.
-- Avoid business logic.
-- Keep parameters simple.
-
----
-
-# 8. Services
-
-Services should:
-
-- Be focused.
-- Respect the Single Responsibility Principle.
-- Be testable.
-- Be reusable.
+- encapsulate business logic
+- remain testable
+- remain independent from UI
+- expose clear responsibilities
 
 ---
 
-# 9. Models
+# 11. Models
 
-Models should:
+Models represent the business domain.
 
-- Contain data only.
-- Stay lightweight.
-- Avoid dependencies.
+Models remain lightweight.
 
----
-
-# 10. Pages
-
-Pages orchestrate the application.
-
-Their responsibilities are:
-
-- Display information.
-- Trigger actions.
-- Coordinate components.
-
-Business decisions belong inside Services.
+Business calculations belong inside Services.
 
 ---
 
-# 11. Scalability Principles
+# 12. Pages
 
-The architecture must support future modules:
+Pages orchestrate.
 
-- Authentication
-- OCR
-- Notifications
-- Cloud Synchronization
-- AI Assistant
-- Microsoft Graph
+Pages never calculate.
 
-Without requiring major refactoring.
+Pages never implement business rules.
 
 ---
 
-# 12. Development Rules
+# 13. Scalability Principles
+
+The architecture supports future modules:
+
+Version 1
+
+Life Insurance
+
+↓
+
+Version 2
+
+Property & Casualty
+
+↓
+
+Version 3
+
+Energy
+
+↓
+
+Version 4
+
+Telecommunications
+
+↓
+
+Version 5
+
+Real Estate
+
+without architectural redesign.
+
+---
+
+# 14. Development Rules
 
 Always:
 
-- Reuse existing components.
-- Respect the architecture.
-- Prefer readability.
-- Keep files reasonably small.
-- Keep methods focused.
+- follow ProductVision
+- design the business model first
+- reuse components
+- reuse services
+- keep code readable
 
 Never:
 
-- Duplicate code.
-- Place business logic inside Razor pages.
-- Create unnecessary abstractions.
-- Break existing architecture.
+- duplicate business logic
+- bypass architecture
+- couple UI with business rules
 
 ---
 
-# 13. Definition of Done
+# 15. Definition of Done
 
-A feature is architecturally complete when:
+Architecture is complete when:
 
-- Layers are respected.
-- Shared components are reused.
-- Services contain business logic.
-- Pages remain lightweight.
-- Dependency Injection is respected.
-- The project compiles successfully.
+- business model respected
+- architecture respected
+- project compiles
+- reusable components used
+- documentation updated
 
 ---
 
-# 14. References
+# 16. References
 
 - Blueprint.md
+- ProductVision.md
 - ProductBook.md
-- DesignBible.md
 - SprintBook.md

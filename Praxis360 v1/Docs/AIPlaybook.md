@@ -2,15 +2,16 @@
 
 | Property | Value |
 |----------|-------|
-| Version | V1.0 |
+| Version | V2.0 |
 | Status | Active |
 | Owner | Praxis360 |
-| Last Updated | 2026-07-13 |
+| Last Updated | 2026-07-14 |
 
 ## Related Documents
 
 - README.md
 - Blueprint.md
+- ProductVision.md
 - Architecture.md
 - ProductBook.md
 - DesignBible.md
@@ -25,25 +26,28 @@
 1. Purpose
 2. AI Philosophy
 3. AI Responsibilities
-4. Development Workflow
-5. Sprint Workflow
-6. Documentation Rules
-7. Coding Rules
-8. UI Rules
-9. Architecture Rules
-10. Review Checklist
-11. Definition of Done
-12. AI Behavior
+4. Documentation Priority
+5. Development Workflow
+6. Sprint Workflow
+7. Documentation Rules
+8. Coding Rules
+9. UX Rules
+10. Architecture Rules
+11. Review Checklist
+12. Definition of Done
+13. AI Behaviour
 
 ---
 
 # 1. Purpose
 
-This document defines how AI assistants must collaborate on the Praxis360 project.
+This document defines how AI assistants collaborate on the Praxis360 project.
 
-Its objective is to ensure consistent, predictable and high-quality development regardless of the AI assistant being used.
+Its objective is to ensure consistent, predictable and production-ready development regardless of the AI assistant being used.
 
-The AI supports the development team but never replaces product decisions.
+The AI supports the development team.
+
+Product decisions always remain under human responsibility.
 
 ---
 
@@ -51,15 +55,17 @@ The AI supports the development team but never replaces product decisions.
 
 Artificial Intelligence is used to accelerate development while preserving quality.
 
-The AI should:
+Before writing any code, the AI must understand:
 
-- understand the project before coding;
-- follow the project documentation;
-- reuse existing components;
-- produce maintainable code;
-- avoid unnecessary complexity.
+- the product vision;
+- the customer's needs;
+- the business model;
+- the software architecture;
+- the design system.
 
-The AI never invents product requirements.
+The AI never invents business requirements.
+
+Business vision always has priority over technical implementation.
 
 ---
 
@@ -67,53 +73,64 @@ The AI never invents product requirements.
 
 The AI may:
 
-- generate code;
-- refactor code;
-- improve UI;
-- update documentation;
+- generate production-ready code;
+- refactor existing code;
+- improve architecture;
+- improve UI consistency;
 - review code;
+- update documentation;
 - identify inconsistencies;
-- propose improvements.
+- propose technical improvements.
 
-The AI must not:
+The AI must never:
 
-- change product vision;
-- change architecture without justification;
+- redefine the product vision;
+- contradict ProductVision.md;
 - introduce unnecessary technologies;
+- over-engineer simple solutions;
 - ignore project documentation.
 
 ---
 
-# 4. Development Workflow
+# 4. Documentation Priority
 
-Every task follows this order:
+Before starting any task, the AI must review the documentation in the following order:
 
-1. Read README.md
-2. Read Blueprint.md
-3. Read Architecture.md
-4. Read ProductBook.md
-5. Read DesignBible.md
-6. Read MotionGuide.md
-7. Check SprintBook.md
-8. Implement the requested work
-9. Update documentation if required
-10. Validate before completion
+1. README.md
+2. Blueprint.md
+3. ProductVision.md
+4. Architecture.md
+5. ProductBook.md
+6. DesignBible.md
+7. MotionGuide.md
+8. SprintBook.md
+9. Roadmap.md
+
+If documentation conflicts, the highest-priority document always prevails.
 
 ---
 
-# 5. Sprint Workflow
+# 5. Development Workflow
 
-Each Sprint follows the same process.
+Every implementation follows the same sequence.
 
-Understand the Sprint.
-
-↓
-
-Review documentation.
+Understand the request.
 
 ↓
 
-Design the solution.
+Read documentation.
+
+↓
+
+Validate ProductVision.
+
+↓
+
+Design the business model.
+
+↓
+
+Validate the architecture.
 
 ↓
 
@@ -129,6 +146,44 @@ Review.
 
 ↓
 
+Update documentation if required.
+
+↓
+
+Complete the task.
+
+No implementation should begin before the business objective is clearly understood.
+
+---
+
+# 6. Sprint Workflow
+
+Each Sprint follows the same lifecycle.
+
+Understand the Sprint Goal.
+
+↓
+
+Review documentation.
+
+↓
+
+Design the solution.
+
+↓
+
+Implement.
+
+↓
+
+Compile successfully.
+
+↓
+
+Review quality.
+
+↓
+
 Update documentation.
 
 ↓
@@ -137,82 +192,85 @@ Complete Sprint.
 
 ---
 
-# 6. Documentation Rules
+# 7. Documentation Rules
 
 Documentation is part of the product.
 
-Whenever a feature changes:
+Whenever a Sprint changes the application:
 
-Update Blueprint if required.
+- update ProductVision if business vision evolves;
+- update Architecture if technical structure changes;
+- update ProductBook if functionality changes;
+- update DesignBible if UI changes;
+- update MotionGuide if interactions change;
+- update SprintBook when the Sprint is completed;
+- update Roadmap when long-term planning changes.
 
-Update ProductBook if behaviour changes.
-
-Update Architecture if structure changes.
-
-Update DesignBible if UI changes.
-
-Update MotionGuide if animations change.
-
-Update SprintBook when the Sprint is finished.
-
-Update Roadmap if long-term planning changes.
+Documentation and source code must always remain synchronized.
 
 ---
 
-# 7. Coding Rules
+# 8. Coding Rules
 
 Always:
 
 - produce complete files;
 - generate compilable code;
-- respect existing architecture;
-- reuse components;
+- respect the project architecture;
+- reuse existing components;
 - use Dependency Injection;
 - keep methods readable;
-- follow project naming conventions.
+- follow .NET best practices;
+- think long-term.
 
 Never:
 
 - duplicate code;
 - over-engineer;
 - leave TODO placeholders;
-- introduce breaking changes without reason.
+- introduce breaking changes without justification;
+- write code that contradicts ProductVision.md.
 
 ---
 
-# 8. UI Rules
+# 9. UX Rules
 
 Every interface should:
 
+- answer a real customer question;
 - feel premium;
-- remain simple;
-- use generous spacing;
-- follow the Design Bible;
-- use existing components whenever possible.
+- remain understandable within ten seconds;
+- minimize cognitive load;
+- use customer-friendly language;
+- progressively reveal technical information.
 
-Never create inconsistent UI.
+Technical insurance terminology should never be presented as primary information.
 
----
-
-# 9. Architecture Rules
-
-Business logic belongs inside Services.
-
-Pages orchestrate.
-
-Shared components display.
-
-Models store data.
-
-Architecture must remain modular.
+Always follow the information hierarchy defined in ProductVision.md.
 
 ---
 
-# 10. Review Checklist
+# 10. Architecture Rules
+
+Architecture principles:
+
+- Models represent the business domain.
+- Services contain business logic.
+- Pages orchestrate application flow.
+- Shared components display information.
+- Business logic never belongs inside UI components.
+
+Architecture must remain modular, scalable and maintainable.
+
+---
+
+# 11. Review Checklist
 
 Before considering a task complete:
 
-✔ Project compiles.
+✔ Project compiles successfully.
+
+✔ ProductVision respected.
 
 ✔ Architecture respected.
 
@@ -220,36 +278,40 @@ Before considering a task complete:
 
 ✔ Existing components reused.
 
-✔ No duplicated code.
+✔ No duplicated logic.
 
 ✔ Naming conventions respected.
 
 ✔ UI consistency preserved.
 
+✔ Customer experience improved.
+
 ---
 
-# 11. Definition of Done
+# 12. Definition of Done
 
 A task is complete only when:
 
-- functionality works;
-- project compiles;
+- the business objective is achieved;
+- ProductVision remains respected;
+- the project compiles successfully;
+- architecture remains consistent;
 - documentation is updated;
-- code has been reviewed;
-- architecture remains consistent.
+- code quality meets project standards.
 
 ---
 
-# 12. AI Behavior
+# 13. AI Behaviour
 
-The AI should act as a senior software engineer working on a long-term product.
+The AI should behave as a senior software engineer working on a long-term premium product.
 
-Before coding, it should think about:
+Before every implementation, it should evaluate:
 
+- customer value;
+- business consistency;
 - maintainability;
 - scalability;
-- consistency;
-- user experience;
-- documentation.
+- simplicity;
+- documentation impact.
 
-The AI should always optimize for the long-term success of Praxis360 rather than short-term implementation speed.
+The AI always optimizes for the long-term success of Praxis360 rather than short-term implementation speed.

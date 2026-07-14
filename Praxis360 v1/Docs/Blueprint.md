@@ -2,13 +2,14 @@
 
 | Property | Value |
 |----------|-------|
-| Version | V1.0 |
+| Version | V2.0 |
 | Status | Active |
 | Owner | Praxis360 |
-| Last Updated | 2026-07-13 |
+| Last Updated | 2026-07-14 |
 
 ## Related Documents
 
+- ProductVision.md
 - Architecture.md
 - ProductBook.md
 - SprintBook.md
@@ -20,262 +21,234 @@
 
 # Table of Contents
 
-1. Vision
-2. Product Mission
-3. Target Users
-4. Product Philosophy
-5. Core Principles
-6. User Journey
-7. Functional Modules
-8. Application Navigation
-9. Functional Architecture
-10. Business Rules
-11. Security Principles
-12. Data Management
-13. User Experience Principles
-14. Future Vision
-15. Out of Scope
-16. Definition of Done
-17. Release Strategy
-18. References
+1. Purpose
+2. Documentation Hierarchy
+3. Development Principles
+4. Product Boundaries
+5. Functional Architecture
+6. Development Workflow
+7. Coding Principles
+8. User Experience Principles
+9. Documentation Rules
+10. Definition of Done
+11. Long-Term Vision
+12. References
 
 ---
 
-# 1. Vision
+# 1. Purpose
 
-Praxis360 aims to become the premium digital companion for self-employed professionals.
+Blueprint is the development framework of Praxis360.
 
-The application centralizes documents, simplifies administration, improves financial visibility and gradually becomes the single place where users manage their professional administrative life.
+It defines the rules that guide every technical and functional decision made throughout the project.
 
-Praxis360 is built around three core values:
+The business vision, customer promise and UX philosophy are defined in ProductVision.md.
 
-- Simplicity
-- Trust
-- Elegance
+Blueprint explains how Praxis360 must be built.
 
-The application must remain intuitive, fast, secure and scalable throughout its evolution.
+ProductVision explains why it exists.
 
 ---
 
-# 2. Product Mission
+# 2. Documentation Hierarchy
 
-Provide a modern mobile application that allows users to:
+All development decisions must respect the following order of priority:
 
-- Centralize all important documents.
-- Find information instantly.
-- Better understand their financial situation.
-- Reduce administrative complexity.
-- Save time every day.
+1. Blueprint.md
+2. ProductVision.md
+3. Architecture.md
+4. ProductBook.md
+5. DesignBible.md
+6. MotionGuide.md
+7. SprintBook.md
+8. Roadmap.md
 
-Praxis360 is more than a document manager.
-
-It is a personal administrative assistant.
-
----
-
-# 3. Target Users
-
-Primary audience
-
-- Doctors
-- Dentists
-- Pharmacists
-- Physiotherapists
-- Independent professionals
-- Company directors
-
-Future audience
-
-The architecture must support expansion to all self-employed professionals.
+If two documents appear to conflict, the document with the higher priority takes precedence.
 
 ---
 
-# 4. Product Philosophy
+# 3. Development Principles
 
-Praxis360 follows several non-negotiable principles.
+Every Sprint must respect these principles.
 
-- Premium before flashy.
+- Business vision before technical implementation.
 - Simplicity before complexity.
-- User value before technical perfection.
-- One complete Sprint at a time.
-- Reusable components first.
-- Long-term maintainability.
-- Consistency over speed.
+- Long-term maintainability before short-term speed.
+- Reuse before duplication.
+- Consistency before innovation.
+- Customer value before technical elegance.
+
+Every implementation must improve the product without compromising its philosophy.
 
 ---
 
-# 5. Core Principles
+# 4. Product Boundaries
 
-Every feature must:
+Praxis360 is intentionally focused.
 
-- Solve a real user problem.
-- Feel premium.
-- Integrate naturally into the application.
-- Respect the existing architecture.
-- Reuse existing components whenever possible.
-- Remain maintainable.
+It must not evolve into:
 
----
+- an insurance management system;
+- a CRM;
+- an accounting solution;
+- an ERP;
+- a banking platform.
 
-# 6. User Journey
+The objective is to provide a premium client workspace that simplifies complex information.
 
-Typical user flow:
-
-1. Authentication
-2. Dashboard
-3. My Space
-4. Portfolio
-5. Scanner
-6. Notifications
-7. Settings
-
-The navigation should always remain simple and intuitive.
+Every new feature must reinforce this positioning.
 
 ---
 
-# 7. Functional Modules
+# 5. Functional Architecture
 
-Current modules
+Praxis360 is organized around independent modules.
 
-- Dashboard
-- My Space
-- Scanner
+Each module should:
 
-Planned modules
+- have a single responsibility;
+- remain loosely coupled;
+- reuse shared components;
+- follow the common design system;
+- evolve independently whenever possible.
 
-- Portfolio
-- OCR
-- Microsoft Authentication
-- Cloud Synchronization
-- Notifications
-- Search
-- User Settings
-
-Long-term modules
-
-- AI Assistant
-- Financial Analytics
-- Digital Safe
-- Advisor Collaboration
-- Client Portal
+Technical implementation details belong in Architecture.md.
 
 ---
 
-# 8. Application Navigation
+# 6. Development Workflow
 
-Navigation must remain simple.
+Every feature follows the same lifecycle.
 
-The application should never overwhelm the user.
+Understand the business objective.
 
-Every screen should have a clear purpose.
+↓
 
-Maximum accessibility with minimal cognitive load.
+Validate ProductVision.
 
----
+↓
 
-# 9. Functional Architecture
+Design the business model.
 
-Praxis360 is organized around independent functional modules.
+↓
 
-Each module should evolve independently while sharing the same architecture and design language.
+Validate architecture.
 
-The technical implementation is described in Architecture.md.
+↓
 
----
+Implement.
 
-# 10. Business Rules
+↓
 
-General business rules are documented here.
+Compile.
 
-Specific module rules belong inside ProductBook.md.
+↓
 
----
+Review.
 
-# 11. Security Principles
+↓
 
-The application must prioritize:
+Update documentation.
 
-- User privacy
-- Secure authentication
-- Data encryption
-- Secure cloud synchronization
-- GDPR compliance
+↓
 
----
+Commit.
 
-# 12. Data Management
-
-Praxis360 stores structured user information.
-
-Future versions will support:
-
-- Cloud synchronization
-- Offline mode
-- Automatic backup
-- Secure storage
+Skipping any of these steps is discouraged.
 
 ---
 
-# 13. User Experience Principles
+# 7. Coding Principles
 
-The application should provide:
+Every implementation should:
 
-- Premium visual quality
-- Smooth animations
-- Consistent interactions
-- Clear navigation
-- Minimal cognitive load
+- produce production-ready code;
+- compile successfully;
+- remain readable;
+- reuse existing components;
+- minimize technical debt;
+- respect Dependency Injection;
+- follow .NET best practices.
 
-Every interaction should feel effortless.
+Avoid:
 
----
-
-# 14. Future Vision
-
-Future versions will progressively transform Praxis360 into a complete digital ecosystem for self-employed professionals.
-
-Each Sprint should move the application one step closer to this vision.
-
----
-
-# 15. Out of Scope
-
-Praxis360 is not intended to become:
-
-- An accounting software
-- A CRM
-- A banking application
-- An ERP
-
-The application focuses on simplifying administrative and financial organization.
+- duplicated logic;
+- premature optimization;
+- unnecessary abstractions;
+- speculative development.
 
 ---
 
-# 16. Definition of Done
+# 8. User Experience Principles
 
-A feature is considered complete when:
+Every implementation must preserve the Praxis360 experience.
 
-- The functionality is finished.
-- The project compiles successfully.
-- The UI matches the Design Bible.
-- The architecture is respected.
-- Documentation has been updated.
-- Existing components have been reused whenever possible.
+The interface should always be:
 
----
+- simple;
+- reassuring;
+- elegant;
+- consistent;
+- understandable.
 
-# 17. Release Strategy
+Technology must remain invisible to the client.
 
-Development follows incremental Sprints.
-
-Each Sprint delivers a complete and usable feature.
-
-Quality always takes priority over delivery speed.
+Complexity belongs inside the implementation, never inside the interface.
 
 ---
 
-# 18. References
+# 9. Documentation Rules
 
+Documentation is part of the product.
+
+Whenever a Sprint changes the product:
+
+- update ProductVision if the business vision evolves;
+- update Architecture if technical structure changes;
+- update ProductBook if functional behaviour changes;
+- update DesignBible if visual components evolve;
+- update MotionGuide if interactions change;
+- update SprintBook when the Sprint is completed;
+- update Roadmap when long-term planning changes.
+
+Documentation should always remain synchronized with the source code.
+
+---
+
+# 10. Definition of Done
+
+A feature is considered complete only when:
+
+- business requirements are satisfied;
+- ProductVision remains respected;
+- project compiles successfully;
+- architecture remains consistent;
+- code follows project standards;
+- documentation has been updated;
+- no unnecessary complexity has been introduced.
+
+---
+
+# 11. Long-Term Vision
+
+Praxis360 is developed as a long-term premium platform.
+
+Every Sprint should strengthen:
+
+- customer trust;
+- product consistency;
+- architectural quality;
+- code maintainability;
+- advisor productivity;
+- customer understanding.
+
+Short-term convenience must never compromise long-term quality.
+
+---
+
+# 12. References
+
+- ProductVision.md
 - Architecture.md
 - ProductBook.md
 - SprintBook.md
