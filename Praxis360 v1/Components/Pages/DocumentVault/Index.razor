@@ -60,7 +60,8 @@
         get => searchText;
         set
         {
-            searchText = value;
+            // Trim spaces en début/fin avant d'appliquer le filtre
+            searchText = value?.Trim() ?? string.Empty;
             FilterDocuments();
         }
     }
@@ -69,7 +70,7 @@
     {
         Categories = DocumentService.GetCategories();
 
-        FilterDocuments();
+        SearchText = string.Empty;
     }
 
     private void ToggleCategory(string category)

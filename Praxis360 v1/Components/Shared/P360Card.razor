@@ -1,5 +1,8 @@
-﻿<div class="p360-card @Class">
+﻿<div class="@CardClass"
+     @onclick="HandleClick">
+
     @ChildContent
+
 </div>
 
 @code
@@ -8,5 +11,22 @@
     public RenderFragment? ChildContent { get; set; }
 
     [Parameter]
-    public string Class { get; set; } = "";
+    public string Class { get; set; } = string.Empty;
+
+    [Parameter]
+    public bool Clickable { get; set; }
+
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private string CardClass =>
+        Clickable
+            ? $"p360-card p360-card-clickable {Class}"
+            : $"p360-card {Class}";
+
+    private async Task HandleClick()
+    {
+        if (Clickable && OnClick.HasDelegate)
+            await OnClick.InvokeAsync();
+    }
 }

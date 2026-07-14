@@ -8,7 +8,8 @@
         {
             <div class="col-12 col-md-6 col-xl-4">
 
-                <DocumentCard Document="document" />
+                <DocumentCard Document="document"
+                              OnSelected="HandleSelected" />
 
             </div>
         }
@@ -19,10 +20,10 @@ else
 {
     <div class="text-center py-5">
 
-        <h5>Aucun document trouvé</h5>
+        <h5>Aucun document ne correspond à votre recherche</h5>
 
         <p class="text-muted">
-            Essayez une autre recherche.
+            Modifiez votre recherche ou réinitialisez-la.
         </p>
 
     </div>
@@ -32,4 +33,15 @@ else
 {
     [Parameter]
     public IEnumerable<Document> Documents { get; set; } = [];
+
+    [Parameter]
+    public EventCallback<Guid> OnDocumentSelected { get; set; }
+
+    private async Task HandleSelected(Guid id)
+    {
+        if (OnDocumentSelected.HasDelegate)
+        {
+            await OnDocumentSelected.InvokeAsync(id);
+        }
+    }
 }

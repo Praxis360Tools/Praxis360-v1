@@ -1,36 +1,61 @@
 .document-layout {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    gap: 16px;
 }
 
 .document-left {
     display: flex;
-    align-items: center;
-    gap: 16px;
+    gap: 18px;
+    flex: 1;
 }
 
 .document-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
     background: #eef4ff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.document-content {
+    flex: 1;
 }
 
 .document-title {
-    font-weight: 600;
     font-size: 1rem;
+    font-weight: 600;
+    color: #0b1f3a;
 }
 
-.document-subtitle {
-    color: #6c757d;
-    font-size: .9rem;
+.document-category {
+    margin-top: 2px;
+    font-size: .90rem;
+    color: #4cb7a8;
+    font-weight: 500;
+}
+
+.document-description {
+    margin-top: 8px;
+    font-size: .90rem;
+    color: #666;
+}
+
+.document-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    font-size: .80rem;
+    color: #999;
 }
 
 .document-right {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
+    flex-shrink: 0;
 }

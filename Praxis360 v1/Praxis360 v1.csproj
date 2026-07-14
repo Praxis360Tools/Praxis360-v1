@@ -9,4 +9,41 @@
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Include=".github\copilot-instructions.md" />
+    <None Include=".github\instructions\01-project-overview.md" />
+    <None Include=".github\instructions\02-architecture.md" />
+    <None Include=".github\instructions\03-design-system.md" />
+    <None Include=".github\instructions\04-coding-standards.md" />
+    <None Include=".github\instructions\05-development-workflow.md" />
+    <None Include=".github\instructions\06-roadmap.md" />
+    <None Include=".github\instructions\07-current-sprint.md" />
+    <None Include=".github\instructions\08-project-memory.md" />
+    <None Include=".github\instructions\09-tech-stack.md" />
+    <None Include=".github\prompts\copilot-rules.prompt.md" />
+    <None Include=".github\prompts\architecture\create-component.prompt.md" />
+    <None Include=".github\prompts\architecture\create-page.prompt.md" />
+    <None Include=".github\prompts\architecture\create-service.prompt.md" />
+    <None Include=".github\prompts\documentation\update-blueprint.prompt.md" />
+    <None Include=".github\prompts\documentation\update-designbible.prompt.md" />
+    <None Include=".github\prompts\documentation\update-motionguide.prompt.md" />
+    <None Include=".github\prompts\documentation\update-productbook.prompt.md" />
+    <None Include=".github\prompts\documentation\update-roadmap.prompt.md" />
+    <None Include=".github\prompts\documentation\update-sprintbook.prompt.md" />
+    <None Include=".github\prompts\lifecycle\close-sprint.prompt.md" />
+    <None Include=".github\prompts\lifecycle\implement-sprint.prompt.md" />
+    <None Include=".github\prompts\lifecycle\review-sprint.prompt.md" />
+    <None Include=".github\prompts\lifecycle\start-sprint.prompt.md" />
+    <None Include=".github\prompts\quality\fix-bug.prompt.md" />
+    <None Include=".github\prompts\implement-feature.prompt.md" />
+    <None Include=".github\prompts\quality\improve-ui.prompt.md" />
+    <None Include=".github\prompts\quality\refactor.prompt.md" />
+    <None Include=".github\prompts\quality\review-code.prompt.md" />
+    <None Include=".github\prompts\_prompt-template.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Docs\Assets\" />
+  </ItemGroup>
+
 </Project>

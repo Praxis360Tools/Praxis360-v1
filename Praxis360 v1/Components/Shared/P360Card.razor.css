@@ -10,4 +10,16 @@
     .p360-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 18px rgba(0,0,0,.05), 0 18px 42px rgba(0,0,0,.08);
+
+        .p360-card-clickable {
+            cursor: pointer;
+        }
+
+            .p360-card-clickable:hover {
+                transform: translateY(-3px);
+            }
+
+            .p360-card-clickable:active {
+                transform: scale(.985);
+            }
     }

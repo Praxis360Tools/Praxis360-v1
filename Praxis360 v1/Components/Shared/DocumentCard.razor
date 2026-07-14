@@ -1,6 +1,7 @@
 ﻿@using Praxis360_v1.Models
 
-<P360Card>
+<P360Card Clickable="true"
+          OnClick="HandleClick">
 
     <div class="document-layout">
 
@@ -57,6 +58,17 @@
 {
     [Parameter]
     public required Document Document { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid> OnSelected { get; set; }
+
+    private async Task HandleClick()
+    {
+        if (OnSelected.HasDelegate)
+        {
+            await OnSelected.InvokeAsync(Document.Id);
+        }
+    }
 
     private static string FormatSize(long size)
     {

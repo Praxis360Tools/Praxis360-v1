@@ -213,10 +213,13 @@ public class DocumentService
 
         if (!string.IsNullOrWhiteSpace(search))
         {
+            search = search.Trim();
+
             query = query.Where(d =>
-                d.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                d.Description.Contains(search, StringComparison.OrdinalIgnoreCase) ||
-                d.Category.Contains(search, StringComparison.OrdinalIgnoreCase));
+                (d.Title?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (d.Description?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (d.Category?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (d.FileType?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false));
         }
 
         if (!string.IsNullOrWhiteSpace(category))
