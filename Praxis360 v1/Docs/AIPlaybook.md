@@ -94,19 +94,20 @@ The AI must never:
 
 # 4. Documentation Priority
 
-Before starting any task, the AI must review the documentation in the following order:
+Before starting any task, the AI must consult AGENTS.md first and then review the documentation in the following order:
 
-1. README.md
-2. Blueprint.md
-3. ProductVision.md
-4. Architecture.md
-5. ProductBook.md
-6. DesignBible.md
-7. MotionGuide.md
-8. SprintBook.md
-9. Roadmap.md
+1. AGENTS.md
+2. README.md
+3. Blueprint.md
+4. ProductVision.md
+5. Architecture.md
+6. ProductBook.md
+7. DesignBible.md
+8. MotionGuide.md
+9. SprintBook.md
+10. Roadmap.md
 
-If documentation conflicts, the highest-priority document always prevails.
+If documentation conflicts, the document with the highest priority (AGENTS.md) prevails and other documents must be aligned accordingly.
 
 ---
 
@@ -195,6 +196,8 @@ Complete Sprint.
 # 7. Documentation Rules
 
 Documentation is part of the product.
+
+When identifying which documents to update for a change, consult Docs/DocumentationMap.md to determine the minimal set of impacted documents. Documentation Map is the canonical manifest mapping project areas to documentation artifacts.
 
 Whenever a Sprint changes the application:
 
@@ -290,14 +293,7 @@ Before considering a task complete:
 
 # 12. Definition of Done
 
-A task is complete only when:
-
-- the business objective is achieved;
-- ProductVision remains respected;
-- the project compiles successfully;
-- architecture remains consistent;
-- documentation is updated;
-- code quality meets project standards.
+The canonical Definition of Done is defined in Docs/DefinitionOfDone.md. Refer to that document for the authoritative gating criteria every Story must satisfy before being considered ready for commit.
 
 ---
 

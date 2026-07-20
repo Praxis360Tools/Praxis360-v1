@@ -86,20 +86,22 @@ No step should be skipped.
 
 ---
 
+
 # Documentation Review Order
 
-Before implementing any change, review documentation in this order:
+Before implementing any change, review documentation in this order. Always consult AGENTS.md first as the orchestration master, then follow the remaining list:
 
-1. Docs/README.md
-2. Docs/Blueprint.md
-3. Docs/ProductVision.md
-4. Docs/Architecture.md
-5. Docs/ProductBook.md
-6. Docs/DesignBible.md
-7. Docs/MotionGuide.md
-8. Docs/SprintBook.md
-9. Docs/Roadmap.md
-10. Docs/AIPlaybook.md
+1. AGENTS.md
+2. Docs/README.md
+3. Docs/Blueprint.md
+4. Docs/ProductVision.md
+5. Docs/Architecture.md
+6. Docs/ProductBook.md
+7. Docs/DesignBible.md
+8. Docs/MotionGuide.md
+9. Docs/SprintBook.md
+10. Docs/Roadmap.md
+11. Docs/AIPlaybook.md
 
 ---
 
@@ -136,11 +138,12 @@ For every implementation:
 
 ---
 
+
 # Documentation Workflow
 
 Documentation must always evolve with the code.
 
-Whenever changes occur:
+When preparing documentation updates, use Docs/DocumentationMap.md to determine the minimal set of documents to review and update for the change. Whenever changes occur:
 
 - ProductVision → business changes
 - Blueprint → development rules
