@@ -215,6 +215,12 @@ Status
 
 In Progress.
 
+### Stories
+
+- Story 3.1.1 — Domain Types Catalog — Done
+- Story 3.1.2 — Domain Type Implementation — Done
+- Story 3.1.3 — Value Objects — Architecture Ready
+
 ---
 
 # 5. Current Sprint

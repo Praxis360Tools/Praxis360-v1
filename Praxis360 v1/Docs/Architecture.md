@@ -318,3 +318,21 @@ Architecture is complete when:
 - ProductVision.md
 - ProductBook.md
 - SprintBook.md
+
+---
+
+## Domain Types
+
+The Domain Type Catalog V1 defines the official set of domain enumerations used across the Praxis360 Domain Model. These types are part of the Domain Model and represent fixed business concepts. They do not contain behavior, do not depend on external systems and remain independent from BRIO which is only a data source.
+
+Domain Type Catalog V1:
+
+- ContractStatus
+- ContractType
+- ContributionFrequency
+- BeneficiaryType
+- DocumentCategory
+- DocumentStatus
+- Currency
+- Language
+- Gender

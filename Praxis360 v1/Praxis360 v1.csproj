@@ -44,6 +44,8 @@
 
   <ItemGroup>
     <Folder Include="Docs\Assets\" />
+    <Folder Include="Domain\Common\" />
+    <Folder Include="Domain\Interfaces\" />
   </ItemGroup>
 
 </Project>
