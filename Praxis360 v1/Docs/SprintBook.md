@@ -219,7 +219,9 @@ In Progress.
 
 - Story 3.1.1 — Domain Types Catalog — Done
 - Story 3.1.2 — Domain Type Implementation — Done
-- Story 3.1.3 — Value Objects — Architecture Ready
+- Story 3.1.3 — Value Objects — Completed
+
+Summary: Implemented ContractNumber, Money, Percentage and DateRange value objects with DDD-compliant invariants and build validated.
 
 ---
 

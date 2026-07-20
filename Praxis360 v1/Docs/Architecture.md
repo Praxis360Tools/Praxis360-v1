@@ -336,3 +336,23 @@ Domain Type Catalog V1:
 - Currency
 - Language
 - Gender
+
+---
+
+## Value Objects
+
+Value Objects represent small, immutable concepts of the Domain Model that encapsulate business invariants and ensure value-based equality. In Praxis360 they belong to the Domain layer, are independent from BRIO and from any infrastructure concerns, and are placed under Domain/ValueObjects.
+
+Conventions for Value Objects in Praxis360:
+
+- Value Objects are immutable and implement equality by value.
+- Validation of invariants is performed at creation time and preserved afterwards.
+- Value Objects do not depend on external systems or persistence concerns.
+
+Value Objects validated in Sprint 3.1.3:
+
+- ContractNumber — identifies a contract in the domain; value must be provided, trimmed (start/end) and equality is based on the preserved value.
+- Money — encapsulates Amount (decimal) and Currency (Domain Type); operations (addition, subtraction) are allowed only between amounts that share the same Currency; no automatic conversion is performed.
+- Percentage — stored internally as a decimal fraction (for example 0.05 represents 5%); creation is explicit via factory methods (FromFraction, FromPercent); values are limited to 0%..100% in V1.
+- DateRange — uses DateOnly for Start and optional End; End cannot be earlier than Start; equality is based on both dates.
+
