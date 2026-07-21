@@ -274,9 +274,9 @@ Stories
   - Corrections appliquées
   - Validation visuelle réussie
   - Documentation synchronisée
-  - Prête pour commit et push
-  - Pas encore commitée
-  - Pas encore poussée
+	- Terminée
+  - Commitée
+  - Poussée sur origin/master
 
   Résumé fonctionnel
 

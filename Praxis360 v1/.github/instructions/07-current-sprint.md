@@ -44,6 +44,12 @@ Build a professional AI-assisted development environment for Praxis360 by comple
 
 ---
 
+## Stories
+
+- Story 3.2.1 — Première projection « Situation Assurance Vie » — Terminée, Commitée et Poussée sur origin/master
+
+---
+
 ## Success Criteria
 
 The Sprint is complete when:
