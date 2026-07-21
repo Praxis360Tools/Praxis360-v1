@@ -1,7 +1,28 @@
 ﻿@page "/patrimoine"
 
-<PageTitle>Mon patrimoine</PageTitle>
+@inject Praxis360_v1.Services.SituationAssuranceVieService SituationService
 
-<h1>💼 Mon patrimoine</h1>
+<PageTitle>Ma situation</PageTitle>
 
-<p>Consultez votre situation patrimoniale.</p>
+<h1>Ma situation</h1>
+<h3>Assurance vie</h3>
+
+@code {
+	private Praxis360_v1.Models.SituationAssuranceVieReadModel? _situation;
+
+	protected override void OnInitialized()
+	{
+		_situation = SituationService.GetDefaultSituation();
+	}
+}
+
+<P360Card>
+	<div class="p360-card-body">
+		<h2>@(_situation?.ClientDisplayName ?? "Client inconnu")</h2>
+		<p>Total contrats : @(_situation != null ? _situation.TotalContracts.ToString() : "Non disponible")</p>
+		<p>Contrats en cours : @(_situation != null ? _situation.CurrentContracts.ToString() : "Non disponible")</p>
+		<p>Réserve acquise : @( _situation?.ReserveAcquise != null ? _situation.ReserveAcquise.ToString() : "Non disponible")</p>
+		<p>Capital décès : @( _situation?.CapitalDeces != null ? _situation.CapitalDeces.ToString() : "Non disponible")</p>
+		<p>Revenu garanti : @( _situation?.RevenuGaranti != null ? _situation.RevenuGaranti.ToString() : "Non disponible")</p>
+	</div>
+</P360Card>

@@ -8,6 +8,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddSingleton<DocumentService>();
+// Register demo data service and situation service
+builder.Services.AddSingleton<DemoSituationAssuranceVieDataService>();
+builder.Services.AddSingleton<SituationAssuranceVieService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

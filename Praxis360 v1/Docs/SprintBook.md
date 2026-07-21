@@ -245,16 +245,94 @@ Only the business domain.
 
 ---
 
-# 6. Next Sprint
 
-Sprint 3.2 – BRIO Integration
+# 6. Current Sprint
+
+Sprint 3.2 — Première Situation Assurance Vie
 
 Planned objectives
 
-- Import BRIO data
-- Map BRIO to Domain Model
-- Validate business transformations
-- Prepare advisor enrichment workflow
+- construire une projection de lecture Assurance Vie
+- transformer les données du Domain en informations compréhensibles
+- alimenter progressivement l'interface « Ma situation »
+- préserver la distinction entre données inconnues et valeurs nulles
+- préparer les futures projections liées aux besoins de vie
+
+Status
+
+- In Progress
+
+Stories
+
+- Story 3.2.1 — Première projection « Situation Assurance Vie » — Implémentée (non committée)
+
+  Statut de la Story 3.2.1
+
+  - Implémentée
+  - Compilée
+  - Architecture Review validée
+  - Corrections appliquées
+  - Validation visuelle réussie
+  - Documentation synchronisée
+  - Prête pour commit et push
+  - Pas encore commitée
+  - Pas encore poussée
+
+  Résumé fonctionnel
+
+  - Création d'un ReadModel de situation Assurance Vie.
+  - Création d'un service applicatif de projection.
+  - Création d'une source de données de démonstration (hors Domain) et intégration par Dependency Injection.
+  - Consommation de la projection dans la page Portfolio.razor et affichage sous le titre « Ma situation ».
+  - La route technique /patrimoine est conservée temporairement.
+  - Le libellé de navigation visible a été renommé en « Ma situation » (route inchangée).
+
+  Contenu de la projection
+
+  - Identité du client.
+  - Nombre total de contrats.
+  - Nombre de contrats en cours.
+  - ReserveAcquise (nullable).
+  - CapitalDeces (nullable).
+  - RevenuGaranti (nullable).
+  - Liste typée des contrats et de leurs statuts.
+
+  Règles métier et traitement des statuts
+
+  - Statuts considérés comme "en cours" : Active, PaidUp, Suspended.
+  - Statuts non considérés comme en cours : Draft, Terminated, Matured.
+
+  Gestion des valeurs inconnues
+
+  - ReserveAcquise, CapitalDeces et RevenuGaranti restent null lorsque inconnus.
+  - L'interface affiche « Non disponible » pour les valeurs nulles.
+  - Aucune valeur inconnue n'est remplacée par zéro.
+
+  Décisions architecturales (validées)
+
+  - Aucune Entity SituationAssuranceVie n'a été créée dans le Domain : la situation est une projection de lecture.
+  - Aucune règle métier n'est exécutée dans Razor.
+  - Aucune heuristique fondée sur le nom textuel des enums n'est utilisée.
+  - La source de démonstration reste provisoire et hors du Domain (DemoSituationAssuranceVieDataService).
+  - Le service applicatif dépend temporairement de la source de démonstration.
+  - Aucune interface ou repository d'infrastructure prématurée n'a été créée.
+
+  Données de démonstration
+
+  - Client : Jean Dupont.
+  - Trois contrats : 1 Active, 1 Terminated, 1 PaidUp.
+  - Résultat attendu : 3 contrats connus et 2 contrats en cours.
+
+  Validation
+
+  - Build local réussi (après arrêt du processus verrouillant l'exécutable).
+  - Validation visuelle réussie sur la page accessible via /patrimoine.
+  - Aucun comportement fonctionnel inattendu constaté.
+
+	Prochaine étape
+
+  - Validation documentaire finale
+  - Commit et push après autorisation du CTO / Product Owner
 
 ---
 

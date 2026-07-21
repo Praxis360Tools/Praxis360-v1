@@ -16,11 +16,11 @@ For Sprint history, see:
 
 Sprint
 
-Sprint 2.4
+Sprint 3.2
 
 Name
 
-AI Workspace
+Première Situation Assurance Vie
 
 Status
 
@@ -36,12 +36,11 @@ Build a professional AI-assisted development environment for Praxis360 by comple
 
 ## Current Objectives
 
-- Complete project documentation.
-- Review GitHub instructions.
-- Improve AGENTS.md.
-- Improve Copilot prompts.
-- Validate project architecture.
-- Prepare Sprint 3.
+- construire une projection de lecture Assurance Vie
+- transformer les données du Domain en informations compréhensibles
+- alimenter progressivement l'interface « Ma situation »
+- préserver la distinction entre données inconnues et valeurs nulles
+- préparer les futures projections liées aux besoins de vie
 
 ---
 
@@ -61,11 +60,11 @@ The Sprint is complete when:
 
 ## Next Sprint
 
-Sprint 3
+Sprint 3.3
 
 Name
 
-Portfolio Module
+À définir
 
 Status
 
