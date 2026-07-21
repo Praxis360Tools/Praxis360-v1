@@ -1,4 +1,4 @@
-ï»¿# Current Sprint
+# Current Sprint
 
 ## Purpose
 
@@ -20,7 +20,7 @@ Sprint 3.2
 
 Name
 
-PremiÃ¨re Situation Assurance Vie
+Situation Assurance Vie
 
 Status
 
@@ -36,17 +36,12 @@ Build a professional AI-assisted development environment for Praxis360 by comple
 
 ## Current Objectives
 
-- construire une projection de lecture Assurance Vie
-- transformer les donnÃ©es du Domain en informations comprÃ©hensibles
-- alimenter progressivement l'interface Â« Ma situation Â»
-- prÃ©server la distinction entre donnÃ©es inconnues et valeurs nulles
-- prÃ©parer les futures projections liÃ©es aux besoins de vie
-
----
-
-## Stories
-
-- Story 3.2.1 â€” PremiÃ¨re projection Â« Situation Assurance Vie Â» â€” TerminÃ©e, CommitÃ©e et PoussÃ©e sur origin/master
+- Complete project documentation.
+- Review GitHub instructions.
+- Improve AGENTS.md.
+- Improve Copilot prompts.
+- Validate project architecture.
+- Prepare Sprint 3.
 
 ---
 
@@ -62,15 +57,20 @@ The Sprint is complete when:
 - Project compiles successfully.
 - SprintBook has been updated.
 
+## Stories
+
+- Story 3.2.1 — Première projection « Situation Assurance Vie » — Terminée, validée, commitée et poussée sur origin/master
+- Story 3.2.2 — Vue synthétique et détail des contrats d’assurance vie — Terminée, validée, commitée et poussée sur origin/master
+
 ---
 
-## Next Sprint
+## Next Story
 
-Sprint 3.3
+Story 3.2.3
 
 Name
 
-Ã€ dÃ©finir
+Import CSV contrôlé des contrats d’assurance vie
 
 Status
 
@@ -83,4 +83,4 @@ Planned
 See:
 
 - Docs/SprintBook.md
-- Docs/Roadmap.md
+- Docs/Roadmap.mds
