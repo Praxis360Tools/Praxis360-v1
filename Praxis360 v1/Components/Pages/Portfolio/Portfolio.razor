@@ -4,8 +4,129 @@
 
 <PageTitle>Ma situation</PageTitle>
 
-<h1>Ma situation</h1>
-<h3>Assurance vie</h3>
+<div class="portfolio-container">
+	<div class="portfolio-header">
+		<h1>Ma situation</h1>
+		<p class="portfolio-subtitle">Comprenez votre situation en assurance vie en un coup d'œil.</p>
+	</div>
+
+	<section class="portfolio-section">
+		<h2 class="section-title">Assurances vie</h2>
+
+		<div class="indicators-grid">
+			<P360Card>
+				<div class="indicator-card">
+					<div class="indicator-icon">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+							<path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</div>
+					<p class="indicator-label">Ma réserve acquise</p>
+					<p class="indicator-value">@FormatMoney(_situation?.ReserveAcquise)</p>
+				</div>
+			</P360Card>
+
+			<P360Card>
+				<div class="indicator-card">
+					<div class="indicator-icon">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+							<circle cx="12" cy="12" r="10" stroke-width="2"/>
+							<path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round"/>
+						</svg>
+					</div>
+					<p class="indicator-label">Mon capital à terme</p>
+					<p class="indicator-value">@FormatMoney(_situation?.CapitalATerme)</p>
+				</div>
+			</P360Card>
+
+			<P360Card>
+				<div class="indicator-card">
+					<div class="indicator-icon">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</div>
+					<p class="indicator-label">Mon capital décès</p>
+					<p class="indicator-value">@FormatMoney(_situation?.CapitalDeces)</p>
+				</div>
+			</P360Card>
+
+			<P360Card>
+				<div class="indicator-card">
+					<div class="indicator-icon">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+							<path d="M19 12H5M12 5c-3 0-4 2-4 3.5C8 10 9 12 12 12s4-2 4-3.5C16 7 15 5 12 5zM12 12c-3 0-4 2-4 3.5S9 19 12 19s4-2 4-3.5S15 12 12 12z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</div>
+					<p class="indicator-label">Mon revenu garanti</p>
+					<p class="indicator-value">@FormatMoney(_situation?.RevenuGaranti)</p>
+				</div>
+			</P360Card>
+		</div>
+	</section>
+
+	<section class="portfolio-section">
+		<h2 class="section-title">Mes contrats</h2>
+
+		<div class="contracts-list">
+			@if (_situation?.Contracts != null && _situation.Contracts.Any())
+			{
+				@foreach (var contract in _situation.Contracts)
+				{
+					<P360Card>
+						<div class="contract-card">
+							<div class="contract-main">
+								<div class="contract-company-badge">
+									@if (!string.IsNullOrWhiteSpace(contract.InsurerKey))
+									{
+										@contract.InsurerKey
+									}
+									else
+									{
+										<text>—</text>
+									}
+								</div>
+								<div class="contract-info">
+									<div class="contract-title-row">
+										<span class="contract-type">@contract.ContractTypeLabel</span>
+										<span class="contract-separator">—</span>
+										<span class="contract-company">@contract.InsurerDisplayName</span>
+									</div>
+									<div class="contract-status-row">
+										<span class="contract-status-badge @contract.StatusCssClass">
+											@contract.StatusLabel
+										</span>
+									</div>
+									@if (contract.GuaranteeLabels.Any())
+									{
+										<div class="contract-guarantees">
+											@foreach (var guarantee in contract.GuaranteeLabels)
+											{
+												<span class="guarantee-badge">@guarantee</span>
+											}
+										</div>
+									}
+									<p class="contract-description">@contract.Description</p>
+								</div>
+							</div>
+							<div class="contract-chevron">
+								<span class="chevron-icon">›</span>
+							</div>
+						</div>
+					</P360Card>
+				}
+			}
+			else
+			{
+				<P360Card>
+					<div class="contract-card">
+						<p>Aucun contrat disponible</p>
+					</div>
+				</P360Card>
+			}
+		</div>
+	</section>
+</div>
 
 @code {
 	private Praxis360_v1.Models.SituationAssuranceVieReadModel? _situation;
@@ -14,15 +135,9 @@
 	{
 		_situation = SituationService.GetDefaultSituation();
 	}
-}
 
-<P360Card>
-	<div class="p360-card-body">
-		<h2>@(_situation?.ClientDisplayName ?? "Client inconnu")</h2>
-		<p>Total contrats : @(_situation != null ? _situation.TotalContracts.ToString() : "Non disponible")</p>
-		<p>Contrats en cours : @(_situation != null ? _situation.CurrentContracts.ToString() : "Non disponible")</p>
-		<p>Réserve acquise : @( _situation?.ReserveAcquise != null ? _situation.ReserveAcquise.ToString() : "Non disponible")</p>
-		<p>Capital décès : @( _situation?.CapitalDeces != null ? _situation.CapitalDeces.ToString() : "Non disponible")</p>
-		<p>Revenu garanti : @( _situation?.RevenuGaranti != null ? _situation.RevenuGaranti.ToString() : "Non disponible")</p>
-	</div>
-</P360Card>
+	private static string FormatMoney(Praxis360_v1.Domain.ValueObjects.Money? money)
+	{
+		return money != null ? $"{money.Amount:N2} {money.Currency}" : "Non disponible";
+	}
+}

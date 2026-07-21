@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Praxis360_v1.Domain.Aggregates;
 using Praxis360_v1.Domain.Entities;
 using Praxis360_v1.Domain.ValueObjects;
 using Praxis360.Domain.Types;
+using Praxis360_v1.Domain.Types;
 
 namespace Praxis360_v1.Services;
 
@@ -25,26 +27,50 @@ public class DemoSituationAssuranceVieDataService
             Praxis360.Domain.Types.Language.French,
             null);
 
+        // Contract 1: PLCI Vivium - Active - IncomeProtection
         var contract1 = new ContratVie(
             Guid.Parse("00000000-0000-0000-0000-000000000101"),
             new ContractNumber("C-1001"),
             ContractType.PLCI,
             ContractStatus.Active,
-            client.Id);
+            client.Id,
+            new Insurer("VIVIUM", "Vivium"));
 
+        var garantie1 = new Garantie(
+            Guid.Parse("00000000-0000-0000-0000-000000001001"),
+            TypeGarantie.IncomeProtection,
+            null,
+            null,
+            null);
+
+        contract1.AddGarantie(garantie1);
+
+        // Contract 2: EIP AG - Active - DeathBenefit
         var contract2 = new ContratVie(
             Guid.Parse("00000000-0000-0000-0000-000000000102"),
             new ContractNumber("C-1002"),
-            ContractType.PLCI,
-            ContractStatus.Terminated,
-            client.Id);
+            ContractType.EIP,
+            ContractStatus.Active,
+            client.Id,
+            new Insurer("AG", "AG"));
 
+        var garantie2 = new Garantie(
+            Guid.Parse("00000000-0000-0000-0000-000000001002"),
+            TypeGarantie.DeathBenefit,
+            null,
+            null,
+            null);
+
+        contract2.AddGarantie(garantie2);
+
+        // Contract 3: PLCI NN - PaidUp - No guarantees
         var contract3 = new ContratVie(
             Guid.Parse("00000000-0000-0000-0000-000000000103"),
             new ContractNumber("C-1003"),
-            ContractType.EIP,
+            ContractType.PLCI,
             ContractStatus.PaidUp,
-            client.Id);
+            client.Id,
+            new Insurer("NN", "NN"));
 
         _clients = new[] { client };
         _contracts = new[] { contract1, contract2, contract3 };

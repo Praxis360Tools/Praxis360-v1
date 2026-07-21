@@ -5,7 +5,18 @@ using Praxis360_v1.Domain.ValueObjects;
 
 namespace Praxis360_v1.Models;
 
-public sealed record SituationAssuranceVieContractReadModel(string Number, ContractStatus Status);
+public sealed record SituationAssuranceVieContractReadModel(
+    string Number,
+    ContractType ContractType,
+    string ContractTypeLabel,
+    string? InsurerKey,
+    string InsurerDisplayName,
+    ContractStatus Status,
+    string StatusLabel,
+    string StatusCssClass,
+    IReadOnlyList<string> GuaranteeLabels,
+    string Description
+);
 
 public sealed class SituationAssuranceVieReadModel
 {
@@ -18,6 +29,8 @@ public sealed class SituationAssuranceVieReadModel
     public int CurrentContracts { get; init; }
 
     public Money? ReserveAcquise { get; init; }
+
+    public Money? CapitalATerme { get; init; }
 
     public Money? CapitalDeces { get; init; }
 

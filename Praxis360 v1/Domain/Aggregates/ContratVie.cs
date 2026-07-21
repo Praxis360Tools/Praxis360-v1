@@ -19,6 +19,8 @@ public sealed class ContratVie
 
     public DateRange? Period { get; private set; }
 
+    public Insurer? Insurer { get; }
+
     public IReadOnlyCollection<Garantie> Garanties => _garanties.AsReadOnly();
 
     public IReadOnlyCollection<Beneficiary> Beneficiaries => _beneficiaries.AsReadOnly();
@@ -30,7 +32,7 @@ public sealed class ContratVie
     // Relation to Client is explicit: ClientId references the Client.Id in Praxis360
     public Guid ClientId { get; }
 
-    public ContratVie(Guid id, ContractNumber number, ContractType type, ContractStatus status, Guid clientId)
+    public ContratVie(Guid id, ContractNumber number, ContractType type, ContractStatus status, Guid clientId, Insurer? insurer = null)
     {
         Id = id == Guid.Empty ? throw new ArgumentException("Id must be provided.", nameof(id)) : id;
 
@@ -41,6 +43,8 @@ public sealed class ContratVie
         Status = status;
 
         ClientId = clientId == Guid.Empty ? throw new ArgumentException("ClientId must be provided.", nameof(clientId)) : clientId;
+
+        Insurer = insurer;
     }
 
     public void SetPeriod(DateRange? period)
