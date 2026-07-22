@@ -29,8 +29,18 @@ public sealed class ContratVie
 
     private readonly List<Beneficiary> _beneficiaries = new();
 
+    private readonly List<ExternalReference> _externalReferences = new();
+
+    private readonly List<ContractProvenance> _provenances = new();
+
     // Relation to Client is explicit: ClientId references the Client.Id in Praxis360
     public Guid ClientId { get; }
+
+    public Policyholder? Policyholder { get; private set; }
+
+    public IReadOnlyCollection<ExternalReference> ExternalReferences => _externalReferences.AsReadOnly();
+
+    public IReadOnlyCollection<ContractProvenance> Provenances => _provenances.AsReadOnly();
 
     public ContratVie(Guid id, ContractNumber number, ContractType type, ContractStatus status, Guid clientId, Insurer? insurer = null)
     {
@@ -102,6 +112,42 @@ public sealed class ContratVie
 
         // Only aggregate root can modify the beneficiary share
         beneficiary.UpdateShareInternal(newShare);
+    }
+
+    public void AddExternalReference(ExternalReference reference)
+    {
+        if (reference is null)
+            throw new ArgumentNullException(nameof(reference));
+
+        // Prevent duplicate references (same source, type and value)
+        if (_externalReferences.Any(r =>
+            r.SourceSystem == reference.SourceSystem &&
+            r.ReferenceType == reference.ReferenceType &&
+            r.Value == reference.Value))
+        {
+            return; // Idempotent: reference already exists
+        }
+
+        _externalReferences.Add(reference);
+    }
+
+    public void AddProvenance(ContractProvenance provenance)
+    {
+        if (provenance is null)
+            throw new ArgumentNullException(nameof(provenance));
+
+        // Prevent duplicate provenances (strict structural equality)
+        if (_provenances.Any(p => p.Equals(provenance)))
+        {
+            return; // Idempotent: provenance already exists
+        }
+
+        _provenances.Add(provenance);
+    }
+
+    public void SetPolicyholder(Policyholder? policyholder)
+    {
+        Policyholder = policyholder;
     }
 }
 

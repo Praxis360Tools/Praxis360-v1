@@ -19,6 +19,15 @@ public sealed class Client
 
     public Adresse? Address { get; private set; }
 
+    // Optional contact and professional information
+    public string? Email { get; private set; }
+
+    public string? Phone { get; private set; }
+
+    public string? Profession { get; private set; }
+
+    public string? InamiNumber { get; private set; }
+
     public Client(
         Guid id,
         string firstName,
@@ -50,5 +59,17 @@ public sealed class Client
     public void UpdateAddress(Adresse? address)
     {
         Address = address;
+    }
+
+    public void UpdateContactAndProfessionalInfo(
+        string? email = null,
+        string? phone = null,
+        string? profession = null,
+        string? inamiNumber = null)
+    {
+        Email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+        Phone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+        Profession = string.IsNullOrWhiteSpace(profession) ? null : profession.Trim();
+        InamiNumber = string.IsNullOrWhiteSpace(inamiNumber) ? null : inamiNumber.Trim();
     }
 }
