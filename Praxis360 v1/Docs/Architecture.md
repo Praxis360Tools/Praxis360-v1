@@ -447,8 +447,8 @@ Phase 4 (commit db55fc8) completes Step C with the following components:
   - ContractsAlreadyExisting — list of ContractAlreadyExisting results
   - ContractsSkipped — list of ContractSkipped results
   - ContractsUnresolved — list of ContractUnresolved results
-  - GlobalErrors — list of global error messages
-  - GlobalWarnings — list of global warning messages
+  - GlobalErrors — IReadOnlyList<ImportAnalysisIssue> containing global errors
+  - GlobalWarnings — IReadOnlyList<ImportAnalysisIssue> containing global warnings
   - Outcome — ApplicationOutcome enum value
 - ContractCreated — individual contract creation result
 - ContractAlreadyExisting — individual already existing contract result
@@ -457,7 +457,7 @@ Phase 4 (commit db55fc8) completes Step C with the following components:
 - ApplicationOutcome — enum (Success | PartialSuccess | Failed)
 
 **Business Rules**
-- Client selection: match by NormalizedIdentity from BrioClientCandidate
+- Client selection: the caller explicitly selects a BrioClientCandidate using its normalized identity and either targets an existing Praxis360 client or requests controlled creation of a new client
 - Client creation: controlled creation only when at least one contract is creatable
 - Contract idempotence: external BRIO reference prevents duplicates
 - Unresolved products: contracts with unknown product codes are not created
