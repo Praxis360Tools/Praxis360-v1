@@ -135,11 +135,106 @@ All reports must be attached to the Story and referenced in the SprintBook.
 
 ---
 
+## Branch Strategy
+
+- Every Story must be developed on a dedicated feature branch.
+- Branch naming format:
+  - Stories: `story/<number>-<short-description>`
+  - Documentation, workflow, or maintenance: `docs/<description>`, `chore/<description>`, `fix/<description>`
+- A branch must contain only one Story or atomic modification.
+- No development is allowed directly on master.
+
+---
+
+## Responsibilities of GitHub Copilot
+
+- Works locally on the dedicated branch.
+- Compiles and runs available tests.
+- Verifies git diff and git status.
+- May commit and push the dedicated branch only after explicit authorization from the CTO.
+- Never pushes directly to master.
+- Never merges a Pull Request.
+- Immediately reports any scope change.
+
+---
+
+## Responsibilities of ChatGPT
+
+- Defines or validates the architecture.
+- Reviews commits, files, and diffs of the pushed branch directly on GitHub.
+- Performs Architecture Review, Code Review, and Documentation Review.
+- May request specific corrections.
+- Only declares the branch ready when mandatory validations are satisfied.
+- Does not merge into master without explicit authorization from the CTO.
+
+---
+
+## Responsibilities of the CTO
+
+- Authorizes development.
+- Authorizes commit and push of the dedicated branch.
+- Receives the final verdict from ChatGPT.
+- Exclusively authorizes the merge into master.
+- Retains final decision power on the product and scope.
+
+---
+
+## Pull Request Guidelines
+
+- Pull Requests always target master.
+- They may be opened as Draft during review.
+- They must contain:
+  - Story number and objective
+  - Files modified
+  - Build result
+  - Test result
+  - Architectural impacts
+  - Updated documentation
+  - Known risks or limitations
+- They can only be declared ready when:
+  - Build succeeds
+  - Tests succeed
+  - ChatGPT has completed the review
+  - Requested corrections are applied
+  - Documentation is synchronized
+  - Definition of Done is satisfied
+- Only the CTO authorizes the final merge.
+
+---
+
+## Corrections After Review
+
+- Corrections are applied on the same branch.
+- Copilot restarts build, tests, and Git verifications.
+- The branch is pushed again.
+- ChatGPT performs a new direct review.
+- No new functional scope may be added during corrections.
+
+---
+
+## After Merge
+
+- The local workspace returns to master.
+- Master is synchronized with origin/master via fast-forward.
+- Branch deletion requires CTO authorization.
+- Final state must be verified with `git status --short --branch`.
+
+---
+
+## Urgent Exception
+
+- Direct commits to master are forbidden in the normal workflow.
+- An exception requires explicit CTO authorization and documented justification.
+- No silent bypass of the Pull Request process is authorized.
+
+---
+
 ## Rules for Commits and Pushes
 
 Authorization:
-- Only the CTO may authorize and execute the final commit and push to the main branch (see Docs/GitConvention.md).
-- The Software Developer prepares the commit (staged changes and commit message) but does not execute it without CTO approval.
+- The Software Developer prepares commits on the dedicated branch.
+- Only the CTO may authorize commit and push of the branch.
+- Only the CTO may authorize merge into master after complete review.
 
 Commit preconditions (all must be satisfied):
 - Architecture Review passed
@@ -151,7 +246,13 @@ Commit preconditions (all must be satisfied):
 
 Push preconditions:
 - Commit authorized and performed by the CTO
-- Remote build/CI policies (if any) satisfied
+- Branch pushed (not master)
+- Pull Request created or updated
+
+Merge preconditions:
+- ChatGPT review completed and approved
+- All requested corrections applied
+- CTO final authorization
 
 New mandatory rule: A commit must never contain work from multiple Stories.
 
