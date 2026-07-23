@@ -17,7 +17,19 @@ Refer to AGENTS.md for the official orchestration rules and to Docs/DefinitionOf
 
 ## Branch Strategy
 
-Current Strategy (V1)
+Current Strategy (V2)
+
+- Every Story must be developed on a dedicated feature branch.
+- Branch naming convention:
+  - Stories: `story/<number>-<short-description>`
+  - Documentation: `docs/<description>`
+  - Maintenance: `chore/<description>`
+  - Bug fixes: `fix/<description>`
+- A branch must contain only one Story or one atomic modification.
+- No development is allowed directly on master.
+- Branches are reviewed via Pull Requests before merge.
+
+Previous Strategy (V1 — deprecated):
 
 - Single main development branch.
 - Direct commits are authorized only after:
@@ -25,10 +37,6 @@ Current Strategy (V1)
   - Documentation Review
   - Definition of Done
   - CTO approval
-
-Future Evolution :
-
-La stratégie pourra évoluer vers des feature branches et des Pull Requests formelles lorsque l'organisation l'exigera.
 
 ## Commit Convention
 
@@ -71,14 +79,20 @@ Checklist:
 
 ## Commit Checklist
 
+- Branch dédiée créée
 - Build OK
+- Tests OK
 - Story validée
 - Documentation synchronisée
 - Definition of Done validée
 - Git Status propre
 - Aucun fichier parasite
 - Commit atomique
-- Push autorisé
+- CTO authorization for commit and push
+- Pull Request créée ou mise à jour
+- ChatGPT review complétée
+- Corrections appliquées si nécessaire
+- CTO authorization for merge
 
 ## Workflow
 
@@ -86,7 +100,9 @@ Story
 ↓
 Architecture Ready
 ↓
-Development
+Create dedicated branch
+↓
+Development on branch
 ↓
 Story Completion Report
 ↓
@@ -100,27 +116,57 @@ Definition of Done
 ↓
 READY TO COMMIT
 ↓
-Commit
+Commit on branch (CTO authorization)
 ↓
-Push
+Push branch (CTO authorization)
+↓
+Create/Update Pull Request
+↓
+ChatGPT reviews branch on GitHub
+↓
+Corrections if needed (on same branch)
+↓
+CTO approves Pull Request
+↓
+Merge into master
+↓
+Return to master locally
+↓
+Sync master with origin/master
 
 New rule: A commit must never contain work from multiple Stories.
+New rule: Development must occur on dedicated branches, never directly on master.
+New rule: All work must be reviewed via Pull Request before merge into master.
 
 ## Responsibilities
 
 CTO :
 
-- valide le commit
-- exécute le commit
-- exécute le push
+- Autorise le développement
+- Autorise le commit et le push de la branche dédiée
+- Reçoit le verdict final du Lead Software Architect (ChatGPT)
+- Autorise exclusivement le merge dans master
+- Conserve la décision finale sur le produit et le périmètre
 
 GitHub Copilot :
 
-- prépare le message de commit
+- Travaille localement sur la branche dédiée
+- Compile et exécute les tests disponibles
+- Vérifie git diff et git status
+- Prépare le message de commit
+- Peut committer et pousser la branche dédiée uniquement après autorisation explicite du CTO
+- Ne pousse jamais directement sur master
+- Ne fusionne jamais une Pull Request
+- Signale immédiatement tout changement de périmètre
 
-Lead Software Architect :
+Lead Software Architect (ChatGPT) :
 
-- valide la Story avant autorisation du commit
+- Définit ou valide l'architecture
+- Consulte directement sur GitHub les commits, fichiers et diffs de la branche poussée
+- Réalise Architecture Review, Code Review et Documentation Review
+- Peut demander des corrections précises
+- Ne déclare la branche prête que lorsque les validations obligatoires sont satisfaites
+- Ne fusionne pas dans master sans autorisation explicite du CTO
 
 ## Constraints
 

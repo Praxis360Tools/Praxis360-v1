@@ -47,6 +47,10 @@ Review the current Sprint
 
 ↓
 
+Create dedicated branch (story/<number>-<description>)
+
+↓
+
 Design the Domain Model (if required)
 
 ↓
@@ -71,6 +75,10 @@ Compile
 
 ↓
 
+Run tests
+
+↓
+
 Review
 
 ↓
@@ -79,7 +87,31 @@ Update documentation
 
 ↓
 
-Commit
+Commit on branch
+
+↓
+
+Push branch
+
+↓
+
+Create Pull Request
+
+↓
+
+ChatGPT reviews on GitHub
+
+↓
+
+Apply corrections if needed
+
+↓
+
+CTO approves merge
+
+↓
+
+Return to master
 ```
 
 No step should be skipped.
@@ -127,14 +159,19 @@ Only create new elements when reuse is not appropriate.
 
 For every implementation:
 
-1. Analyse the request.
-2. Design the solution.
-3. Produce complete files.
-4. Verify compilation.
-5. Verify architecture.
-6. Verify ProductVision compliance.
-7. Verify UI consistency.
-8. Update documentation if necessary.
+1. Create or switch to the dedicated branch.
+2. Analyse the request.
+3. Design the solution.
+4. Produce complete files.
+5. Verify compilation.
+6. Run available tests.
+7. Verify architecture.
+8. Verify ProductVision compliance.
+9. Verify UI consistency.
+10. Update documentation if necessary.
+11. Verify git diff and git status.
+12. Prepare commit message.
+13. Request CTO authorization before commit and push.
 
 ---
 
