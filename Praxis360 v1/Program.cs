@@ -1,4 +1,7 @@
+using Praxis360_v1.Application.Interfaces;
+using Praxis360_v1.Application.Services;
 using Praxis360_v1.Components;
+using Praxis360_v1.Infrastructure.FileReaders;
 using Praxis360_v1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +14,9 @@ builder.Services.AddSingleton<DocumentService>();
 // Register demo data service and situation service
 builder.Services.AddSingleton<DemoSituationAssuranceVieDataService>();
 builder.Services.AddSingleton<SituationAssuranceVieService>();
+// Register BRIO import services
+builder.Services.AddSingleton<IBrioFileReader, BrioCsvFileReader>();
+builder.Services.AddSingleton<IBrioImportAnalyzer, BrioImportAnalyzer>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
