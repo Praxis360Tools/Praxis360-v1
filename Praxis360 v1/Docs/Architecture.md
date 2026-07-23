@@ -380,10 +380,13 @@ The BRIO import pipeline operates in three distinct steps:
 - Creates client and contract candidates
 - Distinguishes Warnings (non-blocking) from BlockingErrors (prevent import)
 
-**Step C — Controlled Application (Planned - Phase 4)**
-- Maps validated candidates to Domain entities (Client, ContratVie)
-- Applies controlled selection/creation rules
-- Updates existing in-memory repositories
+**Step C — Controlled Application (Completed - Phase 4)**
+- IBrioContractApplicationService / BrioContractApplicationService apply validated candidates to in-memory repositories
+- Application/Services/BrioContractApplicationService.cs
+- Controlled client selection or creation based on identity matching
+- Idempotent contract creation using external BRIO reference
+- Result tracking: Created, AlreadyExisting, Skipped, Unresolved
+- Outcome classification: Success, PartialSuccess, Failed
 
 ### Phase 3 Scope — Business Analysis
 
@@ -427,5 +430,62 @@ Phase 3 (commit 0bf40ee) completes Step B with the following components:
 - BrioColumnPositions — CSV column index definitions
 - BrioProductCodeMapping — static product code to ContractType mapping
 
-Phase 4 will implement Step C with controlled application to existing in-memory repositories.
+### Phase 4 Scope — Controlled Application
+
+Phase 4 (commit db55fc8) completes Step C with the following components:
+
+**Application Service**
+- IBrioContractApplicationService / BrioContractApplicationService — applies validated candidates to in-memory repositories
+- ApplyToExistingClientAsync method — applies contracts to an existing client
+- ApplyWithNewClientAsync method — creates a new client and applies contracts
+
+**Application Models**
+- BrioContractApplicationResult — consolidated result with the following properties:
+  - ClientId — the affected client identifier
+  - ClientWasCreated — indicates if a new client was created
+  - ContractsCreated — list of ContractCreated results
+  - ContractsAlreadyExisting — list of ContractAlreadyExisting results
+  - ContractsSkipped — list of ContractSkipped results
+  - ContractsUnresolved — list of ContractUnresolved results
+  - GlobalErrors — IReadOnlyList<ImportAnalysisIssue> containing global errors
+  - GlobalWarnings — IReadOnlyList<ImportAnalysisIssue> containing global warnings
+  - Outcome — ApplicationOutcome enum value
+- ContractCreated — individual contract creation result
+- ContractAlreadyExisting — individual already existing contract result
+- ContractSkipped — individual skipped contract result
+- ContractUnresolved — individual unresolved contract result
+- ApplicationOutcome — enum (Success | PartialSuccess | Failed)
+
+**Business Rules**
+- Client selection: the caller explicitly selects a BrioClientCandidate using its normalized identity and either targets an existing Praxis360 client or requests controlled creation of a new client
+- Client creation: controlled creation only when at least one contract is creatable
+- Contract idempotence: external BRIO reference prevents duplicates
+- Unresolved products: contracts with unknown product codes are not created
+- Unresolved status: contracts with unknown status codes are not created
+- Outcome Success: all contracts created or already existing
+- Outcome PartialSuccess: mix of Created/AlreadyExisting with Unresolved
+- Outcome Failed: no contracts applied
+
+**Validation**
+- Cumulative functional validation: 18 of 18 scenarios passed
+- Idempotence validated
+- Controlled client creation validated
+- Application to existing client validated
+- Unknown products retained as unresolved
+- Unknown status retained as unresolved
+- Blocked lines correctly processed
+- Missing sources correctly processed
+- No client created when no contract is creatable
+- AlreadyExisting + Unresolved treated as PartialSuccess
+- No normalized identity exposed in BRIO_CLIENT_CANDIDATE_NOT_FOUND
+
+**Constraints Phase 4**
+- In-memory repositories only
+- No real persistence
+- No BRIO user interface
+- No financial data added without business validation
+- Unknown values never guessed
+- MyPension remains out of scope
+- Scanner remains out of scope
+- Visible connection to "Ma situation" remains future work
 
