@@ -61,11 +61,14 @@ The Sprint is complete when:
 
 - Story 3.2.1 — Première projection « Situation Assurance Vie » — Terminée, validée, commitée et poussée sur origin/master
 - Story 3.2.2 — Vue synthétique et détail des contrats d'assurance vie — Terminée, validée, commitée et poussée sur origin/master
-- Story 3.2.3 — Import CSV contrôlé des contrats d'assurance vie — In Progress
+- Story 3.2.3 — Import CSV contrôlé des contrats d'assurance vie — Completed
   - Phase 1 — Domain multi-source: Completed
   - Phase 2 — BRIO CSV reader and in-memory repositories: Completed
   - Phase 3 — BRIO business analysis and candidate generation: Completed (commit 0bf40ee)
-  - Phase 4 — Controlled client selection/creation and application to in-memory repositories: Planned
+  - Phase 4 — Controlled client selection/creation and application to in-memory repositories: Completed (commit db55fc8)
+  - Cumulative validation: 18 of 18 scenarios passed
+  - Capabilities: controlled import to in-memory repositories, client reconciliation, idempotent contracts
+  - Limitations: in-memory only, no real persistence, no BRIO UI, no financial data added
 
 ---
 

@@ -251,7 +251,7 @@ Sprint 3.2 – BRIO Integration
 
 **Status**: In Progress
 
-Story 3.2.3 — Import BRIO contracts (In Progress)
+Story 3.2.3 — Import BRIO contracts (Completed)
 
 Objective: enable the controlled import of BRIO contracts into Praxis360 after business validation and client identity reconciliation.
 
@@ -280,9 +280,29 @@ Phase 3 — BRIO business analysis and candidate generation: Completed
 - No UI components added
 - No financial data introduced
 
-Phase 4 — Controlled client selection/creation and application to in-memory repositories: Planned
-- Controlled Domain entity creation for validated candidates
-- Application to existing in-memory repositories
+Phase 4 — Controlled client selection/creation and application to in-memory repositories: Completed
+- Commit: db55fc8
+- Application layer: IBrioContractApplicationService / BrioContractApplicationService
+- Applies validated candidates to in-memory repositories
+- Controlled client selection or creation
+- Idempotent contract creation using external BRIO reference
+- Result tracking: Created, AlreadyExisting, Skipped, Unresolved
+- Outcome classification: Success, PartialSuccess, Failed
+- Cumulative validation: 18 of 18 scenarios passed
+- Capabilities delivered:
+  - Controlled import of BRIO contracts to in-memory repositories
+  - Client identity reconciliation with priority rules
+  - Idempotent contract application
+  - Unknown products/status retained as unresolved
+  - No client created when no contract is creatable
+- Limitations:
+  - In-memory repositories only (no real persistence)
+  - No BRIO user interface
+  - No financial data added
+  - Unknown values never guessed
+  - MyPension out of scope
+  - Scanner out of scope
+  - Visible connection to "Ma situation" is future work
 
 ---
 
