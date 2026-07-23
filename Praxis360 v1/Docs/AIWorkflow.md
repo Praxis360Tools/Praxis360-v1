@@ -47,6 +47,10 @@ Review the current Sprint
 
 ↓
 
+Create dedicated branch (story/<number>-<description>)
+
+↓
+
 Design the Domain Model (if required)
 
 ↓
@@ -71,7 +75,39 @@ Compile
 
 ↓
 
-Review
+Run applicable tests
+
+↓
+
+Local validation
+
+↓
+
+Request CTO authorization
+
+↓
+
+Commit on branch (after CTO authorization)
+
+↓
+
+Push branch (after CTO authorization)
+
+↓
+
+Create Draft Pull Request
+
+↓
+
+ChatGPT Architecture Review on GitHub
+
+↓
+
+ChatGPT Code Review on GitHub
+
+↓
+
+Apply corrections on same branch if needed
 
 ↓
 
@@ -79,7 +115,23 @@ Update documentation
 
 ↓
 
-Commit
+ChatGPT Documentation Review on GitHub
+
+↓
+
+Definition of Done Review
+
+↓
+
+CTO approves merge
+
+↓
+
+Merge into master
+
+↓
+
+Return to master and synchronize
 ```
 
 No step should be skipped.
@@ -127,14 +179,25 @@ Only create new elements when reuse is not appropriate.
 
 For every implementation:
 
-1. Analyse the request.
-2. Design the solution.
-3. Produce complete files.
-4. Verify compilation.
-5. Verify architecture.
-6. Verify ProductVision compliance.
-7. Verify UI consistency.
-8. Update documentation if necessary.
+1. Create or switch to the dedicated branch.
+2. Analyse the request.
+3. Design the solution.
+4. Produce complete files.
+5. Verify compilation.
+6. Run all applicable and available tests.
+7. Verify architecture.
+8. Verify ProductVision compliance.
+9. Verify UI consistency.
+10. Verify git diff and git status.
+11. Verify only expected files are staged.
+12. Prepare commit message.
+13. Request CTO authorization.
+14. Execute commit and push after authorization.
+15. Create Draft Pull Request.
+16. Wait for ChatGPT reviews on GitHub.
+17. Apply corrections if requested.
+18. Update documentation after code stabilization.
+19. Wait for final CTO merge authorization.
 
 ---
 
@@ -158,23 +221,45 @@ When preparing documentation updates, use Docs/DocumentationMap.md to determine 
 
 # Review Checklist
 
-Before finishing a task:
+Before publishing the branch:
 
-✔ Project compiles.
+✓ Project compiles.
 
-✔ Architecture respected.
+✓ All applicable tests pass (absence documented if none apply).
 
-✔ ProductVision respected.
+✓ Architecture respected.
 
-✔ No duplicated code.
+✓ ProductVision respected.
 
-✔ Existing components reused.
+✓ No duplicated code.
 
-✔ Documentation updated.
+✓ Existing components reused.
 
-✔ Naming conventions respected.
+✓ Naming conventions respected.
 
-✔ Feature belongs to the current Sprint.
+✓ Feature belongs to the current Sprint.
+
+✓ Only expected files staged.
+
+✓ git diff verified.
+
+✓ git diff --check passes.
+
+Before merge into master:
+
+✓ ChatGPT Architecture Review approved.
+
+✓ ChatGPT Code Review approved.
+
+✓ All corrections applied.
+
+✓ Documentation synchronized.
+
+✓ ChatGPT Documentation Review approved.
+
+✓ Definition of Done satisfied.
+
+✓ CTO final authorization obtained.
 
 ---
 

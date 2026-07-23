@@ -10,14 +10,26 @@ Refer to AGENTS.md for the official orchestration rules and to Docs/DefinitionOf
 
 - Un commit = une Story
 - Un commit doit être atomique
-- Chaque commit doit compiler
-- Chaque commit doit respecter la Definition of Done
-- Aucun commit ne peut être réalisé avant les différentes reviews
-- Le CTO reste responsable du commit final
+- Chaque commit de branche doit compiler et passer les tests applicables
+- La fusion dans master exige les reviews complètes et la Definition of Done
+- Le CTO autorise le commit de branche et la fusion finale
+- GitHub Copilot exécute les commandes Git après autorisation explicite du CTO
 
 ## Branch Strategy
 
-Current Strategy (V1)
+Current Strategy (V2)
+
+- Every Story must be developed on a dedicated feature branch.
+- Branch naming convention:
+  - Stories: `story/<number>-<short-description>`
+  - Documentation: `docs/<description>`
+  - Maintenance: `chore/<description>`
+  - Bug fixes: `fix/<description>`
+- A branch must contain only one Story or one atomic modification.
+- No development is allowed directly on master.
+- Branches are reviewed via Pull Requests before merge.
+
+Previous Strategy (V1 — deprecated):
 
 - Single main development branch.
 - Direct commits are authorized only after:
@@ -25,10 +37,6 @@ Current Strategy (V1)
   - Documentation Review
   - Definition of Done
   - CTO approval
-
-Future Evolution :
-
-La stratégie pourra évoluer vers des feature branches et des Pull Requests formelles lorsque l'organisation l'exigera.
 
 ## Commit Convention
 
@@ -69,16 +77,37 @@ Checklist:
 - Story validated
 - Documentation synchronized
 
-## Commit Checklist
+## Branch Commit Checklist
 
-- Build OK
-- Story validée
-- Documentation synchronisée
-- Definition of Done validée
-- Git Status propre
-- Aucun fichier parasite
+- Branche dédiée avec nom correct
+- Périmètre Story respecté
+- Build local réussi (si code modifié)
+- Tous tests applicables réussissent
+- Absence de test documentée si aucun ne s'applique
+- Aucun secret ni donnée personnelle
+- Aucun fichier hors périmètre
+- Seuls fichiers attendus stagés
+- git diff vérifié
+- git diff --check OK
 - Commit atomique
-- Push autorisé
+- Autorisation CTO obtenue
+- Commit et push exécutés
+- Draft Pull Request créée
+
+## Merge Checklist
+
+- Pull Request à jour
+- Architecture Review ChatGPT approuvée
+- Code Review ChatGPT approuvée
+- Corrections appliquées
+- Branche repoussée et re-reviewée si nécessaire
+- Documentation synchronisée
+- Documentation Review ChatGPT approuvée
+- Definition of Done satisfaite
+- Build et tests finaux réussis
+- Aucun conflit avec master
+- Autorisation finale CTO obtenue
+- Working tree propre après fusion
 
 ## Workflow
 
@@ -86,41 +115,82 @@ Story
 ↓
 Architecture Ready
 ↓
-Development
+Create dedicated branch
+↓
+Development on branch
+↓
+Local Validation
 ↓
 Story Completion Report
 ↓
-Architecture Review
+READY TO PUBLISH REVIEW BRANCH
+↓
+CTO authorizes commit and push
+↓
+Copilot executes commit on branch
+↓
+Copilot executes push on branch
+↓
+Create Draft Pull Request
+↓
+ChatGPT Architecture Review on GitHub
+↓
+ChatGPT Code Review on GitHub
+↓
+Corrections on same branch if needed
 ↓
 Documentation Sync
 ↓
-Documentation Review
+ChatGPT Documentation Review on GitHub
 ↓
-Definition of Done
+Definition of Done Review
 ↓
-READY TO COMMIT
+READY TO MERGE
 ↓
-Commit
+CTO authorizes merge
 ↓
-Push
+Merge into master
+↓
+Return to master locally
+↓
+Sync master with origin/master
+↓
+Working tree propre vérifié
 
 New rule: A commit must never contain work from multiple Stories.
+New rule: Development must occur on dedicated branches, never directly on master.
+New rule: All work must be reviewed via Pull Request before merge into master.
+New rule: CTO authorizes, Copilot executes Git commands.
 
 ## Responsibilities
 
 CTO :
 
-- valide le commit
-- exécute le commit
-- exécute le push
+- Autorise le développement
+- Autorise le commit et le push de la branche dédiée
+- Reçoit le verdict final du Lead Software Architect (ChatGPT)
+- Autorise exclusivement le merge dans master
+- Conserve la décision finale sur le produit et le périmètre
 
 GitHub Copilot :
 
-- prépare le message de commit
+- Travaille localement sur la branche dédiée
+- Compile et exécute les tests disponibles
+- Vérifie git diff et git status
+- Prépare le message de commit
+- Peut committer et pousser la branche dédiée uniquement après autorisation explicite du CTO
+- Ne pousse jamais directement sur master
+- Ne fusionne jamais une Pull Request
+- Signale immédiatement tout changement de périmètre
 
-Lead Software Architect :
+Lead Software Architect (ChatGPT) :
 
-- valide la Story avant autorisation du commit
+- Définit ou valide l'architecture
+- Consulte directement sur GitHub les commits, fichiers et diffs de la branche poussée
+- Réalise Architecture Review, Code Review et Documentation Review
+- Peut demander des corrections précises
+- Ne déclare la branche prête que lorsque les validations obligatoires sont satisfaites
+- Ne fusionne pas dans master sans autorisation explicite du CTO
 
 ## Constraints
 
