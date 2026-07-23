@@ -436,13 +436,25 @@ Phase 4 (commit db55fc8) completes Step C with the following components:
 
 **Application Service**
 - IBrioContractApplicationService / BrioContractApplicationService — applies validated candidates to in-memory repositories
-- ApplyAnalyzedContracts method — orchestrates client selection/creation and contract application
+- ApplyToExistingClientAsync method — applies contracts to an existing client
+- ApplyWithNewClientAsync method — creates a new client and applies contracts
 
 **Application Models**
-- BrioContractApplicationResult — consolidated result containing applied contracts summary and outcome
-- BrioAppliedContract — individual contract application result with ContractId and ApplicationStatus
-- BrioContractApplicationStatus — enum (Created | AlreadyExisting | Skipped | Unresolved)
-- BrioContractApplicationOutcome — enum (Success | PartialSuccess | Failed)
+- BrioContractApplicationResult — consolidated result with the following properties:
+  - ClientId — the affected client identifier
+  - ClientWasCreated — indicates if a new client was created
+  - ContractsCreated — list of ContractCreated results
+  - ContractsAlreadyExisting — list of ContractAlreadyExisting results
+  - ContractsSkipped — list of ContractSkipped results
+  - ContractsUnresolved — list of ContractUnresolved results
+  - GlobalErrors — list of global error messages
+  - GlobalWarnings — list of global warning messages
+  - Outcome — ApplicationOutcome enum value
+- ContractCreated — individual contract creation result
+- ContractAlreadyExisting — individual already existing contract result
+- ContractSkipped — individual skipped contract result
+- ContractUnresolved — individual unresolved contract result
+- ApplicationOutcome — enum (Success | PartialSuccess | Failed)
 
 **Business Rules**
 - Client selection: match by NormalizedIdentity from BrioClientCandidate
