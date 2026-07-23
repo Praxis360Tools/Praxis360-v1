@@ -10,10 +10,10 @@ Refer to AGENTS.md for the official orchestration rules and to Docs/DefinitionOf
 
 - Un commit = une Story
 - Un commit doit être atomique
-- Chaque commit doit compiler
-- Chaque commit doit respecter la Definition of Done
-- Aucun commit ne peut être réalisé avant les différentes reviews
-- Le CTO reste responsable du commit final
+- Chaque commit de branche doit compiler et passer les tests applicables
+- La fusion dans master exige les reviews complètes et la Definition of Done
+- Le CTO autorise le commit de branche et la fusion finale
+- GitHub Copilot exécute les commandes Git après autorisation explicite du CTO
 
 ## Branch Strategy
 
@@ -77,22 +77,37 @@ Checklist:
 - Story validated
 - Documentation synchronized
 
-## Commit Checklist
+## Branch Commit Checklist
 
-- Branch dédiée créée
-- Build OK
-- Tests OK
-- Story validée
-- Documentation synchronisée
-- Definition of Done validée
-- Git Status propre
-- Aucun fichier parasite
+- Branche dédiée avec nom correct
+- Périmètre Story respecté
+- Build local réussi (si code modifié)
+- Tous tests applicables réussissent
+- Absence de test documentée si aucun ne s'applique
+- Aucun secret ni donnée personnelle
+- Aucun fichier hors périmètre
+- Seuls fichiers attendus stagés
+- git diff vérifié
+- git diff --check OK
 - Commit atomique
-- CTO authorization for commit and push
-- Pull Request créée ou mise à jour
-- ChatGPT review complétée
-- Corrections appliquées si nécessaire
-- CTO authorization for merge
+- Autorisation CTO obtenue
+- Commit et push exécutés
+- Draft Pull Request créée
+
+## Merge Checklist
+
+- Pull Request à jour
+- Architecture Review ChatGPT approuvée
+- Code Review ChatGPT approuvée
+- Corrections appliquées
+- Branche repoussée et re-reviewée si nécessaire
+- Documentation synchronisée
+- Documentation Review ChatGPT approuvée
+- Definition of Done satisfaite
+- Build et tests finaux réussis
+- Aucun conflit avec master
+- Autorisation finale CTO obtenue
+- Working tree propre après fusion
 
 ## Workflow
 
@@ -104,39 +119,48 @@ Create dedicated branch
 ↓
 Development on branch
 ↓
+Local Validation
+↓
 Story Completion Report
 ↓
-Architecture Review
+READY TO PUBLISH REVIEW BRANCH
+↓
+CTO authorizes commit and push
+↓
+Copilot executes commit on branch
+↓
+Copilot executes push on branch
+↓
+Create Draft Pull Request
+↓
+ChatGPT Architecture Review on GitHub
+↓
+ChatGPT Code Review on GitHub
+↓
+Corrections on same branch if needed
 ↓
 Documentation Sync
 ↓
-Documentation Review
+ChatGPT Documentation Review on GitHub
 ↓
-Definition of Done
+Definition of Done Review
 ↓
-READY TO COMMIT
+READY TO MERGE
 ↓
-Commit on branch (CTO authorization)
-↓
-Push branch (CTO authorization)
-↓
-Create/Update Pull Request
-↓
-ChatGPT reviews branch on GitHub
-↓
-Corrections if needed (on same branch)
-↓
-CTO approves Pull Request
+CTO authorizes merge
 ↓
 Merge into master
 ↓
 Return to master locally
 ↓
 Sync master with origin/master
+↓
+Working tree propre vérifié
 
 New rule: A commit must never contain work from multiple Stories.
 New rule: Development must occur on dedicated branches, never directly on master.
 New rule: All work must be reviewed via Pull Request before merge into master.
+New rule: CTO authorizes, Copilot executes Git commands.
 
 ## Responsibilities
 

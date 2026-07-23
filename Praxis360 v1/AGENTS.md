@@ -55,29 +55,35 @@ Draft
 ↓
 Architecture Ready
 ↓
-In Development
+In Development on Dedicated Branch
 ↓
-Ready for Architecture Review
+Local Validation
 ↓
-Architecture Review
+Ready to Publish Review Branch
 ↓
-Code Review
+Branch Commit and Push — CTO Authorization
 ↓
-Ready for Documentation Sync
+Draft Pull Request
+↓
+Architecture Review — ChatGPT
+↓
+Code Review — ChatGPT
+↓
+Corrections on Same Branch if Required
 ↓
 Documentation Sync
 ↓
-Ready for Documentation Review
-↓
-Documentation Review
+Documentation Review — ChatGPT
 ↓
 Definition of Done Review
 ↓
-Ready to Commit
+Ready to Merge
 ↓
-Committed
+CTO Merge Authorization
 ↓
-Pushed
+Merged into master
+↓
+Local master synchronized
 ↓
 Completed
 
@@ -93,21 +99,34 @@ Blocking rules:
 
 State invariants (examples):
 - Architecture Ready: design artefacts and Story Completion Report draft exist.
-- Ready to Commit: Architecture Review, Code Review, Documentation Review and Definition of Done are successful and documented; CTO approval is required before commit.
+- Ready to Publish Review Branch: local build succeeds, applicable tests pass, git diff verified, CTO authorization obtained.
+- Ready to Merge: Architecture Review, Code Review, Documentation Review and Definition of Done are successful and documented; CTO final merge authorization obtained.
 
 ---
 
 ## Mandatory Validations
 
-Before advancing a Story to the next state, validate:
+Before publishing a branch for review:
 
 - Conformance with ProductVision and Architecture.md
 - Domain model acceptance (no mapping of BRIO concepts in domain)
 - Code compiles and builds successfully
-- Unit tests (if present) pass
-- Documentation updated and synchronized (if change affects docs)
+- All applicable and available tests pass (absence documented if none apply)
 - No secrets or personal data committed
-- Git status clean (no unrelated files staged)
+- Only expected files are staged (no unrelated files)
+- git diff --check passes
+
+Before merging into master:
+
+- Architecture Review completed and approved by ChatGPT
+- Code Review completed and approved by ChatGPT
+- Documentation synchronized
+- Documentation Review completed and approved by ChatGPT
+- Definition of Done satisfied
+- All requested corrections applied
+- No conflicts with master
+- Final build and tests succeed
+- CTO final merge authorization obtained
 
 Any missing validation must be recorded and communicated.
 
@@ -151,7 +170,7 @@ All reports must be attached to the Story and referenced in the SprintBook.
 - Works locally on the dedicated branch.
 - Compiles and runs available tests.
 - Verifies git diff and git status.
-- May commit and push the dedicated branch only after explicit authorization from the CTO.
+- Executes commit and push of the dedicated branch after explicit CTO authorization.
 - Never pushes directly to master.
 - Never merges a Pull Request.
 - Immediately reports any scope change.
@@ -231,28 +250,37 @@ All reports must be attached to the Story and referenced in the SprintBook.
 
 ## Rules for Commits and Pushes
 
-Authorization:
-- The Software Developer prepares commits on the dedicated branch.
-- Only the CTO may authorize commit and push of the branch.
-- Only the CTO may authorize merge into master after complete review.
+Branch Commit and Push Authorization:
+- GitHub Copilot prepares the commit on the dedicated branch.
+- CTO explicitly authorizes the commit and push.
+- GitHub Copilot executes the commit and push commands after authorization.
+- Only the dedicated branch is pushed, never master.
 
-Commit preconditions (all must be satisfied):
-- Architecture Review passed
-- Documentation Review passed
-- Definition of Done satisfied
-- Build OK (local build succeeds)
-- Git status clean and commit atomic (no multi-Story content)
-- Story Completion Report attached
+Branch Commit Preconditions (all must be satisfied):
+- Dedicated branch with correct naming
+- Story scope respected
+- Local build succeeds (when code is changed)
+- All applicable and available tests pass
+- Test absence documented if none apply
+- No secrets or personal data
+- No out-of-scope files
+- Only expected files staged
+- git diff verified
+- git diff --check passes
+- CTO explicit authorization obtained
 
-Push preconditions:
-- Commit authorized and performed by the CTO
-- Branch pushed (not master)
-- Pull Request created or updated
-
-Merge preconditions:
-- ChatGPT review completed and approved
+Merge Preconditions (all must be satisfied):
+- Pull Request created and up-to-date
+- Architecture Review completed and approved by ChatGPT
+- Code Review completed and approved by ChatGPT
 - All requested corrections applied
-- CTO final authorization
+- Branch re-pushed and re-reviewed if necessary
+- Documentation synchronized
+- Documentation Review completed and approved by ChatGPT
+- Definition of Done satisfied
+- Final build and tests succeed
+- No conflicts with master
+- CTO final merge authorization obtained
 
 New mandatory rule: A commit must never contain work from multiple Stories.
 
