@@ -249,12 +249,40 @@ Only the business domain.
 
 Sprint 3.2 – BRIO Integration
 
-Planned objectives
+**Status**: In Progress
 
-- Import BRIO data
-- Map BRIO to Domain Model
-- Validate business transformations
-- Prepare advisor enrichment workflow
+Story 3.2.3 — Import BRIO contracts (In Progress)
+
+Objective: enable the controlled import of BRIO contracts into Praxis360 after business validation and client identity reconciliation.
+
+Phase 1 — Domain multi-source: Completed
+- Domain multi-source foundation completed with external references and contract provenance
+- Domain model supports external source tracking
+
+Phase 2 — BRIO CSV reader and in-memory repositories: Completed
+- Infrastructure layer: BrioCsvFileReader validates structure and produces BrioFileReadResult
+- In-memory repositories ready for controlled application
+
+Phase 3 — BRIO business analysis and candidate generation: Completed
+- Commit: 0bf40ee
+- Application layer: IBrioImportAnalyzer / BrioImportAnalyzer analyze business rules
+- Validation output: BrioImportAnalysisResult with client/contract candidates and issues
+- Business rules validated:
+  - Client identity: INAMI → (Name+FirstName+BirthDate) → (Name+FirstName+Email) priority
+  - Policy number validation across three expected occurrences
+  - Product code mapping: FSPS/ESPSI → PLCI, EIP → EIP
+  - Unknown codes retained with null mapping + Warning
+  - Exact duplicate detection and grouping
+- Functional validation: temporary external test harness executed (9/9 tests passed)
+- Temporary harness not retained in repository
+- No Domain entities created
+- No repository writes performed
+- No UI components added
+- No financial data introduced
+
+Phase 4 — Controlled client selection/creation and application to in-memory repositories: Planned
+- Controlled Domain entity creation for validated candidates
+- Application to existing in-memory repositories
 
 ---
 

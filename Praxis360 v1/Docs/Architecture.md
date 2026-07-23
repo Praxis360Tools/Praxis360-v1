@@ -356,3 +356,76 @@ Value Objects validated in Sprint 3.1.3:
 - Percentage — stored internally as a decimal fraction (for example 0.05 represents 5%); creation is explicit via factory methods (FromFraction, FromPercent); values are limited to 0%..100% in V1.
 - DateRange — uses DateOnly for Start and optional End; End cannot be earlier than Start; equality is based on both dates.
 
+---
+
+## BRIO Import Pipeline
+
+Story 3.2.3 introduces a controlled multi-step import pipeline for BRIO CSV data. This pipeline validates business rules before any application to repositories and maintains strict separation between external data sources and the Domain Model.
+
+### Pipeline Architecture
+
+The BRIO import pipeline operates in three distinct steps:
+
+**Step A — Structural Reading (Infrastructure)**
+- BrioCsvFileReader validates CSV structure and produces BrioFileReadResult
+- Infrastructure/FileReaders/BrioCsvFileReader.cs
+- Validates CSV structure and expected column count, and handles UTF-8 BOM input
+- Reports structural errors
+
+**Step B — Business Analysis (Application)**
+- IBrioImportAnalyzer / BrioImportAnalyzer validate business rules and produce BrioImportAnalysisResult
+- Application/Services/BrioImportAnalyzer.cs
+- Validates client identity, policy number references, product codes
+- Detects duplicates and data quality issues
+- Creates client and contract candidates
+- Distinguishes Warnings (non-blocking) from BlockingErrors (prevent import)
+
+**Step C — Controlled Application (Planned - Phase 4)**
+- Maps validated candidates to Domain entities (Client, ContratVie)
+- Applies controlled selection/creation rules
+- Updates existing in-memory repositories
+
+### Phase 3 Scope — Business Analysis
+
+Phase 3 (commit 0bf40ee) completes Step B with the following components:
+
+**Application Models**
+- BrioImportAnalysisResult — consolidated analysis containing analyzed lines, client candidates, contract candidates and all issues
+- BrioAnalyzedLine — one CSV line analysis with normalized values and attached issues
+- BrioClientCandidate — potential client with normalized identity and demographic data
+- BrioContractCandidate — potential contract with normalized policy number and source line references
+- ImportAnalysisIssue — validation issue with code, severity and context
+- ImportIssueSeverity — enum (Warning | BlockingError)
+
+**Business Rules**
+- Client identity: INAMI → (Name+FirstName+BirthDate) → (Name+FirstName+Email) priority
+- Policy number validation across three expected occurrences (columns 7, 30, 43)
+- Scientific notation detection → BlockingError
+- Conflicting references → BlockingError
+- Single occurrence → Warning (contract still created)
+- Product code mapping: FSPS/ESPSI → PLCI, EIP → EIP
+- Unknown codes → null mapping + Warning
+- Exact duplicate detection (all 62 cells identical) → Warning
+- Lines with same client + policy grouped via SourceLineNumbers
+
+**Result Properties**
+- HasBlockingErrors prevents Step C application
+- CanProceed requires no blocking errors AND at least one contract candidate
+
+**Validation**
+- Functional validation performed with a temporary external test harness
+- 9 of 9 tests passed
+- Temporary harness not retained in repository
+
+**Constraints Phase 3**
+- No Domain entities created
+- No repository writes performed
+- No financial data introduced
+- No UI components added
+
+**Constants**
+- BrioColumnPositions — CSV column index definitions
+- BrioProductCodeMapping — static product code to ContractType mapping
+
+Phase 4 will implement Step C with controlled application to existing in-memory repositories.
+
