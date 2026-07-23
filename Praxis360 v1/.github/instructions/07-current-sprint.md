@@ -59,22 +59,13 @@ The Sprint is complete when:
 
 ## Stories
 
-- Story 3.2.1 — Première projection « Situation Assurance Vie » — Terminée, validée, commitée et poussée sur origin/master
-- Story 3.2.2 — Vue synthétique et détail des contrats d’assurance vie — Terminée, validée, commitée et poussée sur origin/master
-
----
-
-## Next Story
-
-Story 3.2.3
-
-Name
-
-Import CSV contrôlé des contrats d’assurance vie
-
-Status
-
-Planned
+- Story 3.2.1 â€” PremiÃ¨re projection Â« Situation Assurance Vie Â» â€” TerminÃ©e, validÃ©e, commitÃ©e et poussÃ©e sur origin/master
+- Story 3.2.2 â€” Vue synthÃ©tique et dÃ©tail des contrats d'assurance vie â€” TerminÃ©e, validÃ©e, commitÃ©e et poussÃ©e sur origin/master
+- Story 3.2.3 â€” Import CSV contrÃ´lÃ© des contrats d'assurance vie â€” In Progress
+  - Phase 1 â€” Domain multi-source: Completed
+  - Phase 2 â€” BRIO CSV reader and in-memory repositories: Completed
+  - Phase 3 â€” BRIO business analysis and candidate generation: Completed (commit 0bf40ee)
+  - Phase 4 â€” Controlled client selection/creation and application to in-memory repositories: Planned
 
 ---
 
@@ -83,4 +74,4 @@ Planned
 See:
 
 - Docs/SprintBook.md
-- Docs/Roadmap.mds
+- Docs/Roadmap.md
