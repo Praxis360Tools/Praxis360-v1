@@ -17,6 +17,10 @@ builder.Services.AddSingleton<SituationAssuranceVieService>();
 // Register BRIO import services
 builder.Services.AddSingleton<IBrioFileReader, BrioCsvFileReader>();
 builder.Services.AddSingleton<IBrioImportAnalyzer, BrioImportAnalyzer>();
+builder.Services.AddSingleton<IBrioContractApplicationService, BrioContractApplicationService>();
+// Register repositories
+builder.Services.AddSingleton<IClientRepository, Praxis360_v1.Infrastructure.Repositories.InMemoryClientRepository>();
+builder.Services.AddSingleton<IContractRepository, Praxis360_v1.Infrastructure.Repositories.InMemoryContractRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
