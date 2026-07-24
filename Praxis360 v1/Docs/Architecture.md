@@ -543,3 +543,177 @@ Story 3.2.4 (implementation commits: 97a4a32, 4d10c2e) delivers a read-only UI i
 - No connection to "Ma situation"
 - Step C (IBrioContractApplicationService) exists in the engine but is not called by this page
 
+### Story 3.2.5 — BRIO Controlled Client Application
+
+Story 3.2.5 (implementation commit: dd57e5a, merge commit: 4b76ebe, PR #4) extends the BRIO preview UI with a controlled application workflow. It introduces explicit client selection, destination choice, confirmation, and in-memory repository application while preserving strict architectural layering.
+
+**New Application Components**
+
+- Application/Interfaces/IClientSelectionService.cs — service contract for listing existing clients
+- Application/Models/SelectableClient.cs — lightweight UI read model for existing clients (ClientId, FirstName, LastName, DateOfBirth, DisplayName)
+- Application/Services/ClientSelectionService.cs — service implementation that calls IClientRepository.GetAllAsync() and maps entities to SelectableClient
+
+**Modified UI Components**
+
+- Components/Pages/Imports/BrioImport.razor — extended with controlled application workflow
+- Components/Pages/Imports/BrioImport.razor.css — extended with selection, confirmation, applying and result styles
+
+**Modified Composition Root**
+
+- Program.cs — registered IClientSelectionService / ClientSelectionService as Singleton
+
+**Architecture Flow**
+
+Page Layer:
+  BrioImport.razor injects IClientSelectionService and IBrioContractApplicationService
+  → Never injects IClientRepository directly
+
+Application Layer:
+  ClientSelectionService injects IClientRepository
+  → Calls IClientRepository.GetAllAsync()
+  → Maps Client entities to SelectableClient read models
+
+  BrioContractApplicationService applies validated candidates to repositories
+
+Repository Layer:
+  IClientRepository and IContractRepository remain in-memory
+  → InMemoryClientRepository and InMemoryContractRepository unchanged
+
+**UI State Machine**
+
+Local UiStep enum manages workflow:
+
+  Preview
+    → User analyzes BRIO CSV file
+    → If no blocking errors: "Démarrer l'application" available
+
+  SelectingClient
+    → User selects one BRIO client candidate
+    → "Confirmer la sélection" enabled after selection
+
+  ChoosingDestination
+    → User chooses:
+      • Nouveau client (language selection: French, Dutch, English)
+      • Client Praxis360 existant (list from IClientSelectionService)
+
+  Confirming
+    → Displays selected BRIO client name, contract count, destination
+    → "Appliquer les contrats" triggers application
+
+  Applying
+    → Application in progress
+    → Reset blocked
+
+  Completed
+    → Result screen with contextual message
+    → "Terminer" returns to Preview
+
+**Functional Workflow**
+
+1. Advisor selects and analyzes BRIO CSV file (Story 3.2.4 preview)
+2. If no blocking errors: "Démarrer l'application" button becomes available
+3. Advisor selects one BRIO client candidate
+4. Advisor chooses destination:
+   - Nouveau client (French/Dutch/English language selection)
+   - Client Praxis360 existant (list populated via IClientSelectionService)
+5. Confirmation screen displays:
+   - Selected BRIO client name
+   - Number of associated contracts
+   - Chosen destination
+6. Advisor confirms application
+7. System applies contracts in memory via IBrioContractApplicationService
+8. Result screen displays:
+   - Contextual message (depends on ApplicationOutcome, ClientWasCreated, destination)
+   - Contracts created
+   - Contracts already existing
+   - Contracts skipped
+   - Contracts unresolved
+   - Global warnings and errors
+   - No technical Guid displayed
+
+**Data Flow**
+
+Existing Client Selection:
+  BrioImport.razor → IClientSelectionService.GetSelectableClientsAsync()
+  → ClientSelectionService → IClientRepository.GetAllAsync()
+  → List<Client> mapped to List<SelectableClient>
+  → UI displays FirstName LastName (DateOfBirth)
+
+New Client Application:
+  BrioImport.razor → IBrioContractApplicationService.ApplyWithNewClientAsync(analysisResult, selectedClientIdentity, language)
+  → BrioContractApplicationService creates new Client entity
+  → Applies contracts idempotently using external BRIO reference
+  → Returns BrioContractApplicationResult
+
+Existing Client Application:
+  BrioImport.razor → IBrioContractApplicationService.ApplyToExistingClientAsync(analysisResult, selectedClientIdentity, existingClientId)
+  → BrioContractApplicationService retrieves existing Client
+  → Applies contracts idempotently
+  → Returns BrioContractApplicationResult
+
+**Exception Handling**
+
+ApplyContracts() method uses try-catch:
+  On exception:
+    → Restores _currentStep = UiStep.Confirming
+    → Displays generic error message
+    → No technical details exposed
+
+**Result Message Logic**
+
+The result message displayed depends on ApplicationOutcome, ClientWasCreated, and the selected destination:
+
+- ClientWasCreated == true:
+  "Nouveau client créé"
+
+- Destination == ExistingClient with contracts applied or already existing:
+  "Contrats rattachés au client sélectionné"
+
+- Destination == NewClient, ClientWasCreated == false, Outcome == Failed:
+  "Aucun nouveau client n'a été créé"
+
+- Other Outcome == Failed:
+  "L'application a échoué"
+
+- Other results:
+  "Application terminée"
+
+This logic ensures the user receives accurate feedback based on the actual application result. The generic error message from the ApplyContracts() catch block handles unexpected exceptions and restores the Confirming state.
+
+**Idempotence**
+
+Contracts applied multiple times to the same client:
+  → External BRIO reference prevents duplicates
+  → Already-existing contracts recognized
+  → No duplicate entities created
+  → Result reflects ContractsAlreadyExisting count
+
+**Immediate Visibility**
+
+Newly created clients:
+  → Immediately available in IClientSelectionService
+  → No application restart required
+  → Validated manually: same file analyzed twice, new client appeared in existing-client list
+
+**Validation**
+
+- Build successful
+- Manual UI validation with anonymized test files:
+  • File with blocking errors: application blocked
+  • Valid anonymized file: application succeeded
+  • New client created: two contracts created
+  • Client immediately visible in existing-client selector
+  • Idempotence: zero duplicates, contracts recognized as already existing
+- Code review approved
+
+**Constraints Story 3.2.5**
+
+- In-memory repositories only (no real persistence)
+- No Domain entity modifications
+- No repository interface modifications
+- No existing service lifetime changes
+- No financial data added
+- No connection to "Ma situation"
+- BRIO preview (Story 3.2.4) preserved entirely
+- No CSV files included in repository
+
