@@ -221,6 +221,90 @@ Authentication must remain secure while minimizing friction.
 
 # 11. Future Evolutions
 
+## BRIO Contract Import Preview
+
+**Access**
+
+The advisor can access "Importer BRIO" from the navigation menu.
+
+**File Selection**
+
+The advisor selects a CSV file containing BRIO contract data.
+
+The system validates:
+- File format must be .csv
+- File size must not exceed 10 MB
+- File must not be empty
+
+Invalid files are rejected with a clear message.
+
+**Analysis**
+
+After selecting a valid file, the advisor clicks "Analyser le fichier".
+
+The system reads and analyzes the file without creating or modifying any data.
+
+**Analysis Summary**
+
+The system displays:
+- Total lines analyzed
+- Number of client candidates identified
+- Number of contract candidates identified
+- Number of warnings (non-blocking issues)
+- Number of blocking errors (prevent import)
+
+**Client and Contract Candidates**
+
+The system groups contract candidates by client.
+
+For each client, the system shows:
+- Client name and birth date
+- Number of contracts associated with this client
+
+For each contract, the system shows:
+- Policy number
+- Product type (if recognized)
+- Insurance company
+- Contract status
+- Original product code from the file
+
+Unknown products are displayed as "Non reconnu" with a warning indicator.
+
+**Warnings and Blocking Errors**
+
+The system separates and displays:
+- Warnings: issues that do not prevent import (e.g., single policy number occurrence, unknown product codes, duplicate lines)
+- Blocking errors: issues that prevent import (e.g., conflicting policy numbers, scientific notation in policy numbers, missing required identity data)
+
+Each issue includes:
+- Issue code
+- Affected line number(s)
+- Clear description
+- Affected field when relevant
+
+**Reset**
+
+The advisor can click "Analyser un autre fichier" to clear the results and select a different file.
+
+**Limitations**
+
+This preview interface is read-only.
+
+It does not:
+- Create or modify clients
+- Create or modify contracts
+- Store any data
+- Apply contracts to the advisor's client list
+- Display financial information
+- Connect to "Ma situation"
+
+The preview helps the advisor understand file content and identify potential issues before any actual import.
+
+---
+
+# 12. Future Evolutions
+
+
 Praxis360 expands progressively.
 
 Version 1

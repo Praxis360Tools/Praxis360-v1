@@ -489,3 +489,57 @@ Phase 4 (commit db55fc8) completes Step C with the following components:
 - Scanner remains out of scope
 - Visible connection to "Ma situation" remains future work
 
+### Story 3.2.4 — BRIO Import Preview UI
+
+Story 3.2.4 (commit 4d10c2e) delivers a read-only UI interface for controlled BRIO file preview. This interface provides visibility into Steps A and B without triggering Step C application.
+
+**UI Components**
+- Components/Pages/Imports/BrioImport.razor — preview page at route /imports/brio
+- Components/Pages/Imports/BrioImport.razor.css — isolated styling
+- Components/Layout/NavMenu.razor — navigation entry "Importer BRIO"
+
+**Architecture**
+- Page orchestrates IBrioFileReader then IBrioImportAnalyzer
+- No business rules duplicated in the page layer
+- No calls to IBrioContractApplicationService
+- No repository writes performed
+- Analysis and preview results held in memory only
+- File size limit: 10 MB
+- IBrowserFile reference released after processing (finally block sets _selectedFile = null)
+- Technical error details never exposed to user (generic error messages only)
+- Double-submission prevention via explicit _isAnalyzing guard
+- HandleFileSelected is synchronous (no async without await)
+
+**UI Behavior**
+- File selection with .csv validation
+- Explicit "Analyser le fichier" action required
+- Analysis summary display: lines analyzed, client candidates, contract candidates, warnings, blocking errors
+- Results grouped by client candidate without exposing normalized identities
+- Warnings and blocking errors separated and displayed
+- Contract candidates shown with product type mapping
+- Unknown products displayed as unmapped with warning
+- Reset capability to analyze another file
+- Reuses P360Card component with CSS isolation via ::deep selectors
+
+**Data Flow**
+- User selects CSV file → HandleFileSelected validates extension/size
+- User clicks Analyze → AnalyzeFile opens stream → IBrioFileReader.ReadAsync
+- Read result → IBrioImportAnalyzer.AnalyzeAsync
+- Analysis result → UI display with grouping and formatting
+- No persistence, no Step C application, no Domain entity creation
+
+**Validation**
+- Build successful
+- Manual validation with anonymized BRIO CSV files (valid and error cases)
+- No automated test infrastructure available
+- Code review approved (security, resource cleanup, CSS isolation)
+
+**Constraints Story 3.2.4**
+- Read-only preview interface only
+- No contract application
+- No client creation or modification
+- No persistence
+- No financial data
+- No connection to "Ma situation"
+- Step C (IBrioContractApplicationService) exists in the engine but is not called by this page
+
