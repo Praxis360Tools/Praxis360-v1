@@ -305,7 +305,7 @@ Phase 4 — Controlled client selection/creation and application to in-memory re
   - Visible connection to "Ma situation" is future work
 
 Story 3.2.4 — BRIO Import Preview UI (Completed)
-- Commit: 4d10c2e
+- Implementation commits: 97a4a32, 4d10c2e
 - Delivers read-only preview interface for BRIO CSV files
 - Route: /imports/brio accessible via "Importer BRIO" navigation entry
 - UI Components:

@@ -70,7 +70,7 @@ The Sprint is complete when:
   - Capabilities: controlled import to in-memory repositories, client reconciliation, idempotent contracts
   - Limitations: in-memory only, no real persistence, no BRIO UI, no financial data added
 - Story 3.2.4 — Prévisualisation contrôlée d'un fichier BRIO — Completed
-  - Commit: 4d10c2e
+  - Implementation commits: 97a4a32, 4d10c2e
   - Route: /imports/brio
   - Read-only preview interface for BRIO CSV files
   - Reuses IBrioFileReader and IBrioImportAnalyzer services
