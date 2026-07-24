@@ -18,6 +18,7 @@ builder.Services.AddSingleton<SituationAssuranceVieService>();
 builder.Services.AddSingleton<IBrioFileReader, BrioCsvFileReader>();
 builder.Services.AddSingleton<IBrioImportAnalyzer, BrioImportAnalyzer>();
 builder.Services.AddSingleton<IBrioContractApplicationService, BrioContractApplicationService>();
+builder.Services.AddSingleton<IClientSelectionService, ClientSelectionService>();
 // Register repositories
 builder.Services.AddSingleton<IClientRepository, Praxis360_v1.Infrastructure.Repositories.InMemoryClientRepository>();
 builder.Services.AddSingleton<IContractRepository, Praxis360_v1.Infrastructure.Repositories.InMemoryContractRepository>();
