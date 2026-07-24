@@ -5,6 +5,8 @@
 @using Praxis360.Domain.Types
 @inject IBrioFileReader BrioFileReader
 @inject IBrioImportAnalyzer BrioImportAnalyzer
+@inject IClientSelectionService ClientSelectionService
+@inject IBrioContractApplicationService BrioContractApplicationService
 
 <PageTitle>Import BRIO</PageTitle>
 
@@ -72,7 +74,7 @@
 		<div class="analysis-results">
 			<div class="results-header">
 				<h2>Résultat de l'analyse</h2>
-				<button class="btn-secondary" @onclick="Reset">
+				<button class="btn-secondary" @onclick="Reset" disabled="@(_currentStep == UiStep.Applying)">
 					Analyser un autre fichier
 				</button>
 			</div>
@@ -254,20 +256,411 @@
 								</div>
 							}
 						</P360Card>
+									}
+								}
+							</div>
+
+							@if (!_analysisResult.HasBlockingErrors && _analysisResult.ClientCandidates.Count > 0)
+							{
+								@if (_currentStep == UiStep.Preview)
+								{
+									<div class="application-section">
+										<P360Card>
+											<h3>Appliquer les contrats</h3>
+											<p class="application-description">
+												Pour importer ces contrats dans Praxis360, sélectionnez d'abord le client candidat BRIO, puis choisissez la destination.
+											</p>
+											<button class="btn-primary" @onclick="StartApplication">
+												Démarrer l'application
+											</button>
+										</P360Card>
+									</div>
+								}
+								else if (_currentStep == UiStep.SelectingClient)
+								{
+									<div class="application-section">
+										<P360Card Class="selection-card">
+											<h3>Sélection du client candidat BRIO</h3>
+											<p class="selection-description">
+												Choisissez le client candidat BRIO à traiter parmi @(_analysisResult.ClientCandidates.Count) client@(_analysisResult.ClientCandidates.Count > 1 ? "s" : "") détecté@(_analysisResult.ClientCandidates.Count > 1 ? "s" : "").
+											</p>
+											<div class="candidate-list">
+												@foreach (var clientEntry in _analysisResult.ClientCandidates)
+												{
+													var candidate = clientEntry.Value;
+													var isSelected = _selectedBrioCandidate?.NormalizedIdentity == candidate.NormalizedIdentity;
+													<div class="candidate-item @(isSelected ? "selected" : "")" @onclick="@(() => SelectBrioCandidate(candidate))">
+														<div class="candidate-name">@candidate.FirstName @candidate.LastName</div>
+														@if (candidate.DateOfBirth.HasValue)
+														{
+															<div class="candidate-dob">Né(e) le @candidate.DateOfBirth.Value.ToString("dd/MM/yyyy")</div>
+														}
+														<div class="candidate-contracts">
+															@{
+																var contractCount = _analysisResult.ContractCandidates.Count(c => c.ClientNormalizedIdentity == candidate.NormalizedIdentity);
+															}
+															@contractCount contrat@(contractCount > 1 ? "s" : "")
+														</div>
+													</div>
+												}
+											</div>
+											<div class="selection-actions">
+												<button class="btn-secondary" @onclick="CancelApplication">Annuler</button>
+												<button class="btn-primary" @onclick="ConfirmBrioCandidate" disabled="@(_selectedBrioCandidate == null)">
+													Confirmer la sélection
+												</button>
+											</div>
+										</P360Card>
+									</div>
+								}
+								else if (_currentStep == UiStep.ChoosingDestination)
+								{
+									<div class="application-section">
+										<P360Card Class="destination-card">
+											<h3>Destination des contrats</h3>
+											<p class="destination-description">
+												Client BRIO sélectionné : <strong>@_selectedBrioCandidate!.FirstName @_selectedBrioCandidate.LastName</strong>
+											</p>
+											<div class="destination-options">
+												<div class="destination-option @(_selectedDestination == DestinationType.ExistingClient ? "selected" : "")"
+													 @onclick="@(() => _selectedDestination = DestinationType.ExistingClient)">
+													<div class="option-title">Client Praxis360 existant</div>
+													<div class="option-description">Rattacher les contrats à un client déjà présent dans Praxis360.</div>
+												</div>
+												<div class="destination-option @(_selectedDestination == DestinationType.NewClient ? "selected" : "")"
+													 @onclick="@(() => _selectedDestination = DestinationType.NewClient)">
+													<div class="option-title">Nouveau client</div>
+													<div class="option-description">Créer un nouveau client Praxis360 avec les informations BRIO.</div>
+												</div>
+											</div>
+
+											@if (_selectedDestination == DestinationType.ExistingClient)
+											{
+												<div class="existing-client-selection">
+													<h4>Sélectionner le client Praxis360</h4>
+													@if (_isLoadingSelectableClients)
+													{
+														<div class="loading-message">
+															<div class="spinner"></div>
+															<span>Chargement des clients...</span>
+														</div>
+													}
+													else if (_selectableClients.Count == 0)
+													{
+														<p class="no-clients-message">Aucun client Praxis360 disponible. Veuillez choisir "Nouveau client".</p>
+													}
+													else
+													{
+														<div class="selectable-client-list">
+															@foreach (var client in _selectableClients)
+															{
+																var isSelected = _selectedExistingClient?.ClientId == client.ClientId;
+																<div class="selectable-client-item @(isSelected ? "selected" : "")" @onclick="@(() => _selectedExistingClient = client)">
+																	<div class="selectable-client-name">@client.DisplayName</div>
+																	@if (client.DateOfBirth.HasValue)
+																	{
+																		<div class="selectable-client-dob">Né(e) le @client.DateOfBirth.Value.ToString("dd/MM/yyyy")</div>
+																	}
+																</div>
+															}
+														</div>
+													}
+												</div>
+											}
+											else if (_selectedDestination == DestinationType.NewClient)
+											{
+												<div class="new-client-language">
+													<h4>Langue du nouveau client</h4>
+													<div class="language-options">
+														<label class="language-option">
+															<input type="radio" name="language" value="@Language.French" @onchange="@(() => _selectedLanguage = Language.French)" checked="@(_selectedLanguage == Language.French)" />
+															<span>Français</span>
+														</label>
+														<label class="language-option">
+															<input type="radio" name="language" value="@Language.Dutch" @onchange="@(() => _selectedLanguage = Language.Dutch)" checked="@(_selectedLanguage == Language.Dutch)" />
+															<span>Néerlandais</span>
+														</label>
+														<label class="language-option">
+															<input type="radio" name="language" value="@Language.English" @onchange="@(() => _selectedLanguage = Language.English)" checked="@(_selectedLanguage == Language.English)" />
+															<span>Anglais</span>
+														</label>
+													</div>
+												</div>
+											}
+
+											<div class="destination-actions">
+												<button class="btn-secondary" @onclick="BackToClientSelection">Retour</button>
+												<button class="btn-primary" @onclick="ConfirmDestination" disabled="@(!IsDestinationValid())">
+													Confirmer la destination
+												</button>
+											</div>
+										</P360Card>
+									</div>
+								}
+								else if (_currentStep == UiStep.Confirming)
+								{
+									<div class="application-section">
+										<P360Card Class="confirmation-card">
+											<h3>Confirmation de l'application</h3>
+											<div class="confirmation-summary">
+												<div class="confirmation-item">
+													<span class="confirmation-label">Client BRIO :</span>
+													<span class="confirmation-value">@_selectedBrioCandidate!.FirstName @_selectedBrioCandidate.LastName</span>
+												</div>
+												<div class="confirmation-item">
+													<span class="confirmation-label">Nombre de contrats :</span>
+													<span class="confirmation-value">
+														@{
+															var contractCount = _analysisResult.ContractCandidates.Count(c => c.ClientNormalizedIdentity == _selectedBrioCandidate.NormalizedIdentity);
+														}
+														@contractCount
+													</span>
+												</div>
+												<div class="confirmation-item">
+													<span class="confirmation-label">Destination :</span>
+													<span class="confirmation-value">
+														@if (_selectedDestination == DestinationType.ExistingClient)
+														{
+															@:Client existant : @_selectedExistingClient!.DisplayName
+														}
+														else
+														{
+															@:Nouveau client (@GetLanguageLabel(_selectedLanguage))
+														}
+													</span>
+												</div>
+											</div>
+											<p class="confirmation-warning">
+												⚠️ Cette action va appliquer les contrats dans les repositories en mémoire. Confirmez-vous l'application ?
+											</p>
+											<div class="confirmation-actions">
+												<button class="btn-secondary" @onclick="BackToDestination">Retour</button>
+												<button class="btn-primary" @onclick="ApplyContracts">
+													Appliquer les contrats
+												</button>
+											</div>
+										</P360Card>
+									</div>
+								}
+								else if (_currentStep == UiStep.Applying)
+								{
+									<div class="application-section">
+										<P360Card>
+											<div class="applying-message">
+												<div class="spinner"></div>
+												<span>Application des contrats en cours...</span>
+											</div>
+										</P360Card>
+									</div>
+								}
+								else if (_currentStep == UiStep.Completed)
+								{
+									<div class="application-section">
+										<P360Card Class="result-card">
+											<div class="result-header @(_applicationResult!.IsFullSuccess ? "success" : (_applicationResult.HasGlobalErrors ? "error" : "warning"))">
+												<span class="result-icon">
+													@if (_applicationResult.IsFullSuccess)
+													{
+														@:✅
+													}
+													else if (_applicationResult.HasGlobalErrors)
+													{
+														@:❌
+													}
+													else
+													{
+														@:⚠️
+													}
+												</span>
+												<h3>
+													@if (_applicationResult.IsFullSuccess)
+													{
+														@:Application réussie
+													}
+													else if (_applicationResult.HasGlobalErrors)
+													{
+														@:Application terminée avec des erreurs
+													}
+													else
+													{
+														@:Application terminée avec des avertissements
+													}
+												</h3>
+											</div>
+
+											<div class="result-summary">
+												@if (_applicationResult.ClientWasCreated)
+												{
+													<p class="result-client-message success">✅ Nouveau client créé</p>
+												}
+												else if (_selectedDestination == DestinationType.ExistingClient && (_applicationResult.TotalContractsApplied > 0))
+												{
+													<p class="result-client-message">📎 Contrats rattachés au client sélectionné</p>
+												}
+												else if (_selectedDestination == DestinationType.NewClient && _applicationResult.Outcome == ApplicationOutcome.Failed)
+												{
+													<p class="result-client-message warning">⚠️ Aucun nouveau client n'a été créé</p>
+												}
+												else if (_applicationResult.Outcome == ApplicationOutcome.Failed)
+												{
+													<p class="result-client-message warning">⚠️ L'application a échoué</p>
+												}
+												else
+												{
+													<p class="result-client-message">ℹ️ Application terminée</p>
+												}
+
+												<div class="result-stats">
+													<div class="result-stat">
+														<span class="result-stat-label">Contrats créés :</span>
+														<span class="result-stat-value success">@_applicationResult.ContractsCreated.Count</span>
+													</div>
+													@if (_applicationResult.ContractsAlreadyExisting.Count > 0)
+													{
+														<div class="result-stat">
+															<span class="result-stat-label">Contrats déjà existants :</span>
+															<span class="result-stat-value warning">@_applicationResult.ContractsAlreadyExisting.Count</span>
+														</div>
+													}
+													@if (_applicationResult.ContractsSkipped.Count > 0)
+													{
+														<div class="result-stat">
+															<span class="result-stat-label">Contrats ignorés :</span>
+															<span class="result-stat-value warning">@_applicationResult.ContractsSkipped.Count</span>
+														</div>
+													}
+													@if (_applicationResult.ContractsUnresolved.Count > 0)
+													{
+														<div class="result-stat">
+															<span class="result-stat-label">Contrats non résolus :</span>
+															<span class="result-stat-value error">@_applicationResult.ContractsUnresolved.Count</span>
+														</div>
+													}
+												</div>
+											</div>
+
+											@if (_applicationResult.ContractsCreated.Count > 0)
+											{
+												<div class="result-section">
+													<h4>Contrats créés</h4>
+													<ul class="result-list">
+														@foreach (var contract in _applicationResult.ContractsCreated)
+														{
+															<li class="result-item success">@contract.PolicyNumber</li>
+														}
+													</ul>
+												</div>
+											}
+
+											@if (_applicationResult.ContractsAlreadyExisting.Count > 0)
+											{
+												<div class="result-section">
+													<h4>Contrats déjà existants</h4>
+													<ul class="result-list">
+														@foreach (var contract in _applicationResult.ContractsAlreadyExisting)
+														{
+															<li class="result-item warning">@contract.PolicyNumber</li>
+														}
+													</ul>
+												</div>
+											}
+
+											@if (_applicationResult.ContractsSkipped.Count > 0)
+											{
+												<div class="result-section">
+													<h4>Contrats ignorés</h4>
+													<ul class="result-list">
+														@foreach (var contract in _applicationResult.ContractsSkipped)
+														{
+															<li class="result-item warning">@contract.PolicyNumber — @contract.SkipReason</li>
+														}
+													</ul>
+												</div>
+											}
+
+											@if (_applicationResult.ContractsUnresolved.Count > 0)
+											{
+												<div class="result-section">
+													<h4>Contrats non résolus</h4>
+													<ul class="result-list">
+														@foreach (var contract in _applicationResult.ContractsUnresolved)
+														{
+															<li class="result-item error">@contract.PolicyNumber — @contract.UnresolvedReason</li>
+														}
+													</ul>
+												</div>
+											}
+
+											@if (_applicationResult.HasGlobalErrors)
+											{
+												<div class="result-section">
+													<h4>Erreurs globales</h4>
+													<ul class="result-list">
+														@foreach (var error in _applicationResult.GlobalErrors)
+														{
+															<li class="result-item error">@error</li>
+														}
+													</ul>
+												</div>
+											}
+
+											@if (_applicationResult.GlobalWarnings.Count > 0)
+											{
+												<div class="result-section">
+													<h4>Avertissements globaux</h4>
+													<ul class="result-list">
+														@foreach (var warning in _applicationResult.GlobalWarnings)
+														{
+															<li class="result-item warning">@warning</li>
+														}
+													</ul>
+												</div>
+											}
+
+											<button class="btn-primary" @onclick="Reset">
+												Terminer
+											</button>
+										</P360Card>
+									</div>
+								}
+							}
+						</div>
 					}
-				}
-			</div>
-		</div>
-	}
 </div>
 
 @code {
 	private const long MaxFileSizeBytes = 10 * 1024 * 1024; // 10 MB
 
+	private enum UiStep
+	{
+		Preview,
+		SelectingClient,
+		ChoosingDestination,
+		Confirming,
+		Applying,
+		Completed
+	}
+
+	private enum DestinationType
+	{
+		None,
+		ExistingClient,
+		NewClient
+	}
+
 	private IBrowserFile? _selectedFile;
 	private bool _isAnalyzing;
 	private string? _errorMessage;
 	private BrioImportAnalysisResult? _analysisResult;
+
+	private UiStep _currentStep = UiStep.Preview;
+	private BrioClientCandidate? _selectedBrioCandidate;
+	private DestinationType _selectedDestination = DestinationType.None;
+	private IReadOnlyCollection<SelectableClient> _selectableClients = Array.Empty<SelectableClient>();
+	private bool _isLoadingSelectableClients;
+	private SelectableClient? _selectedExistingClient;
+	private Language _selectedLanguage = Language.French;
+	private BrioContractApplicationResult? _applicationResult;
 
 	private void HandleFileSelected(InputFileChangeEventArgs e)
 	{
@@ -338,10 +731,134 @@
 
 	private void Reset()
 	{
+		if (_currentStep == UiStep.Applying)
+			return;
+
 		_selectedFile = null;
 		_analysisResult = null;
 		_errorMessage = null;
 		_isAnalyzing = false;
+		_currentStep = UiStep.Preview;
+		_selectedBrioCandidate = null;
+		_selectedDestination = DestinationType.None;
+		_selectableClients = Array.Empty<SelectableClient>();
+		_isLoadingSelectableClients = false;
+		_selectedExistingClient = null;
+		_selectedLanguage = Language.French;
+		_applicationResult = null;
+	}
+
+	private void StartApplication()
+	{
+		_currentStep = UiStep.SelectingClient;
+		_selectedBrioCandidate = null;
+	}
+
+	private void SelectBrioCandidate(BrioClientCandidate candidate)
+	{
+		_selectedBrioCandidate = candidate;
+	}
+
+	private async Task ConfirmBrioCandidate()
+	{
+		if (_selectedBrioCandidate == null)
+			return;
+
+		_currentStep = UiStep.ChoosingDestination;
+		_selectedDestination = DestinationType.None;
+		_selectableClients = Array.Empty<SelectableClient>();
+		_isLoadingSelectableClients = true;
+
+		try
+		{
+			_selectableClients = await ClientSelectionService.GetSelectableClientsAsync();
+		}
+		catch (Exception)
+		{
+			_errorMessage = "Impossible de charger la liste des clients. Réessayez ou choisissez 'Nouveau client'.";
+			_selectableClients = Array.Empty<SelectableClient>();
+		}
+		finally
+		{
+			_isLoadingSelectableClients = false;
+		}
+	}
+
+	private void CancelApplication()
+	{
+		_currentStep = UiStep.Preview;
+		_selectedBrioCandidate = null;
+		_selectedDestination = DestinationType.None;
+		_selectableClients = Array.Empty<SelectableClient>();
+		_selectedExistingClient = null;
+		_selectedLanguage = Language.French;
+	}
+
+	private void BackToClientSelection()
+	{
+		_currentStep = UiStep.SelectingClient;
+		_selectedDestination = DestinationType.None;
+		_selectableClients = Array.Empty<SelectableClient>();
+		_selectedExistingClient = null;
+	}
+
+	private bool IsDestinationValid()
+	{
+		if (_selectedDestination == DestinationType.ExistingClient)
+			return _selectedExistingClient != null;
+		if (_selectedDestination == DestinationType.NewClient)
+			return true;
+		return false;
+	}
+
+	private void ConfirmDestination()
+	{
+		if (!IsDestinationValid())
+			return;
+
+		_currentStep = UiStep.Confirming;
+	}
+
+	private void BackToDestination()
+	{
+		_currentStep = UiStep.ChoosingDestination;
+	}
+
+	private async Task ApplyContracts()
+	{
+		if (_analysisResult == null || _selectedBrioCandidate == null)
+			return;
+
+		_currentStep = UiStep.Applying;
+
+		try
+		{
+			var contractsToApply = _analysisResult.ContractCandidates
+				.Where(c => c.ClientNormalizedIdentity == _selectedBrioCandidate.NormalizedIdentity)
+				.ToList();
+
+			if (_selectedDestination == DestinationType.ExistingClient && _selectedExistingClient != null)
+			{
+				_applicationResult = await BrioContractApplicationService.ApplyToExistingClientAsync(
+					_analysisResult,
+					_selectedBrioCandidate.NormalizedIdentity,
+					_selectedExistingClient.ClientId);
+			}
+			else if (_selectedDestination == DestinationType.NewClient)
+			{
+				_applicationResult = await BrioContractApplicationService.ApplyWithNewClientAsync(
+					_analysisResult,
+					_selectedBrioCandidate.NormalizedIdentity,
+					_selectedLanguage);
+			}
+
+			_currentStep = UiStep.Completed;
+		}
+		catch (Exception)
+		{
+			_errorMessage = "Une erreur inattendue empêche l'application des contrats. Réessayez ou annulez.";
+			_currentStep = UiStep.Confirming;
+		}
 	}
 
 	private string FormatFileSize(long bytes)
@@ -366,6 +883,17 @@
 			ContractType.PensionAgreement => "Pension Agreement",
 			ContractType.IndividualLifeInsurance => "Assurance vie individuelle",
 			_ => type.ToString()
+		};
+	}
+
+	private string GetLanguageLabel(Language language)
+	{
+		return language switch
+		{
+			Language.French => "Français",
+			Language.Dutch => "Néerlandais",
+			Language.English => "Anglais",
+			_ => language.ToString()
 		};
 	}
 }
