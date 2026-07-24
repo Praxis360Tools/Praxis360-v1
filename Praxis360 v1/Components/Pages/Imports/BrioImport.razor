@@ -1,0 +1,370 @@
+@page "/imports/brio"
+@rendermode InteractiveServer
+@using Praxis360_v1.Application.Interfaces
+@using Praxis360_v1.Application.Models
+@using Praxis360.Domain.Types
+@inject IBrioFileReader BrioFileReader
+@inject IBrioImportAnalyzer BrioImportAnalyzer
+
+<PageTitle>Import BRIO</PageTitle>
+
+<div class="brio-import-container">
+	<div class="brio-import-header">
+		<h1>Import BRIO</h1>
+		<p class="import-subtitle">
+			Sélectionnez un fichier CSV BRIO pour en prévisualiser le contenu avant toute importation dans Praxis360.
+		</p>
+	</div>
+
+	@if (!string.IsNullOrEmpty(_errorMessage))
+	{
+		<P360Card Class="error-card">
+			<div class="error-content">
+				<span class="error-icon">⚠️</span>
+				<div>
+					<div class="error-title">Erreur</div>
+					<div class="error-message">@_errorMessage</div>
+				</div>
+			</div>
+		</P360Card>
+	}
+
+	@if (_analysisResult == null)
+	{
+		<P360Card Class="upload-card">
+			<div class="upload-section">
+				<div class="upload-icon">📄</div>
+				<h2>Sélectionner un fichier BRIO</h2>
+				<p class="upload-description">
+					Choisissez un fichier CSV exporté depuis BRIO pour analyser son contenu.
+				</p>
+
+				<InputFile OnChange="HandleFileSelected"
+						   accept=".csv"
+						   class="file-input"
+						   disabled="@_isAnalyzing" />
+
+				@if (_selectedFile != null && !_isAnalyzing)
+				{
+					<div class="file-selected">
+						<span class="file-icon">✓</span>
+						<span class="file-name">@_selectedFile.Name</span>
+						<span class="file-size">(@FormatFileSize(_selectedFile.Size))</span>
+					</div>
+
+					<button class="btn-primary" @onclick="AnalyzeFile" disabled="@_isAnalyzing">
+						Analyser le fichier
+					</button>
+				}
+
+				@if (_isAnalyzing)
+				{
+					<div class="analyzing-message">
+						<div class="spinner"></div>
+						<span>Analyse du fichier en cours...</span>
+					</div>
+				}
+			</div>
+		</P360Card>
+	}
+	else
+	{
+		<div class="analysis-results">
+			<div class="results-header">
+				<h2>Résultat de l'analyse</h2>
+				<button class="btn-secondary" @onclick="Reset">
+					Analyser un autre fichier
+				</button>
+			</div>
+
+			<div class="summary-section">
+				<P360Card Class="summary-card">
+					<h3>Résumé</h3>
+					<div class="summary-grid">
+						<div class="summary-item">
+							<div class="summary-label">Lignes analysées</div>
+							<div class="summary-value">@_analysisResult.TotalLinesAnalyzed</div>
+						</div>
+						<div class="summary-item">
+							<div class="summary-label">Clients candidats</div>
+							<div class="summary-value">@_analysisResult.ClientCandidates.Count</div>
+						</div>
+						<div class="summary-item">
+							<div class="summary-label">Contrats candidats</div>
+							<div class="summary-value">@_analysisResult.ContractCandidates.Count</div>
+						</div>
+						<div class="summary-item">
+							<div class="summary-label">Avertissements</div>
+							<div class="summary-value warning-value">@_analysisResult.WarningCount</div>
+						</div>
+						<div class="summary-item">
+							<div class="summary-label">Erreurs bloquantes</div>
+							<div class="summary-value error-value">@_analysisResult.BlockingErrorCount</div>
+						</div>
+					</div>
+				</P360Card>
+			</div>
+
+			@if (_analysisResult.HasBlockingErrors)
+			{
+				<P360Card Class="blocking-errors-card">
+					<div class="blocking-errors-header">
+						<span class="blocking-error-icon">🛑</span>
+						<h3>Erreurs bloquantes détectées</h3>
+					</div>
+					<p class="blocking-errors-description">
+						Le fichier contient des erreurs qui empêchent son traitement.
+						Veuillez corriger ces erreurs dans BRIO ou dans le fichier CSV avant de réessayer.
+					</p>
+					<div class="issues-list">
+						@foreach (var issue in _analysisResult.AllIssues.Where(i => i.Severity == ImportIssueSeverity.BlockingError))
+						{
+							<div class="issue-item blocking-error">
+								<div class="issue-header">
+									<span class="issue-code">@issue.Code</span>
+									@if (issue.LineNumber.HasValue)
+									{
+										<span class="issue-line">Ligne @issue.LineNumber</span>
+									}
+								</div>
+								<div class="issue-message">@issue.Message</div>
+								@if (!string.IsNullOrEmpty(issue.FieldName))
+								{
+									<div class="issue-field">Champ : @issue.FieldName</div>
+								}
+							</div>
+						}
+					</div>
+				</P360Card>
+			}
+
+			@if (_analysisResult.WarningCount > 0)
+			{
+				<P360Card Class="warnings-card">
+					<div class="warnings-header">
+						<span class="warning-icon">⚠️</span>
+						<h3>Avertissements</h3>
+					</div>
+					<p class="warnings-description">
+						Ces éléments nécessitent votre attention mais n'empêchent pas le traitement.
+					</p>
+					<div class="issues-list">
+						@foreach (var issue in _analysisResult.AllIssues.Where(i => i.Severity == ImportIssueSeverity.Warning))
+						{
+							<div class="issue-item warning">
+								<div class="issue-header">
+									<span class="issue-code">@issue.Code</span>
+									@if (issue.LineNumber.HasValue)
+									{
+										<span class="issue-line">Ligne @issue.LineNumber</span>
+									}
+								</div>
+								<div class="issue-message">@issue.Message</div>
+								@if (!string.IsNullOrEmpty(issue.FieldName))
+								{
+									<div class="issue-field">Champ : @issue.FieldName</div>
+								}
+							</div>
+						}
+					</div>
+				</P360Card>
+			}
+
+			<div class="clients-section">
+				<h2>Clients et contrats candidats</h2>
+				@if (_analysisResult.ClientCandidates.Count == 0)
+				{
+					<P360Card>
+						<p class="no-data-message">Aucun client candidat détecté dans le fichier.</p>
+					</P360Card>
+				}
+				else
+				{
+					@foreach (var clientEntry in _analysisResult.ClientCandidates)
+					{
+						var client = clientEntry.Value;
+						var clientContracts = _analysisResult.ContractCandidates
+							.Where(c => c.ClientNormalizedIdentity == client.NormalizedIdentity)
+							.ToList();
+
+						<P360Card Class="client-card">
+							<div class="client-header">
+								<div class="client-info">
+									<h3>@client.FirstName @client.LastName</h3>
+									@if (client.DateOfBirth.HasValue)
+									{
+										<span class="client-birthdate">Né(e) le @client.DateOfBirth.Value.ToString("dd/MM/yyyy")</span>
+									}
+								</div>
+								<div class="client-contracts-count">
+									@clientContracts.Count contrat@(clientContracts.Count > 1 ? "s" : "")
+								</div>
+							</div>
+
+							@if (clientContracts.Count > 0)
+							{
+								<div class="contracts-list">
+									@foreach (var contract in clientContracts)
+									{
+										<div class="contract-item">
+											<div class="contract-header">
+												<span class="contract-policy-number">@contract.NormalizedPolicyNumber</span>
+												@if (contract.MappedType.HasValue)
+												{
+													<span class="contract-type mapped">@GetContractTypeLabel(contract.MappedType.Value)</span>
+												}
+												else
+												{
+													<span class="contract-type unmapped">Type non reconnu</span>
+												}
+											</div>
+
+											<div class="contract-details">
+												@if (!string.IsNullOrEmpty(contract.RawProductLabel))
+												{
+													<div class="contract-detail">
+														<span class="detail-label">Produit :</span>
+														<span class="detail-value">@contract.RawProductLabel</span>
+													</div>
+												}
+												@if (!string.IsNullOrEmpty(contract.RawInsurerName))
+												{
+													<div class="contract-detail">
+														<span class="detail-label">Compagnie :</span>
+														<span class="detail-value">@contract.RawInsurerName</span>
+													</div>
+												}
+												@if (!string.IsNullOrEmpty(contract.RawStatus))
+												{
+													<div class="contract-detail">
+														<span class="detail-label">Statut :</span>
+														<span class="detail-value">@contract.RawStatus</span>
+													</div>
+												}
+												else
+												{
+													<div class="contract-detail">
+														<span class="detail-label">Statut :</span>
+														<span class="detail-value text-muted">Statut non disponible</span>
+													</div>
+												}
+											</div>
+										</div>
+									}
+								</div>
+							}
+						</P360Card>
+					}
+				}
+			</div>
+		</div>
+	}
+</div>
+
+@code {
+	private const long MaxFileSizeBytes = 10 * 1024 * 1024; // 10 MB
+
+	private IBrowserFile? _selectedFile;
+	private bool _isAnalyzing;
+	private string? _errorMessage;
+	private BrioImportAnalysisResult? _analysisResult;
+
+	private async Task HandleFileSelected(InputFileChangeEventArgs e)
+	{
+		_selectedFile = e.File;
+		_errorMessage = null;
+
+		if (_selectedFile == null)
+			return;
+
+		if (!_selectedFile.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
+		{
+			_errorMessage = "Veuillez sélectionner un fichier CSV valide.";
+			_selectedFile = null;
+			return;
+		}
+
+		if (_selectedFile.Size == 0)
+		{
+			_errorMessage = "Le fichier sélectionné est vide.";
+			_selectedFile = null;
+			return;
+		}
+
+		if (_selectedFile.Size > MaxFileSizeBytes)
+		{
+			_errorMessage = $"Le fichier est trop volumineux. La taille maximale autorisée est de {FormatFileSize(MaxFileSizeBytes)}.";
+			_selectedFile = null;
+			return;
+		}
+	}
+
+	private async Task AnalyzeFile()
+	{
+		if (_selectedFile == null)
+			return;
+
+		_isAnalyzing = true;
+		_errorMessage = null;
+		_analysisResult = null;
+
+		try
+		{
+			BrioFileReadResult readResult;
+			using (var stream = _selectedFile.OpenReadStream(MaxFileSizeBytes))
+			{
+				readResult = await BrioFileReader.ReadAsync(stream);
+			}
+
+			if (readResult.HasStructuralErrors)
+			{
+				_errorMessage = "Le fichier contient des erreurs structurelles :\n" +
+					string.Join("\n", readResult.StructuralErrors);
+				return;
+			}
+
+			_analysisResult = await BrioImportAnalyzer.AnalyzeAsync(readResult);
+		}
+		catch (Exception ex)
+		{
+			_errorMessage = $"Une erreur s'est produite lors de l'analyse du fichier : {ex.Message}";
+		}
+		finally
+		{
+			_isAnalyzing = false;
+		}
+	}
+
+	private void Reset()
+	{
+		_selectedFile = null;
+		_analysisResult = null;
+		_errorMessage = null;
+		_isAnalyzing = false;
+	}
+
+	private string FormatFileSize(long bytes)
+	{
+		string[] sizes = { "octets", "Ko", "Mo", "Go" };
+		double len = bytes;
+		int order = 0;
+		while (len >= 1024 && order < sizes.Length - 1)
+		{
+			order++;
+			len = len / 1024;
+		}
+		return $"{len:0.##} {sizes[order]}";
+	}
+
+	private string GetContractTypeLabel(ContractType type)
+	{
+		return type switch
+		{
+			ContractType.PLCI => "PLCI",
+			ContractType.EIP => "EIP",
+			ContractType.PensionAgreement => "Pension Agreement",
+			ContractType.IndividualLifeInsurance => "Assurance vie individuelle",
+			_ => type.ToString()
+		};
+	}
+}

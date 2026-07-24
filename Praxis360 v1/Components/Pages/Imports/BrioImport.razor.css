@@ -1,0 +1,525 @@
+.brio-import-container {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.brio-import-header {
+    margin-bottom: 32px;
+}
+
+.brio-import-header h1 {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #01211E;
+}
+
+.import-subtitle {
+    font-size: 16px;
+    color: #6B7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Error Card */
+.error-card {
+    margin-bottom: 24px;
+    border-left: 4px solid #DC2626;
+}
+
+.error-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.error-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.error-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #DC2626;
+    margin-bottom: 4px;
+}
+
+.error-message {
+    font-size: 14px;
+    color: #6B7280;
+    white-space: pre-line;
+}
+
+/* Upload Card */
+.upload-card {
+    text-align: center;
+}
+
+.upload-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 24px;
+}
+
+.upload-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+}
+
+.upload-section h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: #01211E;
+}
+
+.upload-description {
+    font-size: 14px;
+    color: #6B7280;
+    margin: 0;
+    max-width: 500px;
+}
+
+.file-input {
+    margin-top: 16px;
+}
+
+.file-selected {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background-color: #F0F9FF;
+    border-radius: 8px;
+    margin-top: 16px;
+}
+
+.file-icon {
+    color: #4CB7A8;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.file-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #01211E;
+}
+
+.file-size {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+/* Analyzing Message */
+.analyzing-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #E5E7EB;
+    border-top-color: #4CB7A8;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.analyzing-message span {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #4CB7A8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-top: 8px;
+}
+
+.btn-primary:hover {
+    background-color: #3A9A8D;
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+    background-color: #D1D5DB;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background-color: #F3F4F6;
+    color: #374151;
+    border: 1px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #E5E7EB;
+}
+
+.btn-secondary:active {
+    transform: scale(0.98);
+}
+
+/* Results Section */
+.analysis-results {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.results-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    color: #01211E;
+}
+
+/* Summary Section */
+.summary-card h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    color: #01211E;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 24px;
+}
+
+.summary-item {
+    text-align: center;
+}
+
+.summary-label {
+    font-size: 14px;
+    color: #6B7280;
+    margin-bottom: 8px;
+}
+
+.summary-value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #01211E;
+}
+
+.warning-value {
+    color: #F59E0B;
+}
+
+.error-value {
+    color: #DC2626;
+}
+
+/* Blocking Errors Card */
+.blocking-errors-card {
+    border-left: 4px solid #DC2626;
+}
+
+.blocking-errors-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.blocking-error-icon {
+    font-size: 24px;
+}
+
+.blocking-errors-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #DC2626;
+}
+
+.blocking-errors-description {
+    font-size: 14px;
+    color: #6B7280;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+/* Warnings Card */
+.warnings-card {
+    border-left: 4px solid #F59E0B;
+}
+
+.warnings-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.warning-icon {
+    font-size: 24px;
+}
+
+.warnings-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #F59E0B;
+}
+
+.warnings-description {
+    font-size: 14px;
+    color: #6B7280;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+
+/* Issues List */
+.issues-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.issue-item {
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid;
+}
+
+.issue-item.blocking-error {
+    background-color: #FEF2F2;
+    border-color: #FECACA;
+}
+
+.issue-item.warning {
+    background-color: #FFFBEB;
+    border-color: #FED7AA;
+}
+
+.issue-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.issue-code {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    background-color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.issue-line {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.issue-message {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+.issue-field {
+    font-size: 12px;
+    color: #6B7280;
+    font-style: italic;
+}
+
+/* Clients Section */
+.clients-section {
+    margin-top: 16px;
+}
+
+.clients-section h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    color: #01211E;
+}
+
+.no-data-message {
+    text-align: center;
+    color: #6B7280;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Client Card */
+.client-card {
+    margin-bottom: 16px;
+}
+
+.client-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #E5E7EB;
+    margin-bottom: 16px;
+}
+
+.client-info h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+    color: #01211E;
+}
+
+.client-birthdate {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.client-contracts-count {
+    font-size: 14px;
+    font-weight: 500;
+    color: #4CB7A8;
+    background-color: #F0F9FF;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+/* Contracts List */
+.contracts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.contract-item {
+    padding: 16px;
+    background-color: #F9FAFB;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+}
+
+.contract-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.contract-policy-number {
+    font-size: 16px;
+    font-weight: 600;
+    color: #01211E;
+}
+
+.contract-type {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 4px;
+}
+
+.contract-type.mapped {
+    background-color: #D1FAE5;
+    color: #065F46;
+}
+
+.contract-type.unmapped {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.contract-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.contract-detail {
+    display: flex;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.detail-label {
+    color: #6B7280;
+    font-weight: 500;
+}
+
+.detail-value {
+    color: #374151;
+}
+
+.text-muted {
+    font-style: italic;
+    color: #9CA3AF;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .brio-import-container {
+        padding: 16px;
+    }
+
+    .brio-import-header h1 {
+        font-size: 24px;
+    }
+
+    .results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+
+    .client-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .contract-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
