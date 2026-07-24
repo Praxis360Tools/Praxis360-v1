@@ -302,6 +302,93 @@ It does not:
 
 The preview helps the advisor understand file content and identify potential issues before any actual import.
 
+### BRIO Controlled Application
+
+When the BRIO analysis contains no blocking errors, the advisor may initiate a controlled application workflow.
+
+**Starting the Application**
+
+After a successful analysis:
+- The "Démarrer l'application" button becomes available
+- The advisor clicks to begin the application workflow
+
+**Step 1: Client Selection**
+
+The advisor selects one BRIO client candidate from the analyzed file:
+- Each client appears in a selectable card
+- Client first name and last name displayed
+- "Confirmer la sélection" enabled after selection
+
+**Step 2: Destination Choice**
+
+The advisor chooses where to apply the selected client's contracts:
+
+*Option 1: Nouveau client*
+- The advisor creates a new Praxis360 client
+- Language selection: Français, Nederlands, or English
+- Language selection is mandatory
+
+*Option 2: Client Praxis360 existant*
+- The advisor selects an existing Praxis360 client from the list
+- Each existing client displays: FirstName LastName (DateOfBirth)
+- The selected client becomes the destination for the contracts
+
+**Step 3: Confirmation**
+
+The confirmation screen displays:
+- Selected BRIO client name
+- Number of contracts to apply
+- Chosen destination:
+  • For new client: "Nouveau client : Language"
+  • For existing client: "Client existant : Full Name"
+
+The advisor clicks "Appliquer les contrats" to proceed.
+
+**Step 4: Application**
+
+The system applies the contracts in memory:
+- Contracts are applied to the chosen destination
+- Existing contracts are recognized and not duplicated
+- The screen displays "Application en cours..."
+
+**Step 5: Result**
+
+The result screen displays:
+- Contextual message:
+  • "Nouveau client créé" if a new client was created
+  • "Contrats rattachés au client sélectionné" if contracts were applied to an existing client
+  • "Aucun nouveau client n'a été créé" if new-client creation failed
+  • "L'application a échoué" for other failures
+  • "Application terminée" for other outcomes
+- Number of contracts created
+- Number of contracts already existing
+- Number of contracts skipped (if any)
+- Number of contracts unresolved (if any)
+- Global warnings (if any)
+- Global errors (if any)
+
+**Terminer**
+
+The advisor clicks "Terminer" to return to the initial preview screen.
+
+**Immediate Visibility**
+
+Newly created clients are immediately visible in the existing-client selector without requiring an application restart.
+
+**Idempotence**
+
+Applying the same contracts multiple times:
+- Does not create duplicate contracts
+- Recognizes already-existing contracts
+- Reports the number of contracts already existing
+
+**Exception Handling**
+
+If an unexpected error occurs during application:
+- The system restores the confirmation screen
+- A generic error message is displayed
+- No technical details are exposed
+
 ---
 
 # 12. Future Evolutions

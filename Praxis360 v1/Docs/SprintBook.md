@@ -340,6 +340,74 @@ Story 3.2.4 — BRIO Import Preview UI (Completed)
   - No connection to "Ma situation"
   - Step C exists in engine but is not invoked by this page
 
+Story 3.2.5 — BRIO Controlled Client Application (Completed)
+
+- Implementation commit: dd57e5a
+- Merge commit: 4b76ebe
+- Pull Request: #4
+
+Objective: Extend the read-only BRIO preview with a controlled application flow enabling explicit client candidate selection, destination choice (existing client vs new client), confirmation, and in-memory application to repositories.
+
+Architecture:
+- BrioImport.razor orchestrates UI workflow only
+- IClientSelectionService / ClientSelectionService expose existing clients
+- SelectableClient provides lightweight UI read model
+- IBrioContractApplicationService applies validated contracts
+- UiStep enum manages UI state machine
+- Strict layering: Page → Application Service → Repository
+- BrioImport.razor never injects IClientRepository directly
+
+Components:
+- Application/Interfaces/IClientSelectionService.cs (new)
+- Application/Models/SelectableClient.cs (new)
+- Application/Services/ClientSelectionService.cs (new)
+- Program.cs (Singleton registration)
+- Components/Pages/Imports/BrioImport.razor (extended)
+- Components/Pages/Imports/BrioImport.razor.css (extended)
+
+Functional Capabilities:
+- Explicit BRIO client candidate selection
+- Choice between existing Praxis360 client and new client creation
+- Language selection for new clients (French, Dutch, English)
+- Explicit confirmation before application
+- In-memory application with idempotent contract creation
+- Contextual result messages depend on ApplicationOutcome, ClientWasCreated, destination
+- Newly created clients immediately visible in existing-client list
+- Double-submission protection during application
+- Reset blocked during Applying state
+- No technical Guid exposed in UI
+
+UiStep State Machine:
+- Preview: initial analysis results
+- SelectingClient: advisor selects BRIO client candidate
+- ChoosingDestination: advisor chooses existing client or new client
+- Confirming: confirmation screen before application
+- Applying: in-memory application in progress
+- Completed: result screen
+
+Validation:
+- Build successful
+- git diff --check passed
+- Exactly six files impacted
+- Manual UI validation completed with test scenarios:
+  • File with blocking errors: application correctly prevented
+  • Valid file: processed successfully
+  • New client creation: succeeded, two contracts created
+  • Created client immediately available in existing-client selector
+  • Idempotence verified: zero duplicates, contracts recognized as already existing
+- No CSV or personal data files included
+- Code review approved
+
+Constraints respected:
+- No Domain modification
+- No repository or interface modification
+- No lifetime changes for existing services
+- No real persistence
+- No financial data
+- No connection to "Ma situation"
+- BRIO preview preserved entirely
+- No CSV files retained in repository
+
 ---
 
 # 7. Completed Milestones
