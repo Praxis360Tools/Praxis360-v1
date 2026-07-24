@@ -269,7 +269,7 @@
 	private string? _errorMessage;
 	private BrioImportAnalysisResult? _analysisResult;
 
-	private async Task HandleFileSelected(InputFileChangeEventArgs e)
+	private void HandleFileSelected(InputFileChangeEventArgs e)
 	{
 		_selectedFile = e.File;
 		_errorMessage = null;
@@ -301,7 +301,7 @@
 
 	private async Task AnalyzeFile()
 	{
-		if (_selectedFile == null)
+		if (_selectedFile == null || _isAnalyzing)
 			return;
 
 		_isAnalyzing = true;
@@ -325,13 +325,14 @@
 
 			_analysisResult = await BrioImportAnalyzer.AnalyzeAsync(readResult);
 		}
-		catch (Exception ex)
+		catch (Exception)
 		{
-			_errorMessage = $"Une erreur s'est produite lors de l'analyse du fichier : {ex.Message}";
+			_errorMessage = "Une erreur inattendue empêche l'analyse du fichier. Vérifiez le fichier et réessayez.";
 		}
 		finally
 		{
 			_isAnalyzing = false;
+			_selectedFile = null;
 		}
 	}
 

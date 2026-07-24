@@ -23,7 +23,7 @@
 }
 
 /* Error Card */
-.error-card {
+::deep .error-card {
     margin-bottom: 24px;
     border-left: 4px solid #DC2626;
 }
@@ -53,7 +53,7 @@
 }
 
 /* Upload Card */
-.upload-card {
+::deep .upload-card {
     text-align: center;
 }
 
@@ -213,7 +213,7 @@
 }
 
 /* Summary Section */
-.summary-card h3 {
+::deep .summary-card h3 {
     font-size: 18px;
     font-weight: 600;
     margin: 0 0 20px 0;
@@ -251,7 +251,7 @@
 }
 
 /* Blocking Errors Card */
-.blocking-errors-card {
+::deep .blocking-errors-card {
     border-left: 4px solid #DC2626;
 }
 
@@ -281,7 +281,7 @@
 }
 
 /* Warnings Card */
-.warnings-card {
+::deep .warnings-card {
     border-left: 4px solid #F59E0B;
 }
 
@@ -386,7 +386,7 @@
 }
 
 /* Client Card */
-.client-card {
+::deep .client-card {
     margin-bottom: 16px;
 }
 
