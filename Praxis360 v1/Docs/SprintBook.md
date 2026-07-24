@@ -304,6 +304,42 @@ Phase 4 — Controlled client selection/creation and application to in-memory re
   - Scanner out of scope
   - Visible connection to "Ma situation" is future work
 
+Story 3.2.4 — BRIO Import Preview UI (Completed)
+- Commit: 4d10c2e
+- Delivers read-only preview interface for BRIO CSV files
+- Route: /imports/brio accessible via "Importer BRIO" navigation entry
+- UI Components:
+  - Components/Pages/Imports/BrioImport.razor
+  - Components/Pages/Imports/BrioImport.razor.css (isolated styling with ::deep for P360Card)
+  - Components/Layout/NavMenu.razor (navigation entry)
+- Reuses existing services:
+  - IBrioFileReader for structural reading
+  - IBrioImportAnalyzer for business analysis
+- Displays analysis results:
+  - Summary: lines analyzed, client candidates, contract candidates, warnings, blocking errors
+  - Client grouping with contract details
+  - Product type mapping display
+  - Warnings and blocking errors separated
+- Security and quality:
+  - Generic error messages (no technical details exposed)
+  - Explicit double-submission guard (_isAnalyzing)
+  - File reference cleanup after processing (_selectedFile = null in finally)
+  - Synchronous file selection handler (no async without await)
+  - CSS isolation validated for P360Card component
+- Validation:
+  - Build successful
+  - Manual validation with anonymized BRIO CSV files (valid file and file with errors)
+  - No automated test infrastructure available
+  - Code review approved
+- Limitations:
+  - Read-only preview only
+  - No contract application (IBrioContractApplicationService not called)
+  - No client creation or modification
+  - No persistence
+  - No financial data
+  - No connection to "Ma situation"
+  - Step C exists in engine but is not invoked by this page
+
 ---
 
 # 7. Completed Milestones

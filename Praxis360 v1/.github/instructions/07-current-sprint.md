@@ -69,6 +69,17 @@ The Sprint is complete when:
   - Cumulative validation: 18 of 18 scenarios passed
   - Capabilities: controlled import to in-memory repositories, client reconciliation, idempotent contracts
   - Limitations: in-memory only, no real persistence, no BRIO UI, no financial data added
+- Story 3.2.4 — Prévisualisation contrôlée d'un fichier BRIO — Completed
+  - Commit: 4d10c2e
+  - Route: /imports/brio
+  - Read-only preview interface for BRIO CSV files
+  - Reuses IBrioFileReader and IBrioImportAnalyzer services
+  - Displays analysis summary, client candidates, contract candidates, warnings, blocking errors
+  - Security: generic error messages, explicit guards, resource cleanup
+  - Build successful
+  - Manual validation successful with anonymized BRIO CSV files (valid and error cases)
+  - No automated test infrastructure available
+  - Limitations: no contract application, no persistence, no client creation/modification, no financial data
 
 ---
 
