@@ -30,9 +30,10 @@
 8. Notifications
 9. Settings
 10. Authentication
-11. Future Evolutions
-12. Business Rules
-13. References
+11. BRIO Import Preview
+12. Future Evolutions
+13. Business Rules
+14. References
 
 ---
 
@@ -61,6 +62,7 @@ Core modules:
 - Search
 - Notifications
 - Settings
+- BRIO Import Preview
 
 Future versions will progressively integrate additional domains while preserving the same customer experience.
 
@@ -219,7 +221,7 @@ Authentication must remain secure while minimizing friction.
 
 ---
 
-# 11. Future Evolutions
+# 11. BRIO Import Preview
 
 ## BRIO Contract Import Preview
 
@@ -263,12 +265,12 @@ For each client, the system shows:
 
 For each contract, the system shows:
 - Policy number
-- Product type (if recognized)
+- Product type (recognized contract type or "Type non reconnu")
+- Product label from source file (when available)
 - Insurance company
 - Contract status
-- Original product code from the file
 
-Unknown products are displayed as "Non reconnu" with a warning indicator.
+Unknown products are displayed as "Type non reconnu" with a warning indicator.
 
 **Warnings and Blocking Errors**
 
@@ -345,7 +347,7 @@ Each new domain must integrate seamlessly into the existing customer experience.
 
 ---
 
-# 12. Business Rules
+# 13. Business Rules
 
 Every feature must:
 
@@ -359,7 +361,7 @@ No functionality should expose unnecessary technical complexity.
 
 ---
 
-# 13. References
+# 14. References
 
 - Blueprint.md
 - ProductVision.md

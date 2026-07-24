@@ -491,7 +491,7 @@ Phase 4 (commit db55fc8) completes Step C with the following components:
 
 ### Story 3.2.4 — BRIO Import Preview UI
 
-Story 3.2.4 (commit 4d10c2e) delivers a read-only UI interface for controlled BRIO file preview. This interface provides visibility into Steps A and B without triggering Step C application.
+Story 3.2.4 (implementation commits: 97a4a32, 4d10c2e) delivers a read-only UI interface for controlled BRIO file preview. This interface provides visibility into Steps A and B without triggering Step C application.
 
 **UI Components**
 - Components/Pages/Imports/BrioImport.razor — preview page at route /imports/brio
