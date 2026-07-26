@@ -360,4 +360,22 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
+
+# ============================================================================
+# BRIO Data Protection - Deny all CSV files and sensitive data imports
+# ============================================================================
+
+# Deny all CSV files by default
+*.csv
+
+# Deny sensitive data import locations
+**/TestData/Imports/**
+**/.local/**
+
+# APPROVED SYNTHETIC FIXTURES ONLY - Exact allowlist
+!Praxis360 v1.Tests/Fixtures/Brio/Synthetic/BrioSynthetic.ValidCore.csv
+!Praxis360 v1.Tests/Fixtures/Brio/Synthetic/BrioSynthetic.WarningMatrix.csv
+!Praxis360 v1.Tests/Fixtures/Brio/Synthetic/BrioSynthetic.BlockingMatrix.csv
+!Praxis360 v1.Tests/Fixtures/Brio/Synthetic/BrioSynthetic.InvalidColumnCount.csv
+!Praxis360 v1.Tests/Fixtures/Brio/Synthetic/BrioSynthetic.Empty.csv
 FodyWeavers.xsd
