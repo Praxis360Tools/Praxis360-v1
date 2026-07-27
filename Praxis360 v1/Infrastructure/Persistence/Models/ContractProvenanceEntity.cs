@@ -12,5 +12,5 @@ public sealed class ContractProvenanceEntity
     public DateTime ImportedAtUtc { get; set; }
     public DateOnly? SourceSnapshotDate { get; set; }
 
-    public ContractEntity? Contract { get; set; }
+    public ContractEntity Contract { get; set; } = null!;
 }

@@ -12,5 +12,5 @@ public sealed class ExternalReferenceEntity
     public ReferenceType ReferenceType { get; set; }
     public string Value { get; set; } = string.Empty;
 
-    public ContractEntity? Contract { get; set; }
+    public ContractEntity Contract { get; set; } = null!;
 }

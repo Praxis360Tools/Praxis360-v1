@@ -23,7 +23,7 @@ public sealed class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
             Directory.CreateDirectory(directory);
         }
 
-        optionsBuilder.UseSqlite($"Data Source={dbPath}");
+        optionsBuilder.UseSqlite($"Data Source={dbPath};Foreign Keys=True");
 
         return new AppDbContext(optionsBuilder.Options);
     }

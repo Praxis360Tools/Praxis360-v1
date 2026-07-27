@@ -12,7 +12,7 @@ public sealed class ContractEntity
     public ContractStatus Status { get; set; }
     public Guid ClientId { get; set; }
 
-    public ClientEntity? Client { get; set; }
+    public ClientEntity Client { get; set; } = null!;
     public ICollection<ExternalReferenceEntity> ExternalReferences { get; set; } = new List<ExternalReferenceEntity>();
     public ICollection<ContractProvenanceEntity> ContractProvenances { get; set; } = new List<ContractProvenanceEntity>();
 }
