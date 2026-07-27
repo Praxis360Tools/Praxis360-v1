@@ -122,7 +122,7 @@ public sealed class BrioSyntheticRowBuilder
             if (i > 0)
                 sb.Append(';');
 
-            var cell = _cells[i];
+            var cell = _cells[i] ?? string.Empty;
             if (cell.Contains(';') || cell.Contains('"') || cell.Contains('\n') || cell.Contains('\r'))
             {
                 sb.Append('"');

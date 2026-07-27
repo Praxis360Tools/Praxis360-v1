@@ -6,15 +6,6 @@ namespace Praxis360_v1.Tests.TestSupport;
 /// </summary>
 public sealed class BrioSyntheticDataGuardTests
 {
-    private static readonly string[] ApprovedFixtures = new[]
-    {
-        "BrioSynthetic.ValidCore.csv",
-        "BrioSynthetic.WarningMatrix.csv",
-        "BrioSynthetic.BlockingMatrix.csv",
-        "BrioSynthetic.InvalidColumnCount.csv",
-        "BrioSynthetic.Empty.csv"
-    };
-
     [Theory]
     [InlineData("BrioSynthetic.ValidCore.csv")]
     [InlineData("BrioSynthetic.WarningMatrix.csv")]
@@ -136,5 +127,104 @@ public sealed class BrioSyntheticDataGuardTests
         {
             File.Delete(tempPath);
         }
+    }
+
+    [Fact]
+    public void RowBuilder_ShouldHandleNullCellWithoutException()
+    {
+        // Arrange
+        var builder = new BrioSyntheticRowBuilder();
+        builder.WithInsuredLastName("SYNTHETIC");
+        builder.WithCell(5, null!);
+
+        // Act
+        var csvLine = builder.BuildCsvLine();
+
+        // Assert
+        Assert.NotNull(csvLine);
+        var cells = csvLine.Split(';');
+        Assert.Equal(62, cells.Length);
+        Assert.Equal(string.Empty, cells[5]);
+    }
+
+    [Fact]
+    public void DataGuard_ShouldDetectInvalidColumnCount_CaseInsensitive()
+    {
+        // Arrange
+        var tempPath = Path.GetTempFileName();
+
+        try
+        {
+            // Create a CSV with wrong column count but with "invalidcolumncount" in lowercase
+            File.WriteAllText(tempPath, "Col1;Col2;Col3\nVal1;Val2;Val3");
+
+            // Act
+            var result = BrioSyntheticDataGuard.ValidateFixture(tempPath, "BrioSynthetic.invalidcolumncount.csv");
+
+            // Assert - Should NOT produce error about column count
+            Assert.DoesNotContain(result.Errors, e => e.Contains("Header must contain exactly 62 columns"));
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
+    }
+
+    [Fact]
+    public void DataGuard_ShouldRejectOversizedFile()
+    {
+        // Arrange
+        var tempPath = Path.GetTempFileName();
+
+        try
+        {
+            // Create a file larger than 50,000 bytes
+            var largeContent = new string('X', 51000);
+            File.WriteAllText(tempPath, largeContent);
+
+            // Act
+            var result = BrioSyntheticDataGuard.ValidateFixture(tempPath, "oversized.csv");
+
+            // Assert
+            Assert.False(result.IsValid);
+            Assert.Contains(result.Errors, e => e.Contains("too large") && e.Contains("50000"));
+        }
+        finally
+        {
+            File.Delete(tempPath);
+        }
+    }
+
+    [Fact]
+    public void FixtureLoader_GetFixturePath_ShouldRejectNullName()
+    {
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() =>
+            BrioSyntheticFixtureLoader.GetFixturePath(null!));
+
+        Assert.Contains("Fixture name cannot be null, empty, or whitespace.", ex.Message);
+        Assert.Equal("fixtureName", ex.ParamName);
+    }
+
+    [Fact]
+    public void FixtureLoader_GetFixturePath_ShouldRejectEmptyName()
+    {
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() =>
+            BrioSyntheticFixtureLoader.GetFixturePath(""));
+
+        Assert.Contains("Fixture name cannot be null, empty, or whitespace.", ex.Message);
+        Assert.Equal("fixtureName", ex.ParamName);
+    }
+
+    [Fact]
+    public void FixtureLoader_GetFixturePath_ShouldRejectWhitespaceName()
+    {
+        // Act & Assert
+        var ex = Assert.Throws<ArgumentException>(() =>
+            BrioSyntheticFixtureLoader.GetFixturePath("   "));
+
+        Assert.Contains("Fixture name cannot be null, empty, or whitespace.", ex.Message);
+        Assert.Equal("fixtureName", ex.ParamName);
     }
 }

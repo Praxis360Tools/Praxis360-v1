@@ -28,6 +28,15 @@ public sealed class BrioSyntheticDataGuard
             return result;
         }
 
+        // Check file size before reading content (50 KB max for synthetic fixtures)
+        const long MaxFixtureBytes = 50_000;
+        var fileInfo = new FileInfo(fixturePath);
+        if (fileInfo.Length > MaxFixtureBytes)
+        {
+            result.AddError($"Fixture file is too large ({fileInfo.Length} bytes). Synthetic fixtures must not exceed {MaxFixtureBytes} bytes.");
+            return result;
+        }
+
         var lines = File.ReadAllLines(fixturePath);
 
         // Empty file is allowed (BrioSynthetic.Empty.csv)
@@ -52,13 +61,6 @@ public sealed class BrioSyntheticDataGuard
             ValidateLine(line, i + 1, result, fixtureName);
         }
 
-        // Check file size (synthetic fixtures should be small)
-        var fileInfo = new FileInfo(fixturePath);
-        if (fileInfo.Length > 50_000) // 50 KB max for synthetic fixtures
-        {
-            result.AddWarning($"Fixture file is larger than expected ({fileInfo.Length} bytes). Synthetic fixtures should be small.");
-        }
-
         return result;
     }
 
@@ -67,7 +69,7 @@ public sealed class BrioSyntheticDataGuard
         var cells = headerLine.Split(';');
 
         // For invalid column count fixtures, we allow incorrect header
-        if (cells.Length != 62 && !result.FixtureName.Contains("InvalidColumnCount"))
+        if (cells.Length != 62 && !result.FixtureName.Contains("InvalidColumnCount", StringComparison.OrdinalIgnoreCase))
         {
             result.AddError($"Header must contain exactly 62 columns, found {cells.Length}");
         }
@@ -78,7 +80,7 @@ public sealed class BrioSyntheticDataGuard
         var cells = ParseCsvLine(line);
 
         // Check column count (allow incorrect count for InvalidColumnCount fixture)
-        if (!fixtureName.Contains("InvalidColumnCount") && cells.Count != 62)
+        if (!fixtureName.Contains("InvalidColumnCount", StringComparison.OrdinalIgnoreCase) && cells.Count != 62)
         {
             result.AddWarning($"Line {lineNumber}: Expected 62 columns, found {cells.Count}");
         }
