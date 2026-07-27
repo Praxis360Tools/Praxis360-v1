@@ -408,6 +408,60 @@ Constraints respected:
 - BRIO preview preserved entirely
 - No CSV files retained in repository
 
+Story 3.2.6 — BRIO Synthetic Fixtures and Automated Coverage (Completed)
+
+Objective:
+Establish durable automated coverage for the BRIO import capabilities through a permanent xUnit project and five fully synthetic CSV fixtures.
+
+Delivered:
+- Permanent Praxis360 v1.Tests project
+- Five fully synthetic CSV fixtures
+- Coverage for BrioCsvFileReader
+- Coverage for BrioImportAnalyzer
+- Coverage for BrioContractApplicationService
+- Controlled fixture loading, construction, and validation utilities
+- CSV files blocked by default with an explicit allowlist limited to the five approved fixtures
+- File-size validation before full content reading
+- Safe handling of null cells
+- Case-insensitive InvalidColumnCount detection
+- Validation of null, empty, and whitespace-only fixture names
+- Five InlineData cases preserved
+
+Final Validation:
+- BrioCsvFileReaderTests: 7 [Fact] methods, 7 cases
+- BrioImportAnalyzerTests: 12 [Fact] methods, 12 cases
+- BrioContractApplicationServiceTests: 9 [Fact] methods, 9 cases
+- BrioSyntheticDataGuardTests: 10 [Fact] methods and 1 [Theory] with 5 InlineData cases, for 15 cases
+- Total: 38 [Fact] methods
+- Total: 1 [Theory] method
+- Total: 5 InlineData cases
+- Total executed: 43
+- Passed: 43
+- Failed: 0
+- Skipped: 0
+- Build: 0 errors, 0 warnings
+
+Confidentiality:
+- Fixtures are fully synthetic
+- No real data is used or versioned
+- No unapproved fixture is permitted
+- Git protection and automated fixture validation are active
+
+Traceability:
+- Functional PR #6
+- Corrective PR #7
+- Functional commit 86623a9
+- Corrective commits 3aa4c8d, ab61f9a, and 2c32287
+- Functional merge commit 691f5ea
+- Corrective merge commit 6a42c4c
+
+Constraints:
+- No real persistence
+- No financial data
+- No Domain modification
+- No new user-facing functionality
+- Production behavior remained unchanged by the corrective PR
+
 ---
 
 # 7. Completed Milestones
