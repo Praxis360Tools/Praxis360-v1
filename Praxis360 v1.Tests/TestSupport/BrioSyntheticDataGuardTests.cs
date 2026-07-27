@@ -202,7 +202,7 @@ public sealed class BrioSyntheticDataGuardTests
         var ex = Assert.Throws<ArgumentException>(() =>
             BrioSyntheticFixtureLoader.GetFixturePath(null!));
 
-        Assert.Contains("Fixture name cannot be null or empty", ex.Message);
+        Assert.Contains("Fixture name cannot be null, empty, or whitespace.", ex.Message);
         Assert.Equal("fixtureName", ex.ParamName);
     }
 
@@ -213,7 +213,7 @@ public sealed class BrioSyntheticDataGuardTests
         var ex = Assert.Throws<ArgumentException>(() =>
             BrioSyntheticFixtureLoader.GetFixturePath(""));
 
-        Assert.Contains("Fixture name cannot be null or empty", ex.Message);
+        Assert.Contains("Fixture name cannot be null, empty, or whitespace.", ex.Message);
         Assert.Equal("fixtureName", ex.ParamName);
     }
 
@@ -224,7 +224,7 @@ public sealed class BrioSyntheticDataGuardTests
         var ex = Assert.Throws<ArgumentException>(() =>
             BrioSyntheticFixtureLoader.GetFixturePath("   "));
 
-        Assert.Contains("Fixture name cannot be null or empty", ex.Message);
+        Assert.Contains("Fixture name cannot be null, empty, or whitespace.", ex.Message);
         Assert.Equal("fixtureName", ex.ParamName);
     }
 }

@@ -20,7 +20,7 @@ public sealed class BrioSyntheticFixtureLoader
     public static Stream LoadFixture(string fixtureName)
     {
         if (string.IsNullOrWhiteSpace(fixtureName))
-            throw new ArgumentException("Fixture name cannot be null or empty", nameof(fixtureName));
+            throw new ArgumentException("Fixture name cannot be null, empty, or whitespace.", nameof(fixtureName));
 
         if (!ApprovedFixtures.Contains(fixtureName))
         {
@@ -47,7 +47,7 @@ public sealed class BrioSyntheticFixtureLoader
     public static string GetFixturePath(string fixtureName)
     {
         if (string.IsNullOrWhiteSpace(fixtureName))
-            throw new ArgumentException("Fixture name cannot be null or empty", nameof(fixtureName));
+            throw new ArgumentException("Fixture name cannot be null, empty, or whitespace.", nameof(fixtureName));
 
         if (!ApprovedFixtures.Contains(fixtureName))
         {
