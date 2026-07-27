@@ -138,6 +138,33 @@ Not BRIO concepts.
 
 ---
 
+## Testing Infrastructure
+
+Praxis360 v1.Tests is the permanent xUnit project for automated test coverage.
+
+Project Organization:
+- Application/: tests for application services
+- Infrastructure/: tests for infrastructure components
+- TestSupport/: test utilities and fixture management
+
+BRIO Coverage:
+- BrioCsvFileReader: structural CSV validation
+- BrioImportAnalyzer: business analysis and candidate generation
+- BrioContractApplicationService: controlled contract application
+
+Fixture Management:
+- Fixtures/Brio/Synthetic/: five approved synthetic CSV files
+- Fixtures are exclusively synthetic
+- Loading is limited to an explicit allowlist
+- Automated integrity and confidentiality guard
+- Controlled synthetic line construction
+- Strict 50,000-byte limit enforced before full read
+- All CSV files are blocked from version control by default
+- Only five approved fixtures authorized
+- No real client data is required or permitted in the test fixtures
+
+---
+
 # 5. Domain Model
 
 The Domain Model is the foundation of Praxis360.
