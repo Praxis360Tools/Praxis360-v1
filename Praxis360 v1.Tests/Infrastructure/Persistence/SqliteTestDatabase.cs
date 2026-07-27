@@ -17,7 +17,7 @@ public sealed class SqliteTestDatabase : IAsyncDisposable
         _connection.Open();
 
         // Enable foreign keys
-        var enableFkCommand = _connection.CreateCommand();
+        using var enableFkCommand = _connection.CreateCommand();
         enableFkCommand.CommandText = "PRAGMA foreign_keys = ON;";
         enableFkCommand.ExecuteNonQuery();
 
