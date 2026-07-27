@@ -46,6 +46,9 @@ public sealed class BrioSyntheticFixtureLoader
 
     public static string GetFixturePath(string fixtureName)
     {
+        if (string.IsNullOrWhiteSpace(fixtureName))
+            throw new ArgumentException("Fixture name cannot be null or empty", nameof(fixtureName));
+
         if (!ApprovedFixtures.Contains(fixtureName))
         {
             throw new InvalidOperationException(
