@@ -29,10 +29,11 @@ public sealed class BrioSyntheticDataGuard
         }
 
         // Check file size before reading content (50 KB max for synthetic fixtures)
+        const long MaxFixtureBytes = 50_000;
         var fileInfo = new FileInfo(fixturePath);
-        if (fileInfo.Length > 50_000)
+        if (fileInfo.Length > MaxFixtureBytes)
         {
-            result.AddError($"Fixture file is too large ({fileInfo.Length} bytes). Synthetic fixtures must not exceed 50,000 bytes.");
+            result.AddError($"Fixture file is too large ({fileInfo.Length} bytes). Synthetic fixtures must not exceed {MaxFixtureBytes} bytes.");
             return result;
         }
 

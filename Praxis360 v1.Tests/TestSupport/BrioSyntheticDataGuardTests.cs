@@ -187,7 +187,7 @@ public sealed class BrioSyntheticDataGuardTests
 
             // Assert
             Assert.False(result.IsValid);
-            Assert.Contains(result.Errors, e => e.Contains("too large") && e.Contains("50,000"));
+            Assert.Contains(result.Errors, e => e.Contains("too large") && e.Contains("50000"));
         }
         finally
         {
