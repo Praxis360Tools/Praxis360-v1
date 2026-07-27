@@ -154,8 +154,8 @@ BRIO Coverage:
 
 Fixture Management:
 - Fixtures/Brio/Synthetic/: five approved synthetic CSV files
-- Fixtures exclusively synthetic
-- Loading limited to explicit allowlist
+- Fixtures are exclusively synthetic
+- Loading is limited to an explicit allowlist
 - Automated integrity and confidentiality guard
 - Controlled synthetic line construction
 - Strict 50,000-byte limit enforced before full read

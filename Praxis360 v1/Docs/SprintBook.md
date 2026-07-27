@@ -415,7 +415,7 @@ Establish durable automated coverage for the BRIO import capabilities through a 
 
 Delivered:
 - Permanent Praxis360 v1.Tests project
-- Five fully synthetic CSV fixtures
+- Five fully synthetic CSV fixtures, the only CSV files currently allowlisted for version control; no production BRIO export is versioned
 - Coverage for BrioCsvFileReader
 - Coverage for BrioImportAnalyzer
 - Coverage for BrioContractApplicationService
@@ -460,7 +460,7 @@ Constraints:
 - No financial data
 - No Domain modification
 - No new user-facing functionality
-- Production behavior remained unchanged by the corrective PR
+- Production behavior remained unchanged by PR #6 and PR #7
 
 ---
 
