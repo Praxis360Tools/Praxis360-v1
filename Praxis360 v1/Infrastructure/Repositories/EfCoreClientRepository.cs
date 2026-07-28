@@ -46,13 +46,13 @@ public sealed class EfCoreClientRepository : IClientRepository
         if (!string.IsNullOrWhiteSpace(firstName))
         {
             var searchFirstName = firstName.Trim();
-            query = query.Where(c => c.FirstName == searchFirstName);
+            query = query.Where(c => EF.Functions.Collate(c.FirstName, "NOCASE") == EF.Functions.Collate(searchFirstName, "NOCASE"));
         }
 
         if (!string.IsNullOrWhiteSpace(lastName))
         {
             var searchLastName = lastName.Trim();
-            query = query.Where(c => c.LastName == searchLastName);
+            query = query.Where(c => EF.Functions.Collate(c.LastName, "NOCASE") == EF.Functions.Collate(searchLastName, "NOCASE"));
         }
 
         if (dateOfBirth.HasValue)

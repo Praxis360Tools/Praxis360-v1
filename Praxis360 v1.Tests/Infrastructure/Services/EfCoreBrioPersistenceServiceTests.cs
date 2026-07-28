@@ -272,6 +272,59 @@ public sealed class EfCoreBrioPersistenceServiceTests : IDisposable
         Assert.NotNull(persistedContract);
     }
 
+    [Fact]
+    public async Task PersistNewClientWithContractsAsync_WrongClientId_ShouldReturnValidationFailure()
+    {
+        var service = new EfCoreBrioPersistenceService(_contextFactory, NullLogger<EfCoreBrioPersistenceService>.Instance);
+        var client = new Client(Guid.NewGuid(), "WrongClient", "Test", new DateOnly(1985, 1, 1), Language.French, null);
+        var wrongClientId = Guid.NewGuid();
+        var contract = new ContratVie(Guid.NewGuid(), new ContractNumber("POL-WRONG"), ContractType.PLCI, ContractStatus.Active, wrongClientId, null);
+        contract.AddExternalReference(new ExternalReference(SourceSystem.Brio, ReferenceType.PolicyNumber, "REF-WRONG"));
+
+        var result = await service.PersistNewClientWithContractsAsync(client, new[] { contract });
+
+        Assert.Equal(BrioPersistenceOutcome.ValidationFailure, result.Outcome);
+        Assert.Equal(client.Id, result.ClientId);
+        Assert.False(result.ClientWasPersisted);
+        Assert.Empty(result.PersistedContractIds);
+
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        var persistedClient = await context.Clients.FirstOrDefaultAsync(c => c.Id == client.Id);
+        var persistedContract = await context.Contracts.FirstOrDefaultAsync(c => c.Id == contract.Id);
+
+        Assert.Null(persistedClient);
+        Assert.Null(persistedContract);
+    }
+
+    [Fact]
+    public async Task PersistContractsForExistingClientAsync_WrongClientId_ShouldReturnValidationFailure()
+    {
+        var service = new EfCoreBrioPersistenceService(_contextFactory, NullLogger<EfCoreBrioPersistenceService>.Instance);
+        var client = new Client(Guid.NewGuid(), "ExistingClient", "Test", new DateOnly(1985, 1, 1), Language.French, null);
+        var initialContract = new ContratVie(Guid.NewGuid(), new ContractNumber("POL-INIT"), ContractType.PLCI, ContractStatus.Active, client.Id, null);
+        initialContract.AddExternalReference(new ExternalReference(SourceSystem.Brio, ReferenceType.PolicyNumber, "REF-INIT"));
+
+        await service.PersistNewClientWithContractsAsync(client, new[] { initialContract });
+
+        var wrongClientId = Guid.NewGuid();
+        var badContract = new ContratVie(Guid.NewGuid(), new ContractNumber("POL-BAD"), ContractType.EIP, ContractStatus.Active, wrongClientId, null);
+        badContract.AddExternalReference(new ExternalReference(SourceSystem.Brio, ReferenceType.PolicyNumber, "REF-BAD"));
+
+        var result = await service.PersistContractsForExistingClientAsync(client.Id, new[] { badContract });
+
+        Assert.Equal(BrioPersistenceOutcome.ValidationFailure, result.Outcome);
+        Assert.Equal(client.Id, result.ClientId);
+        Assert.False(result.ClientWasPersisted);
+        Assert.Empty(result.PersistedContractIds);
+
+        await using var context = await _contextFactory.CreateDbContextAsync();
+        var persistedClient = await context.Clients.FirstOrDefaultAsync(c => c.Id == client.Id);
+        var badContractInDb = await context.Contracts.FirstOrDefaultAsync(c => c.Id == badContract.Id);
+
+        Assert.NotNull(persistedClient);
+        Assert.Null(badContractInDb);
+    }
+
     private sealed class TestDbContextFactory : IDbContextFactory<AppDbContext>
     {
         private readonly DbContextOptions<AppDbContext> _options;

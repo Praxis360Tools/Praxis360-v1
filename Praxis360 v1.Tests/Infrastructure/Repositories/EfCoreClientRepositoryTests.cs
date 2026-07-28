@@ -148,6 +148,58 @@ public sealed class EfCoreClientRepositoryTests : IDisposable
         Assert.Equal("Sophie", retrieved.FirstName);
     }
 
+    [Fact]
+    public async Task SearchByIdentityAsync_CaseInsensitiveFirstName_ShouldReturnMatch()
+    {
+        var repository = new EfCoreClientRepository(_contextFactory);
+        var client = new Client(Guid.NewGuid(), "Marie", "Lecomte", new DateOnly(1975, 11, 5), Language.French, null);
+        await repository.SaveAsync(client);
+
+        var results = await repository.SearchByIdentityAsync("marie", "Lecomte", null);
+
+        Assert.Single(results);
+        Assert.Equal(client.Id, results.First().Id);
+    }
+
+    [Fact]
+    public async Task SearchByIdentityAsync_CaseInsensitiveLastName_ShouldReturnMatch()
+    {
+        var repository = new EfCoreClientRepository(_contextFactory);
+        var client = new Client(Guid.NewGuid(), "Marie", "Lecomte", new DateOnly(1975, 11, 5), Language.French, null);
+        await repository.SaveAsync(client);
+
+        var results = await repository.SearchByIdentityAsync("Marie", "LECOMTE", null);
+
+        Assert.Single(results);
+        Assert.Equal(client.Id, results.First().Id);
+    }
+
+    [Fact]
+    public async Task SearchByIdentityAsync_CaseInsensitiveBoth_ShouldReturnMatch()
+    {
+        var repository = new EfCoreClientRepository(_contextFactory);
+        var client = new Client(Guid.NewGuid(), "Marie", "Lecomte", new DateOnly(1975, 11, 5), Language.French, null);
+        await repository.SaveAsync(client);
+
+        var results = await repository.SearchByIdentityAsync("MARIE", "lecomte", null);
+
+        Assert.Single(results);
+        Assert.Equal(client.Id, results.First().Id);
+    }
+
+    [Fact]
+    public async Task SearchByIdentityAsync_WithTrim_ShouldReturnMatch()
+    {
+        var repository = new EfCoreClientRepository(_contextFactory);
+        var client = new Client(Guid.NewGuid(), "Marie", "Lecomte", new DateOnly(1975, 11, 5), Language.French, null);
+        await repository.SaveAsync(client);
+
+        var results = await repository.SearchByIdentityAsync("  Marie  ", "  Lecomte  ", null);
+
+        Assert.Single(results);
+        Assert.Equal(client.Id, results.First().Id);
+    }
+
     private sealed class TestDbContextFactory : IDbContextFactory<AppDbContext>
     {
         private readonly DbContextOptions<AppDbContext> _options;

@@ -41,16 +41,35 @@ public sealed class InMemoryBrioPersistenceService : IBrioPersistenceService
                         Severity = BrioPersistenceSeverity.Error,
                         Message = "Au moins un contrat doit être fourni."
                     }
-                }));
+                },
+                client.Id));
         }
 
-        // Validation : pas de doublons internes dans le lot
+        // Validation : tous les contrats doivent appartenir au client canonique
+        foreach (var contract in contracts)
+        {
+            if (contract.ClientId != client.Id)
+            {
+                return Task.FromResult(BrioPersistenceBatchResult.ValidationFailure(
+                    new[]
+                    {
+                        new BrioPersistenceIssue
+                        {
+                            Severity = BrioPersistenceSeverity.Error,
+                            Message = $"Le contrat {contract.Id} a un ClientId ({contract.ClientId}) différent du client canonique ({client.Id})."
+                        }
+                    },
+                    client.Id));
+            }
+        }
+
+        // Validation : pas de doublons internes dans le lot (clé canonique : client.Id)
         var duplicateCheck = new HashSet<(Guid ClientId, SourceSystem SourceSystem, ReferenceType ReferenceType, string Value)>();
         foreach (var contract in contracts)
         {
             foreach (var reference in contract.ExternalReferences)
             {
-                var key = (contract.ClientId, reference.SourceSystem, reference.ReferenceType, reference.Value);
+                var key = (client.Id, reference.SourceSystem, reference.ReferenceType, reference.Value);
                 if (!duplicateCheck.Add(key))
                 {
                     return Task.FromResult(BrioPersistenceBatchResult.ValidationFailure(
@@ -61,33 +80,30 @@ public sealed class InMemoryBrioPersistenceService : IBrioPersistenceService
                                 Severity = BrioPersistenceSeverity.Error,
                                 Message = $"Le lot contient des doublons de référence externe : {reference.SourceSystem}/{reference.ReferenceType}/{reference.Value}."
                             }
-                        }));
+                        },
+                        client.Id));
                 }
             }
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // Atomicité simulée : tout ou rien
+        // Atomicité réelle via ExecuteAtomicBatch
         try
         {
-            _store.AddClient(client);
-
-            var persistedIds = new List<Guid>();
-            foreach (var contract in contracts)
-            {
-                _store.AddContract(contract);
-                persistedIds.Add(contract.Id);
-            }
+            _store.ExecuteAtomicBatch(
+                clientToAdd: client,
+                contractsToAdd: contracts,
+                out var clientWasPersisted,
+                out var persistedIds);
 
             return Task.FromResult(BrioPersistenceBatchResult.Success(
                 client.Id,
-                clientWasPersisted: true,
+                clientWasPersisted: clientWasPersisted,
                 persistedIds));
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
         {
-            // En cas d'échec, le store InMemory garantit que rien n'a été persisté
             return Task.FromResult(BrioPersistenceBatchResult.DuplicateExternalReference(
                 affectedContractId: null,
                 message: "Une référence externe existe déjà.",
@@ -137,13 +153,31 @@ public sealed class InMemoryBrioPersistenceService : IBrioPersistenceService
             return Task.FromResult(BrioPersistenceBatchResult.ClientNotFound(clientId));
         }
 
-        // Validation : pas de doublons internes dans le lot
+        // Validation : tous les contrats doivent appartenir au clientId canonique
+        foreach (var contract in contracts)
+        {
+            if (contract.ClientId != clientId)
+            {
+                return Task.FromResult(BrioPersistenceBatchResult.ValidationFailure(
+                    new[]
+                    {
+                        new BrioPersistenceIssue
+                        {
+                            Severity = BrioPersistenceSeverity.Error,
+                            Message = $"Le contrat {contract.Id} a un ClientId ({contract.ClientId}) différent du clientId canonique ({clientId})."
+                        }
+                    },
+                    clientId));
+            }
+        }
+
+        // Validation : pas de doublons internes dans le lot (clé canonique : clientId)
         var duplicateCheck = new HashSet<(Guid ClientId, SourceSystem SourceSystem, ReferenceType ReferenceType, string Value)>();
         foreach (var contract in contracts)
         {
             foreach (var reference in contract.ExternalReferences)
             {
-                var key = (contract.ClientId, reference.SourceSystem, reference.ReferenceType, reference.Value);
+                var key = (clientId, reference.SourceSystem, reference.ReferenceType, reference.Value);
                 if (!duplicateCheck.Add(key))
                 {
                     return Task.FromResult(BrioPersistenceBatchResult.ValidationFailure(
@@ -162,19 +196,18 @@ public sealed class InMemoryBrioPersistenceService : IBrioPersistenceService
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // Atomicité simulée : tout ou rien
+        // Atomicité réelle via ExecuteAtomicBatch (client déjà présent)
         try
         {
-            var persistedIds = new List<Guid>();
-            foreach (var contract in contracts)
-            {
-                _store.AddContract(contract);
-                persistedIds.Add(contract.Id);
-            }
+            _store.ExecuteAtomicBatch(
+                clientToAdd: null,
+                contractsToAdd: contracts,
+                out var clientWasPersisted,
+                out var persistedIds);
 
             return Task.FromResult(BrioPersistenceBatchResult.Success(
                 clientId,
-                clientWasPersisted: false,
+                clientWasPersisted: clientWasPersisted,
                 persistedIds));
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))

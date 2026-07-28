@@ -54,13 +54,31 @@ public sealed class EfCoreBrioPersistenceService : IBrioPersistenceService
                 client.Id);
         }
 
-        // Validation : pas de doublons internes dans le lot
+        // Validation : tous les contrats doivent appartenir au client canonique
+        foreach (var contract in contracts)
+        {
+            if (contract.ClientId != client.Id)
+            {
+                return BrioPersistenceBatchResult.ValidationFailure(
+                    new[]
+                    {
+                        new BrioPersistenceIssue
+                        {
+                            Severity = BrioPersistenceSeverity.Error,
+                            Message = $"Le contrat {contract.Id} a un ClientId ({contract.ClientId}) différent du client canonique ({client.Id})."
+                        }
+                    },
+                    client.Id);
+            }
+        }
+
+        // Validation : pas de doublons internes dans le lot (clé canonique : client.Id)
         var duplicateCheck = new HashSet<(Guid ClientId, SourceSystem SourceSystem, ReferenceType ReferenceType, string Value)>();
         foreach (var contract in contracts)
         {
             foreach (var reference in contract.ExternalReferences)
             {
-                var key = (contract.ClientId, reference.SourceSystem, reference.ReferenceType, reference.Value);
+                var key = (client.Id, reference.SourceSystem, reference.ReferenceType, reference.Value);
                 if (!duplicateCheck.Add(key))
                 {
                     return BrioPersistenceBatchResult.ValidationFailure(
@@ -161,13 +179,31 @@ public sealed class EfCoreBrioPersistenceService : IBrioPersistenceService
                 clientId);
         }
 
-        // Validation : pas de doublons internes dans le lot
+        // Validation : tous les contrats doivent appartenir au clientId canonique
+        foreach (var contract in contracts)
+        {
+            if (contract.ClientId != clientId)
+            {
+                return BrioPersistenceBatchResult.ValidationFailure(
+                    new[]
+                    {
+                        new BrioPersistenceIssue
+                        {
+                            Severity = BrioPersistenceSeverity.Error,
+                            Message = $"Le contrat {contract.Id} a un ClientId ({contract.ClientId}) différent du clientId canonique ({clientId})."
+                        }
+                    },
+                    clientId);
+            }
+        }
+
+        // Validation : pas de doublons internes dans le lot (clé canonique : clientId)
         var duplicateCheck = new HashSet<(Guid ClientId, SourceSystem SourceSystem, ReferenceType ReferenceType, string Value)>();
         foreach (var contract in contracts)
         {
             foreach (var reference in contract.ExternalReferences)
             {
-                var key = (contract.ClientId, reference.SourceSystem, reference.ReferenceType, reference.Value);
+                var key = (clientId, reference.SourceSystem, reference.ReferenceType, reference.Value);
                 if (!duplicateCheck.Add(key))
                 {
                     return BrioPersistenceBatchResult.ValidationFailure(
