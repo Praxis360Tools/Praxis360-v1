@@ -17,13 +17,16 @@ public sealed class BrioContractApplicationService : IBrioContractApplicationSer
 {
     private readonly IClientRepository _clientRepository;
     private readonly IContractRepository _contractRepository;
+    private readonly IBrioPersistenceService _brioPersistenceService;
 
     public BrioContractApplicationService(
         IClientRepository clientRepository,
-        IContractRepository contractRepository)
+        IContractRepository contractRepository,
+        IBrioPersistenceService brioPersistenceService)
     {
         _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
         _contractRepository = contractRepository ?? throw new ArgumentNullException(nameof(contractRepository));
+        _brioPersistenceService = brioPersistenceService ?? throw new ArgumentNullException(nameof(brioPersistenceService));
     }
 
     public async Task<BrioContractApplicationResult> ApplyToExistingClientAsync(
@@ -338,16 +341,48 @@ public sealed class BrioContractApplicationService : IBrioContractApplicationSer
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        // Save client if new and at least one contract is creatable
+        // Persistance atomique
+        BrioPersistenceBatchResult? persistenceResult;
         if (clientWasCreated && contractsToCreate.Count > 0)
         {
-            await _clientRepository.SaveAsync(client);
+            persistenceResult = await _brioPersistenceService.PersistNewClientWithContractsAsync(
+                client,
+                contractsToCreate,
+                cancellationToken);
+        }
+        else if (!clientWasCreated && contractsToCreate.Count > 0)
+        {
+            persistenceResult = await _brioPersistenceService.PersistContractsForExistingClientAsync(
+                client.Id,
+                contractsToCreate,
+                cancellationToken);
+        }
+        else
+        {
+            // Aucune écriture nécessaire
+            persistenceResult = null;
         }
 
-        // Save contracts
-        foreach (var contract in contractsToCreate)
+        // Gérer l'échec de persistance atomique
+        if (persistenceResult is not null && persistenceResult.Outcome != BrioPersistenceOutcome.Success)
         {
-            await _contractRepository.SaveAsync(contract);
+            var persistenceError = new ImportAnalysisIssue(
+                "PERSISTENCE_FAILURE",
+                ImportIssueSeverity.BlockingError,
+                persistenceResult.Issues.FirstOrDefault()?.Message ?? "Échec de la persistance atomique",
+                lineNumber: null,
+                fieldName: null);
+
+            return new BrioContractApplicationResult(
+                clientId: persistenceResult.ClientId,
+                clientWasCreated: false,
+                contractsCreated: new List<ContractCreated>(),
+                contractsAlreadyExisting: contractsAlreadyExistingResult,
+                contractsSkipped: contractsSkippedResult,
+                contractsUnresolved: contractsUnresolvedResult,
+                globalErrors: new List<ImportAnalysisIssue> { persistenceError },
+                globalWarnings: globalWarnings,
+                ApplicationOutcome.Failed);
         }
 
         // Determine final outcome

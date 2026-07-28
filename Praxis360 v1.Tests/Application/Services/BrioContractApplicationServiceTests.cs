@@ -4,6 +4,7 @@ using Praxis360_v1.Application.Interfaces;
 using Praxis360_v1.Application.Models;
 using Praxis360_v1.Application.Services;
 using Praxis360_v1.Infrastructure.FileReaders;
+using Praxis360_v1.Infrastructure.InMemory;
 using Praxis360_v1.Infrastructure.Repositories;
 using Praxis360_v1.Tests.TestSupport;
 
@@ -13,13 +14,18 @@ public sealed class BrioContractApplicationServiceTests
 {
     private readonly IBrioFileReader _reader = new BrioCsvFileReader();
     private readonly IBrioImportAnalyzer _analyzer = new BrioImportAnalyzer();
-    private readonly IClientRepository _clientRepository = new InMemoryClientRepository();
-    private readonly IContractRepository _contractRepository = new InMemoryContractRepository();
+    private readonly InMemoryPraxis360Store _store = new();
+    private readonly IClientRepository _clientRepository;
+    private readonly IContractRepository _contractRepository;
+    private readonly IBrioPersistenceService _persistenceService;
     private readonly IBrioContractApplicationService _applicationService;
 
     public BrioContractApplicationServiceTests()
     {
-        _applicationService = new BrioContractApplicationService(_clientRepository, _contractRepository);
+        _clientRepository = new InMemoryClientRepository(_store);
+        _contractRepository = new InMemoryContractRepository(_store);
+        _persistenceService = new InMemoryBrioPersistenceService(_store);
+        _applicationService = new BrioContractApplicationService(_clientRepository, _contractRepository, _persistenceService);
     }
 
     [Fact]
