@@ -87,8 +87,14 @@ public sealed class EfCoreContractRepository : IContractRepository
             throw new ArgumentNullException(nameof(contract));
 
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var entity = ContractPersistenceMapper.ToEntity(contract);
-        context.Contracts.Update(entity);
+        var existing = await context.Contracts
+            .FirstOrDefaultAsync(c => c.Id == contract.Id && c.ClientId == contract.ClientId);
+        if (existing is null)
+            throw new InvalidOperationException($"Contract with Id {contract.Id} not found.");
+
+        existing.Number = contract.Number.Value;
+        existing.Type = contract.Type;
+        existing.Status = contract.Status;
         await context.SaveChangesAsync();
     }
 }

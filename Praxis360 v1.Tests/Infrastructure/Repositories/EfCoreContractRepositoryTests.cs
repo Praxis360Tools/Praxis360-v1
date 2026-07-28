@@ -180,6 +180,48 @@ public sealed class EfCoreContractRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task UpdateAsync_WithReferencesAndProvenances_ShouldNotDuplicate()
+    {
+        var repository = new EfCoreContractRepository(_contextFactory);
+        var contract = new ContratVie(
+            Guid.NewGuid(),
+            new ContractNumber("POL-800"),
+            ContractType.EIP,
+            ContractStatus.Active,
+            _testClientId,
+            null
+        );
+
+        contract.AddExternalReference(new ExternalReference(SourceSystem.Brio, ReferenceType.PolicyNumber, "REF-UPDATE-TEST"));
+        contract.AddProvenance(new ContractProvenance(
+            SourceSystem.Brio,
+            DateTime.UtcNow,
+            "Update Test Insurer",
+            new DateOnly(2025, 1, 28)
+        ));
+
+        await repository.SaveAsync(contract);
+
+        var updated = new ContratVie(
+            contract.Id,
+            new ContractNumber("POL-800-UPDATED"),
+            ContractType.EIP,
+            ContractStatus.Terminated,
+            _testClientId,
+            null
+        );
+
+        await repository.UpdateAsync(updated);
+
+        var retrieved = await repository.GetByIdAsync(contract.Id);
+        Assert.NotNull(retrieved);
+        Assert.Equal("POL-800-UPDATED", retrieved.Number.Value);
+        Assert.Equal(ContractStatus.Terminated, retrieved.Status);
+        Assert.Single(retrieved.ExternalReferences);
+        Assert.Single(retrieved.Provenances);
+    }
+
+    [Fact]
     public async Task SaveAsync_VisibleInNewContext()
     {
         var repository = new EfCoreContractRepository(_contextFactory);
