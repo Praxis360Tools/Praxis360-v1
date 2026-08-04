@@ -510,6 +510,15 @@
 													<p class="result-client-message">ℹ️ Application terminée</p>
 												}
 
+												@if (_applicationResult.ClientId.HasValue && (_applicationResult.TotalContractsApplied > 0))
+												{
+													<div class="result-action">
+														<a href="/patrimoine/@_applicationResult.ClientId" class="btn-secondary">
+															Voir Ma situation
+														</a>
+													</div>
+												}
+
 												<div class="result-stats">
 													<div class="result-stat">
 														<span class="result-stat-label">Contrats créés :</span>

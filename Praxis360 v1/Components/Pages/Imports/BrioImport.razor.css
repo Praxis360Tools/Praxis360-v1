@@ -880,6 +880,17 @@
     border-left: 4px solid #10B981;
 }
 
+.result-action {
+    margin: 16px 0 24px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.result-action .btn-secondary {
+    text-decoration: none;
+    display: inline-block;
+}
+
 .result-stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

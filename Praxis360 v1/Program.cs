@@ -27,9 +27,8 @@ builder.Services.AddDbContextFactory<AppDbContext>((sp, options) =>
 });
 
 builder.Services.AddSingleton<DocumentService>();
-// Register demo data service and situation service
-builder.Services.AddSingleton<DemoSituationAssuranceVieDataService>();
-builder.Services.AddSingleton<SituationAssuranceVieService>();
+// Register situation service
+builder.Services.AddScoped<SituationAssuranceVieService>();
 // Register BRIO import services
 builder.Services.AddSingleton<IBrioFileReader, BrioCsvFileReader>();
 builder.Services.AddSingleton<IBrioImportAnalyzer, BrioImportAnalyzer>();

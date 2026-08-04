@@ -744,3 +744,200 @@ Newly created clients:
 - BRIO preview (Story 3.2.4) preserved entirely
 - No CSV files included in repository
 
+### Story 3.2.7A — EF Core Infrastructure and Database Schema
+
+Story 3.2.7A implements the foundational EF Core infrastructure for SQLite persistence without modifying runtime service registration.
+
+**Persistence Entities**
+
+- Infrastructure/Persistence/Entities/ClientPersistence.cs
+- Infrastructure/Persistence/Entities/ContractPersistence.cs
+- Infrastructure/Persistence/Entities/SituationAssuranceViePersistence.cs
+
+Persistence entities represent the database schema and include EF Core configuration (table names, primary keys, relationships, indexes). These entities use simple types (Guid, string, DateTime, decimal) and contain no Domain logic.
+
+**Mappers**
+
+- Infrastructure/Persistence/Mappers/ClientMapper.cs
+- Infrastructure/Persistence/Mappers/ContractMapper.cs
+- Infrastructure/Persistence/Mappers/SituationAssuranceVieMapper.cs
+
+Mappers provide bidirectional conversion between Domain entities and persistence entities. Domain entities remain unchanged and never reference persistence types.
+
+**DbContext**
+
+- Infrastructure/Persistence/AppDbContext.cs
+
+AppDbContext configures SQLite provider, defines DbSet properties for each persistence entity, and applies entity configurations via fluent API in OnModelCreating.
+
+**Migrations**
+
+- Infrastructure/Persistence/Migrations/20260126120000_InitialCreate.cs (.cs and .Designer.cs files)
+
+InitialCreate migration creates Clients, Contracts, and SituationsAssuranceVie tables with appropriate columns, primary keys, foreign keys, and indexes.
+
+**Validation**
+
+- 19 new automated tests in Praxis360 v1.Tests/Infrastructure/Persistence/
+  - ClientMapperTests.cs (7 tests)
+  - ContractMapperTests.cs (7 tests)
+  - SituationAssuranceVieMapperTests.cs (5 tests)
+
+All mapper tests verify correctness of Domain ↔ Persistence conversion including Guid preservation, nullable fields, and enumeration mappings.
+
+**Constraints Story 3.2.7A**
+
+- No runtime service registration changes (in-memory repositories remain active)
+- No Domain entity modifications
+- No repository interface changes
+- No UI changes
+- AppDbContext registered but not used at runtime
+
+### Story 3.2.7B — EF Core Runtime Repositories and Database Initialization
+
+Story 3.2.7B activates EF Core repositories as the runtime persistence implementation, replacing in-memory repositories in the composition root.
+
+**EF Core Repositories**
+
+- Infrastructure/Persistence/Repositories/EfCoreClientRepository.cs
+- Infrastructure/Persistence/Repositories/EfCoreContractRepository.cs
+
+EF Core repositories implement domain repository interfaces using AppDbContext. Operations use mappers for Domain ↔ Persistence conversion. All async operations include atomic SaveChangesAsync calls to ensure consistency.
+
+**Persistence Service**
+
+- Application/Interfaces/IBrioPersistenceService.cs
+- Application/Services/BrioPersistenceService.cs renamed to InMemoryBrioPersistenceService.cs (preserved but unused)
+- Infrastructure/Persistence/Services/EfCoreBrioPersistenceService.cs
+
+EfCoreBrioPersistenceService implements IBrioPersistenceService with atomic transaction behavior. SaveAllAsync wraps all SaveChangesAsync calls in a single transaction to ensure atomicity across Client and Contract repositories.
+
+**Database Initialization**
+
+- Infrastructure/Persistence/Services/DatabaseInitializer.cs
+- Infrastructure/Persistence/Services/LocalAppDataDatabasePathResolver.cs
+
+DatabaseInitializer ensures database creation and migration application at application startup. LocalAppDataDatabasePathResolver provides platform-agnostic database file path using Environment.SpecialFolder.LocalApplicationData (%LOCALAPPDATA% on Windows). Database file location: `%LOCALAPPDATA%\Praxis360\praxis360.db`.
+
+**Composition Root**
+
+Program.cs modified to:
+- Register AppDbContext with SQLite provider
+- Register EF Core repositories (EfCoreClientRepository, EfCoreContractRepository)
+- Register EfCoreBrioPersistenceService as IBrioPersistenceService
+- Register DatabaseInitializer as Singleton
+- Call DatabaseInitializer.InitializeAsync() before app.Run()
+
+In-memory implementations (InMemoryClientRepository, InMemoryContractRepository, InMemoryBrioPersistenceService) remain in the codebase but are not registered in DI container.
+
+**Validation**
+
+- Build successful
+- Test results after Story 3.2.7B merge: 97/97 tests passing (baseline for Story 3.2.8)
+- New tests in Praxis360 v1.Tests/Infrastructure/Persistence/Repositories/:
+  - EfCoreClientRepositoryTests.cs (6 tests)
+  - EfCoreContractRepositoryTests.cs (7 tests)
+
+All repository tests use in-memory SQLite databases (Data Source=:memory:) and verify CRUD operations, atomicity, and mapper integration.
+
+**Constraints Story 3.2.7B**
+
+- No Domain entity modifications
+- No repository interface changes
+- No UI changes
+- In-memory implementations preserved in codebase but unused at runtime
+- Database file stored in LocalApplicationData (no connection strings in appsettings.json)
+
+### Story 3.2.8 — SQLite-Backed Insurance Situation Display
+
+Story 3.2.8 (Ready for Architecture Review) connects the SQLite persistence layer to the Portfolio UI, replacing the demo data service with real persistence-backed data flow.
+
+**Data Flow**
+
+SQLite database
+→ EfCoreClientRepository + EfCoreContractRepository (via AppDbContext)
+→ SituationAssuranceVieService
+→ SituationAssuranceVieReadModel
+→ Portfolio.razor
+
+Portfolio.razor loads insurance situations via SituationAssuranceVieService.GetSituationForClientAsync(ClientId). Service injects IClientRepository and IContractRepository, queries Client and Contract entities, converts them to read models, and returns them to the UI. No separate SituationAssuranceVie repository exists.
+
+**Route and Client Selection**
+
+Portfolio.razor route: `/patrimoine/{ClientId:guid}`
+
+UI behavior:
+- Zero clients in database → empty state displayed
+- One client in database → Portfolio automatically loads that client's data
+- Multiple clients in database → Portfolio displays client selector dropdown populated via IClientSelectionService.GetSelectableClientsAsync()
+
+Client selection stored in browser localStorage for persistence across page refreshes.
+
+**Insurance Company Fallback**
+
+SituationAssuranceVieService.DetermineInsurerDisplayName() implements fallback logic:
+- First preference: ContratVie.Insurer.DisplayName if Insurer aggregate exists
+- Fallback: most recent BRIO provenance from ContratVie.Provenances collection (ordered by ImportedAtUtc descending), using Provenance.RawInsurerName
+- Final fallback: "Compagnie non disponible" if no insurer information available
+
+Note: ContractPersistenceMapper.ToDomain() currently reconstructs Insurer as null, so fallback to RawInsurerName from BRIO provenance is the active path.
+
+**Service Updates**
+
+SituationAssuranceVieService.cs modified to:
+- Implement insurance company fallback logic (DetermineInsurerDisplayName method)
+- Query IClientRepository and IContractRepository instead of generating demo data
+- Add GetSituationForDefaultClientAsync() for zero/one/multiple client scenarios
+- Return null when no client exists for ClientId
+
+**Demo Service Status**
+
+DemoSituationAssuranceVieDataService remains in codebase but is not registered in Program.cs. This service is preserved for potential future demo scenarios but has no runtime impact.
+
+**UI Updates**
+
+Portfolio.razor and Portfolio.razor.css modified to:
+- Remove demo data warning banner
+- Integrate real client selection via IClientSelectionService
+- Display insurance situations from SQLite via SituationAssuranceVieService
+- Handle empty states appropriately
+
+BrioImport.razor and BrioImport.razor.css modified to add navigation link to Portfolio after successful contract application.
+
+**Validation**
+
+- Build successful (main project and test project)
+- Test history:
+  - Story 3.2.7A baseline: 51/51 tests passing
+  - Story 3.2.7B baseline: 97/97 tests passing
+  - Story 3.2.8 current: 106/106 tests passing
+- 9 new integration tests in SituationAssuranceVieServiceSqliteIntegrationTests.cs:
+  - EndToEnd_BrioImportAndReloadFromSqlite_ShouldConstructAccurateSituationReadModel
+  - GetSituationForClientAsync_WithMultipleContracts_ReturnsAggregatedReadModel
+  - GetSituationForClientAsync_WithoutContracts_ReturnsEmptySituation
+  - GetSituationForDefaultClientAsync_WithZeroClients_ReturnsNoClientsAvailable
+  - GetSituationForDefaultClientAsync_WithOneClient_ReturnsClientLoaded
+  - GetSituationForDefaultClientAsync_WithMultipleClients_ReturnsMultipleClientsRequireSelection
+  - DetermineInsurerDisplayName_WithInsurerAggregate_ReturnsDisplayName
+  - DetermineInsurerDisplayName_WithoutInsurerAggregate_FallsBackToRawInsurerName
+  - DetermineInsurerDisplayName_WithoutAnyInsurerInfo_ReturnsDefaultMessage
+- Manual validation: Portfolio displays insurance situations from SQLite with correct fallback behavior
+
+**Constraints Story 3.2.8**
+
+- No Domain entity modifications
+- No repository interface changes
+- No new persistence infrastructure (reuses Story 3.2.7 implementation)
+- No financial calculation changes
+- DemoSituationAssuranceVieDataService preserved but unused
+- "Ma situation" integration remains future work
+
+**Runtime Persistence Status**
+
+As of Story 3.2.8, the application uses EF Core/SQLite for runtime persistence:
+- Client and Contract data persists to `%LOCALAPPDATA%\Praxis360\praxis360.db`
+- BRIO import workflow creates persistent records via EfCoreBrioPersistenceService
+- Portfolio UI displays insurance situations by loading Client and Contract entities via EfCoreClientRepository and EfCoreContractRepository
+- SituationAssuranceVie is constructed dynamically from Client and Contract data; no separate SituationAssuranceVie persistence exists
+- In-memory repositories are no longer used at runtime
+
