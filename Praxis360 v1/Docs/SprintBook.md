@@ -302,7 +302,6 @@ Phase 4 — Controlled client selection/creation and application to in-memory re
   - Unknown values never guessed
   - MyPension out of scope
   - Scanner out of scope
-  - Visible connection to "Ma situation" is future work
 
 Story 3.2.4 — BRIO Import Preview UI (Completed)
 - Implementation commits: 97a4a32, 4d10c2e

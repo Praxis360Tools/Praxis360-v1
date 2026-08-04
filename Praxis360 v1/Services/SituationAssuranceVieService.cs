@@ -128,7 +128,7 @@ public class SituationAssuranceVieService
             .OrderByDescending(p => p.ImportedAtUtc)
             .FirstOrDefault();
 
-        if (brioProvenance?.RawInsurerName is not null)
+        if (!string.IsNullOrWhiteSpace(brioProvenance?.RawInsurerName))
         {
             return brioProvenance.RawInsurerName;
         }

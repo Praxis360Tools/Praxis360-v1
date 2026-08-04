@@ -514,7 +514,6 @@ Phase 4 (commit db55fc8) completes Step C with the following components:
 - Unknown values never guessed
 - MyPension remains out of scope
 - Scanner remains out of scope
-- Visible connection to "Ma situation" remains future work
 
 ### Story 3.2.4 — BRIO Import Preview UI
 
@@ -750,17 +749,17 @@ Story 3.2.7A implements the foundational EF Core infrastructure for SQLite persi
 
 **Persistence Entities**
 
-- Infrastructure/Persistence/Entities/ClientPersistence.cs
-- Infrastructure/Persistence/Entities/ContractPersistence.cs
-- Infrastructure/Persistence/Entities/SituationAssuranceViePersistence.cs
+- Infrastructure/Persistence/Models/ClientEntity.cs
+- Infrastructure/Persistence/Models/ContractEntity.cs
+- Infrastructure/Persistence/Models/ExternalReferenceEntity.cs
+- Infrastructure/Persistence/Models/ContractProvenanceEntity.cs
 
-Persistence entities represent the database schema and include EF Core configuration (table names, primary keys, relationships, indexes). These entities use simple types (Guid, string, DateTime, decimal) and contain no Domain logic.
+Persistence entities represent the database schema and include EF Core configuration (table names, primary keys, relationships, indexes, unique constraints). These entities use simple types (Guid, string, DateTime, decimal) and contain no Domain logic.
 
 **Mappers**
 
-- Infrastructure/Persistence/Mappers/ClientMapper.cs
-- Infrastructure/Persistence/Mappers/ContractMapper.cs
-- Infrastructure/Persistence/Mappers/SituationAssuranceVieMapper.cs
+- Infrastructure/Persistence/Mappers/ClientPersistenceMapper.cs
+- Infrastructure/Persistence/Mappers/ContractPersistenceMapper.cs
 
 Mappers provide bidirectional conversion between Domain entities and persistence entities. Domain entities remain unchanged and never reference persistence types.
 
@@ -772,18 +771,19 @@ AppDbContext configures SQLite provider, defines DbSet properties for each persi
 
 **Migrations**
 
-- Infrastructure/Persistence/Migrations/20260126120000_InitialCreate.cs (.cs and .Designer.cs files)
+- Infrastructure/Persistence/Migrations/20260727132606_InitialCreate.cs (.cs and .Designer.cs files)
 
-InitialCreate migration creates Clients, Contracts, and SituationsAssuranceVie tables with appropriate columns, primary keys, foreign keys, and indexes.
+InitialCreate migration creates Clients, Contracts, ExternalReferences, and ContractProvenances tables with appropriate columns, primary keys, foreign keys, unique constraints, and indexes.
 
 **Validation**
 
-- 19 new automated tests in Praxis360 v1.Tests/Infrastructure/Persistence/
-  - ClientMapperTests.cs (7 tests)
-  - ContractMapperTests.cs (7 tests)
-  - SituationAssuranceVieMapperTests.cs (5 tests)
+- Build successful
+- Test results after Story 3.2.7A merge: 51/51 tests passing
+- New tests in Praxis360 v1.Tests/Infrastructure/Persistence/Mappers/:
+  - ClientPersistenceMapperTests.cs
+  - ContractPersistenceMapperTests.cs
 
-All mapper tests verify correctness of Domain ↔ Persistence conversion including Guid preservation, nullable fields, and enumeration mappings.
+All mapper tests verify correctness of Domain ↔ Persistence conversion including Guid preservation, nullable fields, enumeration mappings, ExternalReferences, and ContractProvenances.
 
 **Constraints Story 3.2.7A**
 
@@ -799,8 +799,8 @@ Story 3.2.7B activates EF Core repositories as the runtime persistence implement
 
 **EF Core Repositories**
 
-- Infrastructure/Persistence/Repositories/EfCoreClientRepository.cs
-- Infrastructure/Persistence/Repositories/EfCoreContractRepository.cs
+- Infrastructure/Repositories/EfCoreClientRepository.cs
+- Infrastructure/Repositories/EfCoreContractRepository.cs
 
 EF Core repositories implement domain repository interfaces using AppDbContext. Operations use mappers for Domain ↔ Persistence conversion. All async operations include atomic SaveChangesAsync calls to ensure consistency.
 
@@ -808,14 +808,14 @@ EF Core repositories implement domain repository interfaces using AppDbContext. 
 
 - Application/Interfaces/IBrioPersistenceService.cs
 - Application/Services/BrioPersistenceService.cs renamed to InMemoryBrioPersistenceService.cs (preserved but unused)
-- Infrastructure/Persistence/Services/EfCoreBrioPersistenceService.cs
+- Infrastructure/Services/EfCoreBrioPersistenceService.cs
 
-EfCoreBrioPersistenceService implements IBrioPersistenceService with atomic transaction behavior. SaveAllAsync wraps all SaveChangesAsync calls in a single transaction to ensure atomicity across Client and Contract repositories.
+EfCoreBrioPersistenceService implements IBrioPersistenceService with atomic transaction behavior. PersistNewClientWithContractsAsync and PersistContractsForExistingClientAsync wrap all SaveChangesAsync calls in a single transaction to ensure atomicity across Client and Contract repositories.
 
 **Database Initialization**
 
-- Infrastructure/Persistence/Services/DatabaseInitializer.cs
-- Infrastructure/Persistence/Services/LocalAppDataDatabasePathResolver.cs
+- Infrastructure/Persistence/DatabaseInitializer.cs
+- Infrastructure/Persistence/LocalAppDataDatabasePathResolver.cs
 
 DatabaseInitializer ensures database creation and migration application at application startup. LocalAppDataDatabasePathResolver provides platform-agnostic database file path using Environment.SpecialFolder.LocalApplicationData (%LOCALAPPDATA% on Windows). Database file location: `%LOCALAPPDATA%\Praxis360\praxis360.db`.
 
@@ -864,14 +864,14 @@ Portfolio.razor loads insurance situations via SituationAssuranceVieService.GetS
 
 **Route and Client Selection**
 
-Portfolio.razor route: `/patrimoine/{ClientId:guid}`
+Portfolio.razor routes: `/patrimoine` and `/patrimoine/{ClientId:guid}`
 
 UI behavior:
 - Zero clients in database → empty state displayed
 - One client in database → Portfolio automatically loads that client's data
-- Multiple clients in database → Portfolio displays client selector dropdown populated via IClientSelectionService.GetSelectableClientsAsync()
+- Multiple clients in database → Portfolio displays selectable client cards via IClientSelectionService.GetSelectableClientsAsync()
 
-Client selection stored in browser localStorage for persistence across page refreshes.
+No client selection persistence in browser localStorage.
 
 **Insurance Company Fallback**
 
@@ -921,7 +921,6 @@ BrioImport.razor and BrioImport.razor.css modified to add navigation link to Por
   - DetermineInsurerDisplayName_WithInsurerAggregate_ReturnsDisplayName
   - DetermineInsurerDisplayName_WithoutInsurerAggregate_FallsBackToRawInsurerName
   - DetermineInsurerDisplayName_WithoutAnyInsurerInfo_ReturnsDefaultMessage
-- Manual validation: Portfolio displays insurance situations from SQLite with correct fallback behavior
 
 **Constraints Story 3.2.8**
 
@@ -930,7 +929,7 @@ BrioImport.razor and BrioImport.razor.css modified to add navigation link to Por
 - No new persistence infrastructure (reuses Story 3.2.7 implementation)
 - No financial calculation changes
 - DemoSituationAssuranceVieDataService preserved but unused
-- "Ma situation" integration remains future work
+- Manual web validation not performed (automated integration tests provide coverage)
 
 **Runtime Persistence Status**
 

@@ -351,6 +351,56 @@ public sealed class SituationAssuranceVieServiceSqliteIntegrationTests : IAsyncD
     }
 
     [Fact]
+    public async Task InsurerFallback_WhenBrioProvenanceHasWhitespaceOnlyName_ShouldReturnCompagnieNonDisponible()
+    {
+        // Arrange: Create synthetic client and contract with explicit whitespace-only RawInsurerName
+        var clientRepository = new EfCoreClientRepository(_contextFactory);
+        var contractRepository = new EfCoreContractRepository(_contextFactory);
+
+        var client = new Praxis360_v1.Domain.Entities.Client(
+            id: Guid.NewGuid(),
+            firstName: "Whitespace",
+            lastName: "Test",
+            dateOfBirth: new DateOnly(1980, 6, 20),
+            preferredLanguage: Language.French
+        );
+        await clientRepository.SaveAsync(client);
+
+        var contract = new Praxis360_v1.Domain.Aggregates.ContratVie(
+            id: Guid.NewGuid(),
+            number: new Praxis360_v1.Domain.ValueObjects.ContractNumber("WHITESPACE-TEST-001"),
+            type: ContractType.PLCI,
+            status: ContractStatus.Active,
+            clientId: client.Id,
+            insurer: null // Insurer is explicitly null to force fallback
+        );
+
+        // Add BRIO provenance with whitespace-only RawInsurerName
+        var whitespaceProvenance = new Praxis360_v1.Domain.ValueObjects.ContractProvenance(
+            sourceSystem: SourceSystem.Brio,
+            importedAtUtc: DateTime.SpecifyKind(new DateTime(2025, 1, 20, 12, 0, 0), DateTimeKind.Utc),
+            rawInsurerName: "   " // Explicitly three spaces
+        );
+
+        contract.AddProvenance(whitespaceProvenance);
+
+        await contractRepository.SaveAsync(contract);
+
+        // Act: Create new repository instances and load situation from SQLite
+        var situationClientRepository = new EfCoreClientRepository(_contextFactory);
+        var situationContractRepository = new EfCoreContractRepository(_contextFactory);
+        var situationService = new SituationAssuranceVieService(situationClientRepository, situationContractRepository);
+
+        var situation = await situationService.GetSituationForClientAsync(client.Id);
+
+        // Assert: Should return "Compagnie non disponible" because whitespace-only is rejected
+        Assert.NotNull(situation);
+        Assert.Single(situation.Contracts);
+        var contractReadModel = situation.Contracts[0];
+        Assert.Equal("Compagnie non disponible", contractReadModel.InsurerDisplayName);
+    }
+
+    [Fact]
     public async Task InsurerFallback_WhenInsurerIsNullButBrioProvenanceHasName_ShouldUseMostRecentBrioProvenance()
     {
         // Arrange: Create a client and contract manually with synthetic BRIO provenances
