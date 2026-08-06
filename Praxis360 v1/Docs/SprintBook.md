@@ -302,7 +302,6 @@ Phase 4 — Controlled client selection/creation and application to in-memory re
   - Unknown values never guessed
   - MyPension out of scope
   - Scanner out of scope
-  - Visible connection to "Ma situation" is future work
 
 Story 3.2.4 — BRIO Import Preview UI (Completed)
 - Implementation commits: 97a4a32, 4d10c2e
@@ -461,6 +460,118 @@ Constraints:
 - No Domain modification
 - No new user-facing functionality
 - Production behavior remained unchanged by PR #6 and PR #7
+
+Story 3.2.8 — Situation reload from SQLite with multi-client selection (Ready for Architecture Review)
+
+Objective:
+Replace the demo-backed "Ma situation" with repository-backed loading from persisted SQLite data, implementing explicit multi-client selection and post-import navigation, with full end-to-end integration test coverage.
+
+Implementation branch: story/3.2.8-situation-reload-from-sqlite
+
+Architecture:
+- SituationAssuranceVieService converted from demo synchronous logic to repository-backed async service
+- New SituationAssuranceVieLoadResult wrapper distinguishes default-load outcomes
+- Portfolio.razor rewritten as route-aware async UI state machine serving both `/patrimoine` and `/patrimoine/{ClientId:guid}`
+- BrioImport.razor extended with conditional "Voir Ma situation" post-import navigation link
+- SituationAssuranceVieService registered as scoped lifetime (aligned with scoped repositories)
+- DemoSituationAssuranceVieDataService removed from runtime DI registration
+
+Components created:
+- Praxis360 v1/Models/SituationAssuranceVieLoadResult.cs
+- Praxis360 v1.Tests/Application/Services/SituationAssuranceVieServiceSqliteIntegrationTests.cs
+
+Components modified:
+- Praxis360 v1/Services/SituationAssuranceVieService.cs
+- Praxis360 v1/Components/Pages/Portfolio/Portfolio.razor
+- Praxis360 v1/Components/Pages/Portfolio/Portfolio.razor.css
+- Praxis360 v1/Components/Pages/Imports/BrioImport.razor
+- Praxis360 v1/Components/Pages/Imports/BrioImport.razor.css
+- Praxis360 v1/Program.cs
+
+Functional capabilities:
+- Repository-backed async loading of "Ma situation" from persisted SQLite data
+- Explicit multi-client selection when multiple clients exist (no arbitrary selection)
+- Route-based client identification via `/patrimoine/{ClientId:guid}`
+- Six distinct UI states: Loading, ClientLoaded, NoClientsAvailable, MultipleClientsRequireSelection, ClientNotFound, ErrorLoading
+- Post-import "Voir Ma situation" link when BrioContractApplicationResult has ClientId and applied contracts
+- Financial indicators remain null (no financial data)
+- Insurer fallback: Insurer.DisplayName → most recent BRIO provenance RawInsurerName → "Compagnie non disponible"
+
+Load-result wrapper (SituationAssuranceVieLoadResult):
+- Status enum: ClientLoaded, NoClientsAvailable, MultipleClientsRequireSelection, ClientNotFound
+- Typed outcome for default-load flow without conflating loading, absence of clients, or multi-client selection
+
+Integration test coverage:
+- Full end-to-end test: BRIO import → persistence → service recreation → situation reload → exact assertion on read model
+- Scenarios: no clients, one client, multiple clients, nonexistent ClientId, client without contracts
+- CurrentContracts calculation verified (Active | PaidUp | Suspended)
+- Insurer fallback verified with fixture having no insurer data
+- No duplicates, deterministic candidate identification
+- Fixture: BrioSynthetic.ValidCore.csv (ALPHA: 2 contracts INAMI-identified, BETA: 1 contract name+DOB-identified, GAMMA: 1 contract email-identified)
+
+Build validation:
+- Main project: build successful
+- Test project: build successful
+- Test history:
+  - Story 3.2.7A baseline: 51/51 tests passing
+  - Story 3.2.7B baseline: 97/97 tests passing
+  - Story 3.2.8 current: 110/110 tests passing (12 integration tests + 1 defensive service test)
+
+Manual validation (pre-corrections):
+- Empty state verified on /patrimoine
+- BrioSynthetic.ValidCore.csv imported successfully (4 lines analyzed, 3 client candidates, 4 contract candidates)
+- DR. ALPHA SYNTHETIC ALPHA created as new client with language manually selected as Français via UI selector
+- SYN-ALPHA-001 (PLCI) and SYN-ALPHA-002 (EIP) created and persisted
+- Navigation to /patrimoine/{ClientId:guid} successful, both contracts visible
+- Application shutdown and restart: client and both contracts reloaded from SQLite successfully
+
+Final corrections applied after manual validation:
+- Removed language selection UI control from BrioImport.razor
+- Language.French now hardcoded in BrioImport.razor ApplyContracts() method call
+- Confirmation message updated to remove obsolete "repositories en mémoire" reference
+- EfCoreContractRepository.GetByClientIdAsync() updated with AsSplitQuery() to address EF Core warning 20504
+- Whitespace-only insurer fallback logic hardened with string.IsNullOrWhiteSpace() check in SituationAssuranceVieService
+
+Visual validation (post-corrections):
+- Synthetic ALPHA client imported (2 contracts), application shutdown, restart: client and contracts successfully reloaded from SQLite
+- Synthetic BETA client created, direct access via /patrimoine/{ClientId:guid}: correct contract displayed
+- Generic route /patrimoine: multi-client selection cards for ALPHA and BETA displayed correctly
+- Language selector confirmed absent from UI (Language.French imposed automatically in code)
+- Destination label displays "Nouveau client"
+- Confirmation message validated: "Cette action va enregistrer le client et ses contrats dans Praxis360. Confirmez-vous l'application ?"
+- GAMMA client not applied during this verification
+- EF Core AsSplitQuery observed in runtime: three separate queries (Contracts, ExternalReferences, ContractProvenances)
+- No Microsoft.EntityFrameworkCore.Query[20504] warning during client loading
+
+Quality checks:
+- No DemoSituationAssuranceVieDataService reference in runtime DI
+- No repository or IDbContextFactory injection in Blazor pages
+- No GUID displayed in UI (DisplayName and DateOfBirth only)
+- No arbitrary client selection
+- No financial data replaced by zero (null preserved)
+- No Domain modification
+- No repository modification
+- No migration
+- No new package
+- git diff --check passed
+- Scoped lifetime for SituationAssuranceVieService
+
+CSS changes:
+- BrioImport.razor.css: .result-action and .result-action .btn-secondary styling for post-import link
+- Portfolio.razor.css: .empty-state, .client-selection-list, .selectable-client-card, .client-name, .client-dob, .chevron-icon
+
+Constraints respected:
+- No user database manipulation
+- No commit or push during implementation
+- Demo service file preserved but not registered at runtime
+- Preserves all existing modifications
+- Multi-client selection reuses IClientSelectionService infrastructure
+- BrioImport navigation uses link, not NavigationManager injection
+
+Limitations:
+- Manual validation of user database not performed (protocol available for later execution)
+- Financial indicators remain null pending separate calculation feature
+- Insurer fallback depends on available provenance data (fixture has no insurer names)
 
 ---
 

@@ -1,8 +1,104 @@
 ﻿@page "/patrimoine"
+@page "/patrimoine/{ClientId:guid}"
 
 @inject Praxis360_v1.Services.SituationAssuranceVieService SituationService
+@inject Praxis360_v1.Application.Interfaces.IClientSelectionService ClientSelectionService
 
 <PageTitle>Ma situation</PageTitle>
+
+@if (_uiState == UiState.Loading)
+{
+	<div class="portfolio-container">
+		<div class="portfolio-header">
+			<h1>Ma situation</h1>
+			<p class="portfolio-subtitle">Chargement de votre situation...</p>
+		</div>
+	</div>
+}
+else if (_uiState == UiState.NoClientsAvailable)
+{
+	<div class="portfolio-container">
+		<div class="portfolio-header">
+			<h1>Ma situation</h1>
+			<p class="portfolio-subtitle">Bienvenue dans votre espace de gestion d'assurance vie.</p>
+		</div>
+		<section class="portfolio-section">
+			<P360Card>
+				<div class="empty-state">
+					<p>Vous n'avez pas encore de clients enregistrés.</p>
+					<p>Commencez par <a href="/imports/brio">importer vos données BRIO</a>.</p>
+				</div>
+			</P360Card>
+		</section>
+	</div>
+}
+else if (_uiState == UiState.MultipleClientsRequireSelection)
+{
+	<div class="portfolio-container">
+		<div class="portfolio-header">
+			<h1>Ma situation</h1>
+			<p class="portfolio-subtitle">Veuillez sélectionner un client pour afficher sa situation.</p>
+		</div>
+		<section class="portfolio-section">
+			<h2 class="section-title">Sélectionner un client</h2>
+			<div class="client-selection-list">
+				@if (_selectableClients != null)
+				{
+					@foreach (var client in _selectableClients)
+					{
+						<P360Card>
+							<a class="selectable-client-card" href="@($"/patrimoine/{client.ClientId}")">
+								<div class="client-info">
+									<span class="client-name">@client.DisplayName</span>
+									@if (client.DateOfBirth.HasValue)
+									{
+										<span class="client-dob">Né(e) le @client.DateOfBirth.Value.ToString("dd/MM/yyyy")</span>
+									}
+								</div>
+								<div class="chevron-icon">›</div>
+							</a>
+						</P360Card>
+					}
+				}
+			</div>
+		</section>
+	</div>
+}
+else if (_uiState == UiState.ClientNotFound)
+{
+	<div class="portfolio-container">
+		<div class="portfolio-header">
+			<h1>Ma situation</h1>
+			<p class="portfolio-subtitle">Client introuvable.</p>
+		</div>
+		<section class="portfolio-section">
+			<P360Card>
+				<div class="empty-state">
+					<p>Le client demandé n'existe pas ou a été supprimé.</p>
+					<p><a href="/patrimoine">Retour à la sélection</a></p>
+				</div>
+			</P360Card>
+		</section>
+	</div>
+}
+else if (_uiState == UiState.ErrorLoading)
+{
+	<div class="portfolio-container">
+		<div class="portfolio-header">
+			<h1>Ma situation</h1>
+			<p class="portfolio-subtitle">Une erreur est survenue.</p>
+		</div>
+		<section class="portfolio-section">
+			<P360Card>
+				<div class="empty-state">
+					<p>Impossible de charger la situation. Veuillez réessayer ultérieurement.</p>
+				</div>
+			</P360Card>
+		</section>
+	</div>
+}
+else if (_uiState == UiState.ClientLoaded && _situation != null)
+{
 
 <div class="portfolio-container">
 	<div class="portfolio-header">
@@ -127,17 +223,99 @@
 		</div>
 	</section>
 </div>
+}
 
 @code {
-	private Praxis360_v1.Models.SituationAssuranceVieReadModel? _situation;
+	[Parameter]
+	public Guid? ClientId { get; set; }
 
-	protected override void OnInitialized()
+	private Praxis360_v1.Models.SituationAssuranceVieReadModel? _situation;
+	private IReadOnlyCollection<Praxis360_v1.Application.Models.SelectableClient>? _selectableClients;
+	private UiState _uiState = UiState.Loading;
+
+	protected override async Task OnParametersSetAsync()
 	{
-		_situation = SituationService.GetDefaultSituation();
+		_uiState = UiState.Loading;
+		_situation = null;
+		_selectableClients = null;
+
+		try
+		{
+			if (ClientId.HasValue)
+			{
+				// Route is /patrimoine/{ClientId:guid}
+				_situation = await SituationService.GetSituationForClientAsync(ClientId.Value);
+
+				if (_situation != null)
+				{
+					_uiState = UiState.ClientLoaded;
+				}
+				else
+				{
+					_uiState = UiState.ClientNotFound;
+				}
+			}
+			else
+			{
+				// Route is /patrimoine
+				var result = await SituationService.GetSituationForDefaultClientAsync();
+
+				switch (result.Status)
+				{
+					case Praxis360_v1.Models.SituationAssuranceVieLoadStatus.ClientLoaded:
+						_situation = result.Situation;
+						if (_situation is not null)
+						{
+							_uiState = UiState.ClientLoaded;
+						}
+						else
+						{
+							_situation = null;
+							_uiState = UiState.ClientNotFound;
+						}
+						break;
+
+					case Praxis360_v1.Models.SituationAssuranceVieLoadStatus.NoClientsAvailable:
+						_situation = null;
+						_uiState = UiState.NoClientsAvailable;
+						break;
+
+					case Praxis360_v1.Models.SituationAssuranceVieLoadStatus.MultipleClientsRequireSelection:
+						_situation = null;
+						_selectableClients = await ClientSelectionService.GetSelectableClientsAsync();
+						_uiState = UiState.MultipleClientsRequireSelection;
+						break;
+
+					case Praxis360_v1.Models.SituationAssuranceVieLoadStatus.ClientNotFound:
+						_situation = null;
+						_uiState = UiState.ClientNotFound;
+						break;
+
+					default:
+						_situation = null;
+						_uiState = UiState.ErrorLoading;
+						break;
+				}
+			}
+		}
+		catch
+		{
+			_uiState = UiState.ErrorLoading;
+		}
 	}
 
 	private static string FormatMoney(Praxis360_v1.Domain.ValueObjects.Money? money)
 	{
 		return money != null ? $"{money.Amount:N2} {money.Currency}" : "Non disponible";
+	}
+
+	private enum UiState
+	{
+		Loading,
+		ClientLoaded,
+		NoClientsAvailable,
+		MultipleClientsRequireSelection,
+		ClientNotFound,
+		ErrorLoading
 	}
 }

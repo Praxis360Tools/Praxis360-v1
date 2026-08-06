@@ -717,46 +717,6 @@
     color: #6B7280;
 }
 
-/* New Client Language */
-.new-client-language {
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid #E5E7EB;
-}
-
-.new-client-language h4 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #01211E;
-    margin: 0 0 16px 0;
-}
-
-.language-options {
-    display: flex;
-    gap: 16px;
-}
-
-.language-option {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
-    border: 2px solid #E5E7EB;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.language-option:hover {
-    border-color: #4CB7A8;
-    background-color: #F0F9FF;
-}
-
-.language-option input[type="radio"]:checked + span {
-    font-weight: 600;
-    color: #4CB7A8;
-}
-
 /* Confirmation */
 ::deep .confirmation-card h3 {
     font-size: 18px;
@@ -878,6 +838,17 @@
     color: #10B981;
     background-color: #ECFDF5;
     border-left: 4px solid #10B981;
+}
+
+.result-action {
+    margin: 16px 0 24px 0;
+    display: flex;
+    justify-content: center;
+}
+
+.result-action .btn-secondary {
+    text-decoration: none;
+    display: inline-block;
 }
 
 .result-stats {

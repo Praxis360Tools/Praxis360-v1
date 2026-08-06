@@ -64,6 +64,21 @@ Courte synthèse des décisions durables issues de la Story 3.2.1 :
 
 ---
 
+## Decisions durables — Story 3.2.8
+
+Courte synthèse des décisions durables issues de la Story 3.2.8 :
+
+- Le chargement de « Ma situation » s'effectue depuis les données SQLite persistées via les repositories, abandonnant définitivement le DemoSituationAssuranceVieDataService en runtime.
+- Lorsque plusieurs clients existent dans la base de données, aucun client n'est sélectionné arbitrairement : une sélection explicite par l'utilisateur est requise via l'écran de sélection multi-client.
+- L'identification d'un client via la route /patrimoine/{ClientId:guid} permet l'accès direct à la situation d'un client connu.
+- Les six états UI distincts (Loading, ClientLoaded, NoClientsAvailable, MultipleClientsRequireSelection, ClientNotFound, ErrorLoading) garantissent une expérience utilisateur claire et sans ambiguïté.
+- La persistance SQLite avec Entity Framework Core via LocalAppData est la source de vérité pour les données clients et contrats après import BRIO.
+- Le SituationAssuranceVieService est enregistré avec une durée de vie Scoped, alignée avec la durée de vie des repositories.
+- Le fallback assureur (Insurer.DisplayName → BRIO provenance RawInsurerName → "Compagnie non disponible") assure une UI cohérente même en l'absence de données assureur.
+- Les tests d'intégration end-to-end couvrent le cycle complet : import BRIO → persistence → recréation du service → rechargement situation, garantissant la cohérence Domain-Repository-Service-UI.
+
+---
+
 ## Design
 
 Always remember:

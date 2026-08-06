@@ -1,38 +1,40 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Praxis360_v1.Models;
 using Praxis360_v1.Domain.Aggregates;
 using Praxis360_v1.Domain.Entities;
 using Praxis360_v1.Domain.ValueObjects;
 using Praxis360.Domain.Types;
 using Praxis360_v1.Domain.Types;
+using Praxis360_v1.Application.Interfaces;
 
 namespace Praxis360_v1.Services;
 
 public class SituationAssuranceVieService
 {
-    private readonly DemoSituationAssuranceVieDataService _demoData;
+    private readonly IClientRepository _clientRepository;
+    private readonly IContractRepository _contractRepository;
 
-    // Service constructed with demo data service injected
-    public SituationAssuranceVieService(DemoSituationAssuranceVieDataService demoData)
+    public SituationAssuranceVieService(IClientRepository clientRepository, IContractRepository contractRepository)
     {
-        _demoData = demoData ?? throw new ArgumentNullException(nameof(demoData));
+        _clientRepository = clientRepository ?? throw new ArgumentNullException(nameof(clientRepository));
+        _contractRepository = contractRepository ?? throw new ArgumentNullException(nameof(contractRepository));
     }
 
-    public SituationAssuranceVieReadModel? GetSituationForClient(Guid clientId)
+    public async Task<SituationAssuranceVieReadModel?> GetSituationForClientAsync(Guid clientId)
     {
-        var client = _demoData.GetClient(clientId);
+        var client = await _clientRepository.GetByIdAsync(clientId);
 
         if (client is null)
             return null;
 
-        var contracts = _demoData.GetContractsForClient(clientId).ToList();
+        var contracts = await _contractRepository.GetByClientIdAsync(clientId);
+        var contractsList = contracts.ToList();
 
-        int totalContracts = contracts.Count;
-
-        // Determine active contracts by the explicit rule
-        int currentContracts = contracts.Count(c => IsContractConsideredCurrent(c.Status));
+        int totalContracts = contractsList.Count;
+        int currentContracts = contractsList.Count(c => IsContractConsideredCurrent(c.Status));
 
         // Financial indicators are not available from current Domain — remain null
         Money? reserve = null;
@@ -40,7 +42,7 @@ public class SituationAssuranceVieService
         Money? capitalDeces = null;
         Money? revenuGaranti = null;
 
-        var contractSummaries = contracts.Select(c => MapToContractReadModel(c)).ToList();
+        var contractSummaries = contractsList.Select(c => MapToContractReadModel(c)).ToList();
 
         return new SituationAssuranceVieReadModel
         {
@@ -56,14 +58,31 @@ public class SituationAssuranceVieService
         };
     }
 
-    public SituationAssuranceVieReadModel? GetDefaultSituation()
+    public async Task<SituationAssuranceVieLoadResult> GetSituationForDefaultClientAsync()
     {
-        var client = _demoData.GetDefaultClient();
+        var clients = await _clientRepository.GetAllAsync();
+        var clientsList = clients.ToList();
 
-        if (client is null)
-            return null;
+        if (clientsList.Count == 0)
+        {
+            return new SituationAssuranceVieLoadResult(null, SituationAssuranceVieLoadStatus.NoClientsAvailable);
+        }
 
-        return GetSituationForClient(client.Id);
+        if (clientsList.Count == 1)
+        {
+            var client = clientsList[0];
+            var situation = await GetSituationForClientAsync(client.Id);
+
+            if (situation is null)
+            {
+                return new SituationAssuranceVieLoadResult(null, SituationAssuranceVieLoadStatus.ClientNotFound);
+            }
+
+            return new SituationAssuranceVieLoadResult(situation, SituationAssuranceVieLoadStatus.ClientLoaded);
+        }
+
+        // Multiple clients require explicit selection
+        return new SituationAssuranceVieLoadResult(null, SituationAssuranceVieLoadStatus.MultipleClientsRequireSelection);
     }
 
     private static bool IsContractConsideredCurrent(ContractStatus status)
@@ -81,7 +100,7 @@ public class SituationAssuranceVieService
         string description = MapContractTypeToDescription(contract.Type);
 
         string? insurerKey = contract.Insurer?.Key;
-        string insurerDisplayName = contract.Insurer?.DisplayName ?? "Compagnie non disponible";
+        string insurerDisplayName = DetermineInsurerDisplayName(contract);
 
         var guaranteeLabels = contract.Garanties
             .Select(g => MapGarantieTypeToLabel(g))
@@ -99,6 +118,29 @@ public class SituationAssuranceVieService
             guaranteeLabels,
             description
         );
+    }
+
+    private static string DetermineInsurerDisplayName(ContratVie contract)
+    {
+        // First preference: use the Insurer aggregate's DisplayName if it exists
+        if (contract.Insurer is not null)
+        {
+            return contract.Insurer.DisplayName;
+        }
+
+        // Fallback: find the most recent BRIO provenance with a raw insurer name
+        var brioProvenance = contract.Provenances
+            .Where(p => p.SourceSystem == SourceSystem.Brio)
+            .OrderByDescending(p => p.ImportedAtUtc)
+            .FirstOrDefault();
+
+        if (!string.IsNullOrWhiteSpace(brioProvenance?.RawInsurerName))
+        {
+            return brioProvenance.RawInsurerName;
+        }
+
+        // No insurer information available
+        return "Compagnie non disponible";
     }
 
     private static string MapContractStatusToLabel(ContractStatus status)

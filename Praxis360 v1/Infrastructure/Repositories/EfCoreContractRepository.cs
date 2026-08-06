@@ -38,6 +38,7 @@ public sealed class EfCoreContractRepository : IContractRepository
             .AsNoTracking()
             .Include(c => c.ExternalReferences)
             .Include(c => c.ContractProvenances)
+            .AsSplitQuery()
             .Where(c => c.ClientId == clientId)
             .ToListAsync();
 

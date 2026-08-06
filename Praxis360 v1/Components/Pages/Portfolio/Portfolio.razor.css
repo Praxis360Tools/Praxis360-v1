@@ -230,6 +230,76 @@
     line-height: 1;
 }
 
+.empty-state {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.empty-state p {
+    font-size: 16px;
+    color: #6B7280;
+    margin: 0 0 12px 0;
+}
+
+.empty-state a {
+    color: #4CB7A8;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.empty-state a:hover {
+    text-decoration: underline;
+}
+
+.client-selection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.selectable-client-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    width: 100%;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.selectable-client-card:hover {
+    background-color: #F9FAFB;
+}
+
+.selectable-client-card:focus-visible {
+    outline: 2px solid #4CB7A8;
+    outline-offset: 2px;
+}
+
+.selectable-client-card .client-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.selectable-client-card .client-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #01211E;
+}
+
+.selectable-client-card .client-dob {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.selectable-client-card .chevron-icon {
+    font-size: 24px;
+    color: #D4D2D6;
+}
+
 @media (max-width: 768px) {
     .portfolio-container {
         padding: 16px;

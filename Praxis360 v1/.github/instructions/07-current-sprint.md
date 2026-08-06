@@ -80,6 +80,38 @@ The Sprint is complete when:
   - Manual validation successful with anonymized BRIO CSV files (valid and error cases)
   - No automated test infrastructure available
   - Limitations: no contract application, no persistence, no client creation/modification, no financial data
+- Story 3.2.5 — Controlled BRIO Contract Application — Completed
+  - Implementation commit: dd57e5a, merge commit: 4b76ebe, PR #4
+  - Controlled application flow with explicit client selection and destination choice
+  - IClientSelectionService / ClientSelectionService / SelectableClient
+  - UiStep state machine: Preview, SelectingClient, ChoosingDestination, Confirming, Applying, Completed
+  - In-memory application with idempotent contract creation
+  - Manual UI validation successful
+  - Newly created clients immediately visible in existing-client list
+  - Limitations: no real persistence, no financial data, no connection to "Ma situation"
+- Story 3.2.6 — BRIO Synthetic Fixtures and Automated Coverage — Completed
+  - PR #6 (functional), PR #7 (corrective)
+  - Permanent Praxis360 v1.Tests project with xUnit infrastructure
+  - Five fully synthetic CSV fixtures (only CSV files allowlisted for version control)
+  - Coverage for BrioCsvFileReader, BrioImportAnalyzer, BrioContractApplicationService
+  - 43 test cases: 43 passed, 0 failed, 0 skipped
+  - Automated fixture validation and confidentiality guard
+  - Limitations: no real persistence, no financial data, no Domain modification
+- Story 3.2.8 — Situation reload from SQLite with multi-client selection — Ready for Architecture Review
+  - Repository-backed async loading of "Ma situation" from persisted SQLite data
+  - Explicit multi-client selection when multiple clients exist (no arbitrary selection)
+  - Route-based client identification via /patrimoine/{ClientId:guid}
+  - Six distinct UI states: Loading, ClientLoaded, NoClientsAvailable, MultipleClientsRequireSelection, ClientNotFound, ErrorLoading
+  - Post-import "Voir Ma situation" link when BrioContractApplicationResult has ClientId and applied contracts
+  - SituationAssuranceVieLoadResult wrapper with typed outcome enum
+  - Full end-to-end integration test: BRIO import → persistence → service recreation → situation reload → exact assertion
+  - 110 test cases: 110 passed, 0 failed, 0 skipped
+  - Insurer fallback: Insurer.DisplayName → most recent BRIO provenance RawInsurerName → "Compagnie non disponible"
+  - SituationAssuranceVieService registered as scoped lifetime (aligned with scoped repositories)
+  - DemoSituationAssuranceVieDataService removed from runtime DI registration
+  - Components created: SituationAssuranceVieLoadResult.cs, SituationAssuranceVieServiceSqliteIntegrationTests.cs
+  - Components modified: SituationAssuranceVieService.cs, Portfolio.razor, Portfolio.razor.css, BrioImport.razor, BrioImport.razor.css, Program.cs
+  - Limitations: Financial indicators remain null pending separate calculation feature, Manual validation of user database not performed
 
 ---
 

@@ -113,6 +113,54 @@ public sealed class EfCoreContractRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task GetByClientIdAsync_ShouldLoadAllExternalReferencesAndProvenancesForMultipleContracts()
+    {
+        var repository = new EfCoreContractRepository(_contextFactory);
+
+        // Arrange: Contract 1 with 2 ExternalReferences and 2 ContractProvenances
+        var contract1 = new ContratVie(Guid.NewGuid(), new ContractNumber("POL-SPLIT-001"), ContractType.PLCI, ContractStatus.Active, _testClientId, null);
+        contract1.AddExternalReference(new ExternalReference(SourceSystem.Brio, ReferenceType.PolicyNumber, "REF-C1-001"));
+        contract1.AddExternalReference(new ExternalReference(SourceSystem.Brio, ReferenceType.ContractNumber, "REF-C1-002"));
+        contract1.AddProvenance(new ContractProvenance(SourceSystem.Brio, DateTime.UtcNow.AddDays(-10), "Insurer Alpha", new DateOnly(2025, 1, 15)));
+        contract1.AddProvenance(new ContractProvenance(SourceSystem.Brio, DateTime.UtcNow.AddDays(-5), "Insurer Alpha Updated", new DateOnly(2025, 1, 20)));
+
+        // Arrange: Contract 2 with 2 ExternalReferences and 2 ContractProvenances
+        var contract2 = new ContratVie(Guid.NewGuid(), new ContractNumber("POL-SPLIT-002"), ContractType.EIP, ContractStatus.PaidUp, _testClientId, null);
+        contract2.AddExternalReference(new ExternalReference(SourceSystem.Brio, ReferenceType.PolicyNumber, "REF-C2-001"));
+        contract2.AddExternalReference(new ExternalReference(SourceSystem.Brio, ReferenceType.ContractNumber, "REF-C2-002"));
+        contract2.AddProvenance(new ContractProvenance(SourceSystem.Brio, DateTime.UtcNow.AddDays(-12), "Insurer Beta", new DateOnly(2025, 1, 10)));
+        contract2.AddProvenance(new ContractProvenance(SourceSystem.Brio, DateTime.UtcNow.AddDays(-3), "Insurer Beta Updated", new DateOnly(2025, 1, 22)));
+
+        await repository.SaveAsync(contract1);
+        await repository.SaveAsync(contract2);
+
+        // Act: Reload via GetByClientIdAsync which uses AsSplitQuery()
+        var newRepository = new EfCoreContractRepository(_contextFactory);
+        var results = await newRepository.GetByClientIdAsync(_testClientId);
+
+        // Assert: Both contracts loaded
+        Assert.Equal(2, results.Count);
+        var retrievedContract1 = results.Single(c => c.Number.Value == "POL-SPLIT-001");
+        var retrievedContract2 = results.Single(c => c.Number.Value == "POL-SPLIT-002");
+
+        // Assert: Contract 1 ExternalReferences and Provenances fully loaded
+        Assert.Equal(2, retrievedContract1.ExternalReferences.Count);
+        Assert.Contains(retrievedContract1.ExternalReferences, r => r.Value == "REF-C1-001" && r.ReferenceType == ReferenceType.PolicyNumber);
+        Assert.Contains(retrievedContract1.ExternalReferences, r => r.Value == "REF-C1-002" && r.ReferenceType == ReferenceType.ContractNumber);
+        Assert.Equal(2, retrievedContract1.Provenances.Count);
+        Assert.Contains(retrievedContract1.Provenances, p => p.RawInsurerName == "Insurer Alpha");
+        Assert.Contains(retrievedContract1.Provenances, p => p.RawInsurerName == "Insurer Alpha Updated");
+
+        // Assert: Contract 2 ExternalReferences and Provenances fully loaded
+        Assert.Equal(2, retrievedContract2.ExternalReferences.Count);
+        Assert.Contains(retrievedContract2.ExternalReferences, r => r.Value == "REF-C2-001" && r.ReferenceType == ReferenceType.PolicyNumber);
+        Assert.Contains(retrievedContract2.ExternalReferences, r => r.Value == "REF-C2-002" && r.ReferenceType == ReferenceType.ContractNumber);
+        Assert.Equal(2, retrievedContract2.Provenances.Count);
+        Assert.Contains(retrievedContract2.Provenances, p => p.RawInsurerName == "Insurer Beta");
+        Assert.Contains(retrievedContract2.Provenances, p => p.RawInsurerName == "Insurer Beta Updated");
+    }
+
+    [Fact]
     public async Task FindByExternalReferenceAsync_ShouldReturnContract()
     {
         var repository = new EfCoreContractRepository(_contextFactory);
