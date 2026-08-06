@@ -573,6 +573,86 @@ Limitations:
 - Financial indicators remain null pending separate calculation feature
 - Insurer fallback depends on available provenance data (fixture has no insurer names)
 
+Story 3.2.9 — Répertoire clients persistant et navigation vers Ma situation (Implemented)
+
+Objective:
+Deliver a persistent client directory accessible from the main navigation that lists all persisted clients with search functionality and provides direct access to each client's "Ma situation" page without relying on the BRIO import workflow.
+
+Implementation branch: story/3.2.9-client-directory
+
+Architecture:
+- New navigation entry "Clients" added to NavMenu.razor
+- New page Components/Pages/Clients/Clients.razor at route /clients
+- Isolated CSS Components/Pages/Clients/Clients.razor.css
+- Reuses existing IClientSelectionService.GetSelectableClientsAsync()
+- Deterministic sort: LastName (OrdinalIgnoreCase), FirstName (OrdinalIgnoreCase), ClientId
+- Real-time search on FirstName and LastName with OrdinalIgnoreCase comparison
+- Navigation to existing /patrimoine/{ClientId:guid} route via native anchor links
+- Four UI states: Loading, Loaded, Empty, Error
+- Date of birth displayed conditionally when available (format: dd/MM/yyyy)
+- Search box with accessible label and native input type="search"
+- Fully clickable anchor-based client cards with visible focus indicator
+
+Components created:
+- Praxis360 v1/Components/Pages/Clients/Clients.razor
+- Praxis360 v1/Components/Pages/Clients/Clients.razor.css
+
+Components modified:
+- Praxis360 v1/Components/Layout/NavMenu.razor
+
+Functional capabilities:
+- List all persisted clients from SQLite via IClientSelectionService
+- Deterministic culture-independent sort by LastName, FirstName, ClientId
+- Real-time search filtering on client name and first name
+- Display client display name and date of birth when available
+- Navigate directly to /patrimoine/{ClientId} from each client card
+- Empty state with link to BRIO import workflow
+- Generic error state with no technical details exposed
+- Full keyboard navigation support (Tab, Enter)
+- Responsive design for desktop and mobile
+
+CSS scope:
+- Isolated scoped CSS for Clients.razor
+- Reuses P360Card component wrapper
+- Anchor-based cards with hover and focus-visible styling
+- No global CSS modification
+- Responsive breakpoint at 768px
+
+Corrections applied during validation:
+- Search input binding corrected from @bind="_searchQuery" to @bind="SearchQuery" to invoke property setter and trigger real-time filtering
+- Card structure inverted: anchor now wraps P360Card to make entire card surface clickable including padding
+
+Validation:
+- Build successful (main project and test project): 0 errors, 0 warnings
+- 110/110 tests passed (existing regression suite)
+- git diff --check passed
+- Manual Web validation completed by Nathan:
+  * Page /clients accessible and functional
+  * Persistent clients displayed correctly
+  * Desktop and responsive layouts validated
+  * Real-time search functional (FirstName and LastName, case-insensitive)
+  * Empty search result correctly displays "Aucun client trouvé"
+  * Search clearing restores all clients
+  * Entire card surface clickable including borders and padding
+  * Navigation to /patrimoine/{ClientId} functional
+  * Keyboard navigation (Tab, Enter) functional
+  * Focus indicator visible on entire card
+
+Constraints respected:
+- No bUnit or new test package
+- No Domain or repository modification
+- No migration
+- No SQLite database modification or deletion
+- No state preservation after navigation
+- No Git staging, commit, or push during implementation
+- No artificial test-friendly refactorings
+
+Limitations:
+- No component-level automated tests (no bUnit infrastructure)
+- Manual Empty state validation not performed (requires database reset)
+- Manual Error state validation not performed (requires destructive operation)
+- Empty and Error states validated by code inspection only
+
 ---
 
 # 7. Completed Milestones
