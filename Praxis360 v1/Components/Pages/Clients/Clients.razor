@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 
 @inject Praxis360_v1.Application.Interfaces.IClientSelectionService ClientSelectionService
+@inject ILogger<Clients> Logger
 
 <PageTitle>Clients</PageTitle>
 
@@ -25,7 +26,7 @@ else if (_uiState == UiState.Empty)
             <P360Card>
                 <div class="empty-state">
                     <p>Vous n'avez pas encore de clients enregistrés.</p>
-                    <p>Commencez par <a href="/imports/brio">importer vos données BRIO</a>.</p>
+                    <p>Commencez par <a href="imports/brio">importer vos données BRIO</a>.</p>
                 </div>
             </P360Card>
         </section>
@@ -69,7 +70,7 @@ else if (_uiState == UiState.Loaded)
                 <div class="clients-list">
                     @foreach (var client in _filteredClients)
                     {
-                        <a class="client-card-link" href="@($"/patrimoine/{client.ClientId}")">
+                        <a class="client-card-link" href="@($"patrimoine/{client.ClientId}")">
                             <P360Card>
                                 <div class="client-card">
                                     <div class="client-info">
@@ -79,7 +80,7 @@ else if (_uiState == UiState.Loaded)
                                             <span class="client-dob">Né(e) le @client.DateOfBirth.Value.ToString("dd/MM/yyyy")</span>
                                         }
                                     </div>
-                                    <div class="chevron-icon">›</div>
+                                    <div class="chevron-icon" aria-hidden="true">›</div>
                                 </div>
                             </P360Card>
                         </a>
@@ -100,28 +101,35 @@ else if (_uiState == UiState.Loaded)
 
 @code {
     private UiState _uiState = UiState.Loading;
-    private IReadOnlyCollection<Praxis360_v1.Application.Models.SelectableClient>? _allClients;
-    private List<Praxis360_v1.Application.Models.SelectableClient>? _filteredClients;
+    private IReadOnlyList<Praxis360_v1.Application.Models.SelectableClient> _sortedClients = Array.Empty<Praxis360_v1.Application.Models.SelectableClient>();
+    private IReadOnlyList<Praxis360_v1.Application.Models.SelectableClient> _filteredClients = Array.Empty<Praxis360_v1.Application.Models.SelectableClient>();
     private string _searchQuery = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            _allClients = await ClientSelectionService.GetSelectableClientsAsync();
+            var clients = await ClientSelectionService.GetSelectableClientsAsync();
 
-            if (_allClients == null || _allClients.Count == 0)
+            if (clients == null || clients.Count == 0)
             {
                 _uiState = UiState.Empty;
             }
             else
             {
+                _sortedClients = clients
+                    .OrderBy(c => c.LastName, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(c => c.FirstName, StringComparer.OrdinalIgnoreCase)
+                    .ThenBy(c => c.ClientId)
+                    .ToList();
+
                 _uiState = UiState.Loaded;
                 UpdateFilteredClients();
             }
         }
-        catch
+        catch (Exception exception)
         {
+            Logger.LogError(exception, "Failed to load the persisted client directory.");
             _uiState = UiState.Error;
         }
     }
@@ -138,32 +146,20 @@ else if (_uiState == UiState.Loaded)
 
     private void UpdateFilteredClients()
     {
-        if (_allClients == null)
-        {
-            _filteredClients = null;
-            return;
-        }
-
         var query = _searchQuery?.Trim() ?? string.Empty;
-
-        IEnumerable<Praxis360_v1.Application.Models.SelectableClient> filtered;
 
         if (string.IsNullOrWhiteSpace(query))
         {
-            filtered = _allClients;
+            _filteredClients = _sortedClients;
         }
         else
         {
-            filtered = _allClients.Where(c =>
-                (c.FirstName?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (c.LastName?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false));
+            _filteredClients = _sortedClients
+                .Where(c =>
+                    (c.FirstName?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (c.LastName?.Contains(query, StringComparison.OrdinalIgnoreCase) ?? false))
+                .ToList();
         }
-
-        _filteredClients = filtered
-            .OrderBy(c => c.LastName, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(c => c.FirstName, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(c => c.ClientId)
-            .ToList();
     }
 
     private enum UiState
