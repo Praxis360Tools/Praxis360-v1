@@ -109,6 +109,52 @@ public sealed class BrioContractApplicationServiceSqliteIntegrationTests : IAsyn
     }
 
     [Fact]
+    public async Task ApplyWithNewClientAsync_ShouldPersistLanguageFrenchToSqlite()
+    {
+        // Arrange
+        var reader = new BrioCsvFileReader();
+        var analyzer = new BrioImportAnalyzer();
+        var clientRepository = new EfCoreClientRepository(_contextFactory);
+        var contractRepository = new EfCoreContractRepository(_contextFactory);
+        var persistenceService = new EfCoreBrioPersistenceService(_contextFactory, Microsoft.Extensions.Logging.Abstractions.NullLogger<EfCoreBrioPersistenceService>.Instance);
+        var applicationService = new BrioContractApplicationService(clientRepository, contractRepository, persistenceService);
+
+        using var stream = BrioSyntheticFixtureLoader.LoadFixture("BrioSynthetic.ValidCore.csv");
+        var readResult = await reader.ReadAsync(stream);
+        var analysisResult = await analyzer.AnalyzeAsync(readResult);
+
+        var alphaIdentity = analysisResult.ClientCandidates.Values
+            .First(c => c.NormalizedIdentity.StartsWith("INAMI:"))
+            .NormalizedIdentity;
+
+        // Act: Apply import with Language.French explicitly
+        var result = await applicationService.ApplyWithNewClientAsync(
+            analysisResult,
+            alphaIdentity,
+            Language.French);
+
+        // Assert: Application succeeded
+        Assert.Equal(ApplicationOutcome.Success, result.Outcome);
+        Assert.NotNull(result.ClientId);
+        Assert.True(result.ClientWasCreated);
+
+        // Assert: Reload client from SQLite in new DbContext and verify PreferredLanguage is French
+        await using var newContext = await _contextFactory.CreateDbContextAsync();
+        var persistedClient = await newContext.Clients.AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == result.ClientId.Value);
+
+        Assert.NotNull(persistedClient);
+        Assert.Equal(Language.French, persistedClient.PreferredLanguage);
+
+        // Assert: Verify contracts are still associated
+        var persistedContracts = await newContext.Contracts.AsNoTracking()
+            .Where(c => c.ClientId == result.ClientId.Value)
+            .ToListAsync();
+
+        Assert.Equal(2, persistedContracts.Count);
+    }
+
+    [Fact]
     public async Task ApplyToExistingClientAsync_ReapplyingSameData_ShouldReturnContractsAlreadyExistingAndNoDuplicatesInSqlite()
     {
         // Arrange: Première application pour créer un client et des contrats

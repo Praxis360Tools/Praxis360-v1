@@ -743,6 +743,161 @@ Newly created clients:
 - BRIO preview (Story 3.2.4) preserved entirely
 - No CSV files included in repository
 
+---
+
+## Story 3.2.8 — Situation reload from SQLite with multi-client selection
+
+**Status**: Ready for Architecture Review
+
+**Implementation branch**: story/3.2.8-situation-reload-from-sqlite
+
+**Objective**
+
+Replace the demo-backed "Ma situation" with repository-backed loading from persisted SQLite data, implementing explicit multi-client selection and post-import navigation, with full end-to-end integration test coverage.
+
+**Architecture**
+
+SituationAssuranceVieService:
+- Converted from demo synchronous logic to repository-backed async service
+- Injects IDbContextFactory<Praxis360DbContext> and IClientRepository
+- Registered as scoped lifetime (aligned with scoped repositories)
+- Two async methods: LoadDefaultSituationAsync() and LoadSituationForClientAsync(Guid clientId)
+
+SituationAssuranceVieLoadResult:
+- Typed wrapper distinguishing default-load outcomes
+- Status enum: ClientLoaded, NoClientsAvailable, MultipleClientsRequireSelection, ClientNotFound
+- Avoids conflating loading state, absence of clients, or multi-client selection requirements
+
+Portfolio.razor:
+- Rewritten as route-aware async UI state machine
+- Serves both /patrimoine and /patrimoine/{ClientId:guid}
+- Six distinct UI states: Loading, ClientLoaded, NoClientsAvailable, MultipleClientsRequireSelection, ClientNotFound, ErrorLoading
+- Multi-client selection reuses IClientSelectionService infrastructure from Story 3.2.5
+- No repository or IDbContextFactory injection (strict layering: Page → Service → Repository)
+
+BrioImport.razor:
+- Extended with conditional "Voir Ma situation" post-import navigation link
+- Link appears when BrioContractApplicationResult has ClientId and applied contracts
+- Uses <a> tag with @($"/patrimoine/{_applicationResult.ClientId}"), not NavigationManager injection
+- Language.French imposed automatically in ApplyContracts() (no manual language selector in UI)
+- Confirmation message: "Cette action va enregistrer le client et ses contrats dans Praxis360. Confirmez-vous l'application ?"
+- Destination label: "Nouveau client"
+
+Program.cs:
+- SituationAssuranceVieService registered as Scoped
+- DemoSituationAssuranceVieDataService removed from runtime DI registration (file preserved in source control)
+
+**Components created**
+
+- Praxis360 v1/Models/SituationAssuranceVieLoadResult.cs
+- Praxis360 v1.Tests/Application/Services/SituationAssuranceVieServiceSqliteIntegrationTests.cs
+
+**Components modified**
+
+- Praxis360 v1/Services/SituationAssuranceVieService.cs
+- Praxis360 v1/Components/Pages/Portfolio/Portfolio.razor
+- Praxis360 v1/Components/Pages/Portfolio/Portfolio.razor.css
+- Praxis360 v1/Components/Pages/Imports/BrioImport.razor
+- Praxis360 v1/Components/Pages/Imports/BrioImport.razor.css
+- Praxis360 v1/Program.cs
+- Praxis360 v1/Infrastructure/Repositories/EfCoreContractRepository.cs (AsSplitQuery optimization)
+
+**Functional capabilities**
+
+- Repository-backed async loading of "Ma situation" from persisted SQLite data
+- Explicit multi-client selection when multiple clients exist (no arbitrary selection)
+- Route-based client identification via /patrimoine/{ClientId:guid}
+- Post-import "Voir Ma situation" link when BrioContractApplicationResult has ClientId and applied contracts
+- Financial indicators remain null (no financial data)
+- Insurer fallback: Insurer.DisplayName → most recent BRIO provenance RawInsurerName → "Compagnie non disponible"
+
+**SQLite Persistence**
+
+Data flow:
+- BRIO import → BrioContractApplicationService → EfCoreClientRepository / EfCoreContractRepository → SQLite via Entity Framework Core
+- User data persisted in %LocalAppData%\Praxis360\Praxis360.db
+- SituationAssuranceVieService loads from SQLite via IClientRepository
+- Full end-to-end persistence verified: import → application shutdown → restart → reload
+
+EfCoreContractRepository optimization:
+- EF Core AsSplitQuery() applied in GetAllAsync() and GetByClientIdAsync()
+- Prevents Cartesian explosion when loading Client with Contracts, ExternalReferences, and ContractProvenances
+- Generates three separate queries instead of single large JOIN
+- Eliminates Microsoft.EntityFrameworkCore.Query[20504] warning
+
+**Integration test coverage**
+
+SituationAssuranceVieServiceSqliteIntegrationTests.cs:
+- Full end-to-end test: BRIO import → persistence → service recreation → situation reload → exact assertion on read model
+- Scenarios: no clients, one client, multiple clients, nonexistent ClientId, client without contracts
+- CurrentContracts calculation verified (Active | PaidUp | Suspended)
+- Insurer fallback verified with fixture having no insurer data
+- No duplicates, deterministic candidate identification
+- Fixture: BrioSynthetic.ValidCore.csv (ALPHA: 2 contracts INAMI-identified, BETA: 1 contract name+DOB-identified, GAMMA: 1 contract email-identified)
+
+BrioContractApplicationServiceSqliteIntegrationTests.cs:
+- Insurer fallback test: ensures "Compagnie non disponible" when Insurer.DisplayName is null and no BRIO provenance RawInsurerName exists
+
+EfCoreContractRepositoryTests.cs:
+- Verifies GetByClientIdAsync() with AsSplitQuery() loads Client with Contracts, ExternalReferences, and ContractProvenances
+- Validates correct eager loading without Cartesian explosion
+
+**Build validation**
+
+- Main project: build successful, 0 errors, 0 warnings
+- Test project: build successful, 0 errors, 0 warnings
+- All tests: 109 passed, 0 failed, 0 skipped
+- git diff --check passed
+
+**Visual validation**
+
+Manual UI validation completed post-corrections:
+- Synthetic ALPHA client imported (2 contracts), application shutdown, restart, client and contracts reloaded from SQLite
+- Synthetic BETA client created, direct access via /patrimoine/{ClientId:guid} displays correct contract
+- Generic route /patrimoine displays multi-client selection cards for ALPHA and BETA
+- Language selector absent from UI (Language.French imposed automatically in code)
+- Destination label displays "Nouveau client"
+- Confirmation message validated: "Cette action va enregistrer le client et ses contrats dans Praxis360. Confirmez-vous l'application ?"
+- GAMMA client not applied during this verification
+- EF Core AsSplitQuery observed in runtime: three separate queries (Contracts, ExternalReferences, ContractProvenances)
+- No Microsoft.EntityFrameworkCore.Query[20504] warning during client loading
+
+**Quality checks**
+
+- No DemoSituationAssuranceVieDataService reference in runtime DI
+- No repository or IDbContextFactory injection in Blazor pages
+- No GUID displayed in UI (DisplayName and DateOfBirth only)
+- No arbitrary client selection
+- No financial data replaced by zero (null preserved)
+- No Domain modification
+- No repository interface modification
+- No migration
+- No new package
+- Scoped lifetime for SituationAssuranceVieService
+
+**CSS changes**
+
+BrioImport.razor.css:
+- .result-action and .result-action .btn-secondary styling for post-import link
+
+Portfolio.razor.css:
+- .empty-state, .client-selection-list, .selectable-client-card, .client-name, .client-dob, .chevron-icon
+
+**Constraints respected**
+
+- No user database manipulation during implementation
+- No commit or push during implementation
+- Demo service file preserved but not registered at runtime
+- Preserves all existing modifications
+- Multi-client selection reuses IClientSelectionService infrastructure
+- BrioImport navigation uses link, not NavigationManager injection
+- Language.French imposed automatically, no manual selector
+
+**Limitations**
+
+- Financial indicators remain null pending separate calculation feature
+- Insurer fallback depends on available provenance data (fixture has no insurer names)
+
 ### Story 3.2.7A — EF Core Infrastructure and Database Schema
 
 Story 3.2.7A implements the foundational EF Core infrastructure for SQLite persistence without modifying runtime service registration.
@@ -910,8 +1065,8 @@ BrioImport.razor and BrioImport.razor.css modified to add navigation link to Por
 - Test history:
   - Story 3.2.7A baseline: 51/51 tests passing
   - Story 3.2.7B baseline: 97/97 tests passing
-  - Story 3.2.8 current: 106/106 tests passing
-- 9 new integration tests in SituationAssuranceVieServiceSqliteIntegrationTests.cs:
+  - Story 3.2.8 current: 107/107 tests passing
+- 10 new integration tests in SituationAssuranceVieServiceSqliteIntegrationTests.cs:
   - EndToEnd_BrioImportAndReloadFromSqlite_ShouldConstructAccurateSituationReadModel
   - GetSituationForClientAsync_WithMultipleContracts_ReturnsAggregatedReadModel
   - GetSituationForClientAsync_WithoutContracts_ReturnsEmptySituation
@@ -919,8 +1074,32 @@ BrioImport.razor and BrioImport.razor.css modified to add navigation link to Por
   - GetSituationForDefaultClientAsync_WithOneClient_ReturnsClientLoaded
   - GetSituationForDefaultClientAsync_WithMultipleClients_ReturnsMultipleClientsRequireSelection
   - DetermineInsurerDisplayName_WithInsurerAggregate_ReturnsDisplayName
-  - DetermineInsurerDisplayName_WithoutInsurerAggregate_FallsBackToRawInsurerName
+  - InsurerFallback_WhenInsurerIsNullButBrioProvenanceHasName_ShouldUseMostRecentBrioProvenance
+  - InsurerFallback_WhenBrioProvenanceHasWhitespaceOnlyName_ShouldReturnCompagnieNonDisponible
   - DetermineInsurerDisplayName_WithoutAnyInsurerInfo_ReturnsDefaultMessage
+- Manual validation performed (pre-corrections):
+  - Empty state verified on /patrimoine
+  - BrioSynthetic.ValidCore.csv imported (4 lines analyzed, 3 client candidates, 4 contract candidates)
+  - DR. ALPHA SYNTHETIC ALPHA created with language manually selected as Français via UI selector
+  - SYN-ALPHA-001 (PLCI) and SYN-ALPHA-002 (EIP) persisted to SQLite
+  - Navigation to /patrimoine/{ClientId:guid} successful
+  - Application shutdown and restart confirmed client and contracts reloaded from SQLite
+- Final corrections applied after manual validation:
+  - Removed language selection UI control from BrioImport.razor
+  - Language.French now hardcoded in ApplyContracts() method call
+  - Confirmation message updated to remove "repositories en mémoire" reference
+  - EfCoreContractRepository.GetByClientIdAsync() updated with AsSplitQuery()
+  - Whitespace-only insurer fallback logic hardened with string.IsNullOrWhiteSpace() check
+- Visual validation (post-corrections):
+  - Synthetic ALPHA client imported (2 contracts), application shutdown, restart: client and contracts successfully reloaded from SQLite
+  - Synthetic BETA client created, direct access via /patrimoine/{ClientId:guid}: correct contract displayed
+  - Generic route /patrimoine: multi-client selection cards for ALPHA and BETA displayed correctly
+  - Language selector confirmed absent from UI (Language.French imposed automatically in code)
+  - Destination label displays "Nouveau client"
+  - Confirmation message validated: "Cette action va enregistrer le client et ses contrats dans Praxis360. Confirmez-vous l'application ?"
+  - GAMMA client not applied during this verification
+  - EF Core AsSplitQuery observed in runtime: three separate queries (Contracts, ExternalReferences, ContractProvenances)
+  - No Microsoft.EntityFrameworkCore.Query[20504] warning during client loading
 
 **Constraints Story 3.2.8**
 
@@ -929,7 +1108,7 @@ BrioImport.razor and BrioImport.razor.css modified to add navigation link to Por
 - No new persistence infrastructure (reuses Story 3.2.7 implementation)
 - No financial calculation changes
 - DemoSituationAssuranceVieDataService preserved but unused
-- Manual web validation not performed (automated integration tests provide coverage)
+- BRIO import always creates new clients with Language.French (no manual language selection in V1)
 
 **Runtime Persistence Status**
 

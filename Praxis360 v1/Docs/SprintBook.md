@@ -515,7 +515,33 @@ Build validation:
 - Test history:
   - Story 3.2.7A baseline: 51/51 tests passing
   - Story 3.2.7B baseline: 97/97 tests passing
-  - Story 3.2.8 current: 106/106 tests passing (9 new integration tests)
+  - Story 3.2.8 current: 109/109 tests passing (12 new integration tests)
+
+Manual validation (pre-corrections):
+- Empty state verified on /patrimoine
+- BrioSynthetic.ValidCore.csv imported successfully (4 lines analyzed, 3 client candidates, 4 contract candidates)
+- DR. ALPHA SYNTHETIC ALPHA created as new client with language manually selected as Français via UI selector
+- SYN-ALPHA-001 (PLCI) and SYN-ALPHA-002 (EIP) created and persisted
+- Navigation to /patrimoine/{ClientId:guid} successful, both contracts visible
+- Application shutdown and restart: client and both contracts reloaded from SQLite successfully
+
+Final corrections applied after manual validation:
+- Removed language selection UI control from BrioImport.razor
+- Language.French now hardcoded in BrioImport.razor ApplyContracts() method call
+- Confirmation message updated to remove obsolete "repositories en mémoire" reference
+- EfCoreContractRepository.GetByClientIdAsync() updated with AsSplitQuery() to address EF Core warning 20504
+- Whitespace-only insurer fallback logic hardened with string.IsNullOrWhiteSpace() check in SituationAssuranceVieService
+
+Visual validation (post-corrections):
+- Synthetic ALPHA client imported (2 contracts), application shutdown, restart: client and contracts successfully reloaded from SQLite
+- Synthetic BETA client created, direct access via /patrimoine/{ClientId:guid}: correct contract displayed
+- Generic route /patrimoine: multi-client selection cards for ALPHA and BETA displayed correctly
+- Language selector confirmed absent from UI (Language.French imposed automatically in code)
+- Destination label displays "Nouveau client"
+- Confirmation message validated: "Cette action va enregistrer le client et ses contrats dans Praxis360. Confirmez-vous l'application ?"
+- GAMMA client not applied during this verification
+- EF Core AsSplitQuery observed in runtime: three separate queries (Contracts, ExternalReferences, ContractProvenances)
+- No Microsoft.EntityFrameworkCore.Query[20504] warning during client loading
 
 Quality checks:
 - No DemoSituationAssuranceVieDataService reference in runtime DI

@@ -367,26 +367,6 @@
 													}
 												</div>
 											}
-											else if (_selectedDestination == DestinationType.NewClient)
-											{
-												<div class="new-client-language">
-													<h4>Langue du nouveau client</h4>
-													<div class="language-options">
-														<label class="language-option">
-															<input type="radio" name="language" value="@Language.French" @onchange="@(() => _selectedLanguage = Language.French)" checked="@(_selectedLanguage == Language.French)" />
-															<span>Français</span>
-														</label>
-														<label class="language-option">
-															<input type="radio" name="language" value="@Language.Dutch" @onchange="@(() => _selectedLanguage = Language.Dutch)" checked="@(_selectedLanguage == Language.Dutch)" />
-															<span>Néerlandais</span>
-														</label>
-														<label class="language-option">
-															<input type="radio" name="language" value="@Language.English" @onchange="@(() => _selectedLanguage = Language.English)" checked="@(_selectedLanguage == Language.English)" />
-															<span>Anglais</span>
-														</label>
-													</div>
-												</div>
-											}
 
 											<div class="destination-actions">
 												<button class="btn-secondary" @onclick="BackToClientSelection">Retour</button>
@@ -425,13 +405,13 @@
 														}
 														else
 														{
-															@:Nouveau client (@GetLanguageLabel(_selectedLanguage))
+															@:Nouveau client
 														}
 													</span>
 												</div>
 											</div>
 											<p class="confirmation-warning">
-												⚠️ Cette action va appliquer les contrats dans les repositories en mémoire. Confirmez-vous l'application ?
+												⚠️ Cette action va enregistrer le client et ses contrats dans Praxis360. Confirmez-vous l'application ?
 											</p>
 											<div class="confirmation-actions">
 												<button class="btn-secondary" @onclick="BackToDestination">Retour</button>
@@ -668,7 +648,6 @@
 	private IReadOnlyCollection<SelectableClient> _selectableClients = Array.Empty<SelectableClient>();
 	private bool _isLoadingSelectableClients;
 	private SelectableClient? _selectedExistingClient;
-	private Language _selectedLanguage = Language.French;
 	private BrioContractApplicationResult? _applicationResult;
 
 	private void HandleFileSelected(InputFileChangeEventArgs e)
@@ -753,7 +732,6 @@
 		_selectableClients = Array.Empty<SelectableClient>();
 		_isLoadingSelectableClients = false;
 		_selectedExistingClient = null;
-		_selectedLanguage = Language.French;
 		_applicationResult = null;
 	}
 
@@ -800,7 +778,6 @@
 		_selectedDestination = DestinationType.None;
 		_selectableClients = Array.Empty<SelectableClient>();
 		_selectedExistingClient = null;
-		_selectedLanguage = Language.French;
 	}
 
 	private void BackToClientSelection()
@@ -858,7 +835,7 @@
 				_applicationResult = await BrioContractApplicationService.ApplyWithNewClientAsync(
 					_analysisResult,
 					_selectedBrioCandidate.NormalizedIdentity,
-					_selectedLanguage);
+					Language.French);
 			}
 
 			_currentStep = UiStep.Completed;
@@ -892,17 +869,6 @@
 			ContractType.PensionAgreement => "Pension Agreement",
 			ContractType.IndividualLifeInsurance => "Assurance vie individuelle",
 			_ => type.ToString()
-		};
-	}
-
-	private string GetLanguageLabel(Language language)
-	{
-		return language switch
-		{
-			Language.French => "Français",
-			Language.Dutch => "Néerlandais",
-			Language.English => "Anglais",
-			_ => language.ToString()
 		};
 	}
 }
