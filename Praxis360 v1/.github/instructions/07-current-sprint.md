@@ -112,6 +112,23 @@ The Sprint is complete when:
   - Components created: SituationAssuranceVieLoadResult.cs, SituationAssuranceVieServiceSqliteIntegrationTests.cs
   - Components modified: SituationAssuranceVieService.cs, Portfolio.razor, Portfolio.razor.css, BrioImport.razor, BrioImport.razor.css, Program.cs
   - Limitations: Financial indicators remain null pending separate calculation feature, Manual validation of user database not performed
+- Story 3.2.9 — Répertoire clients persistant et navigation vers Ma situation — Implemented
+  - New navigation entry "Clients" at route /clients
+  - Lists all persisted clients with real-time search functionality
+  - Deterministic sort: LastName (OrdinalIgnoreCase), FirstName (OrdinalIgnoreCase), ClientId
+  - Direct navigation to /patrimoine/{ClientId:guid} via native anchor links
+  - Reuses IClientSelectionService.GetSelectableClientsAsync()
+  - Four UI states: Loading, Loaded, Empty, Error
+  - Isolated CSS for Clients.razor
+  - Fully accessible keyboard navigation with visible focus indicators
+  - Entire card surface clickable (anchor wraps P360Card)
+  - Components created: Clients.razor, Clients.razor.css
+  - Components modified: NavMenu.razor
+  - 110 test cases: 110 passed, 0 failed, 0 skipped
+  - Build successful (main and test projects, 0 errors, 0 warnings)
+  - Manual Web validation completed by Nathan: page accessible, search functional (real-time, case-insensitive), entire card clickable, keyboard navigation functional, responsive layout validated
+  - Corrections applied: search binding corrected (@bind="SearchQuery"), card structure inverted (anchor wraps P360Card)
+  - Limitations: No automated component tests (no bUnit), Empty and Error states validated by code inspection only (manual validation not performed to preserve SQLite database)
 
 ---
 
