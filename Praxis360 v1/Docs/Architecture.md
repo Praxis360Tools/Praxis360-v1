@@ -759,9 +759,9 @@ Replace the demo-backed "Ma situation" with repository-backed loading from persi
 
 SituationAssuranceVieService:
 - Converted from demo synchronous logic to repository-backed async service
-- Injects IDbContextFactory<Praxis360DbContext> and IClientRepository
+- Injects IClientRepository and IContractRepository
 - Registered as scoped lifetime (aligned with scoped repositories)
-- Two async methods: LoadDefaultSituationAsync() and LoadSituationForClientAsync(Guid clientId)
+- Two async methods: GetSituationForDefaultClientAsync() and GetSituationForClientAsync(Guid clientId)
 
 SituationAssuranceVieLoadResult:
 - Typed wrapper distinguishing default-load outcomes
@@ -815,8 +815,8 @@ Program.cs:
 
 Data flow:
 - BRIO import → BrioContractApplicationService → EfCoreClientRepository / EfCoreContractRepository → SQLite via Entity Framework Core
-- User data persisted in %LocalAppData%\Praxis360\Praxis360.db
-- SituationAssuranceVieService loads from SQLite via IClientRepository
+- User data persisted in %LOCALAPPDATA%\Praxis360\praxis360.db
+- SituationAssuranceVieService loads from SQLite via IClientRepository and IContractRepository
 - Full end-to-end persistence verified: import → application shutdown → restart → reload
 
 EfCoreContractRepository optimization:
@@ -846,7 +846,7 @@ EfCoreContractRepositoryTests.cs:
 
 - Main project: build successful, 0 errors, 0 warnings
 - Test project: build successful, 0 errors, 0 warnings
-- All tests: 109 passed, 0 failed, 0 skipped
+- All tests: 110 passed, 0 failed, 0 skipped
 - git diff --check passed
 
 **Visual validation**
@@ -1065,18 +1065,10 @@ BrioImport.razor and BrioImport.razor.css modified to add navigation link to Por
 - Test history:
   - Story 3.2.7A baseline: 51/51 tests passing
   - Story 3.2.7B baseline: 97/97 tests passing
-  - Story 3.2.8 current: 107/107 tests passing
-- 10 new integration tests in SituationAssuranceVieServiceSqliteIntegrationTests.cs:
-  - EndToEnd_BrioImportAndReloadFromSqlite_ShouldConstructAccurateSituationReadModel
-  - GetSituationForClientAsync_WithMultipleContracts_ReturnsAggregatedReadModel
-  - GetSituationForClientAsync_WithoutContracts_ReturnsEmptySituation
-  - GetSituationForDefaultClientAsync_WithZeroClients_ReturnsNoClientsAvailable
-  - GetSituationForDefaultClientAsync_WithOneClient_ReturnsClientLoaded
-  - GetSituationForDefaultClientAsync_WithMultipleClients_ReturnsMultipleClientsRequireSelection
-  - DetermineInsurerDisplayName_WithInsurerAggregate_ReturnsDisplayName
-  - InsurerFallback_WhenInsurerIsNullButBrioProvenanceHasName_ShouldUseMostRecentBrioProvenance
-  - InsurerFallback_WhenBrioProvenanceHasWhitespaceOnlyName_ShouldReturnCompagnieNonDisponible
-  - DetermineInsurerDisplayName_WithoutAnyInsurerInfo_ReturnsDefaultMessage
+  - Story 3.2.8 current: 110/110 tests passing
+- 13 additional test cases since the Story 3.2.7B baseline:
+  - 12 previously documented SQLite/BRIO/Situation test cases across the relevant integration and repository test suites
+  - 1 defensive service test for the single-client deletion race condition
 - Manual validation performed (pre-corrections):
   - Empty state verified on /patrimoine
   - BrioSynthetic.ValidCore.csv imported (4 lines analyzed, 3 client candidates, 4 contract candidates)

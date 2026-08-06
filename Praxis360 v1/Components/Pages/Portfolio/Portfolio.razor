@@ -3,7 +3,6 @@
 
 @inject Praxis360_v1.Services.SituationAssuranceVieService SituationService
 @inject Praxis360_v1.Application.Interfaces.IClientSelectionService ClientSelectionService
-@inject Microsoft.AspNetCore.Components.NavigationManager NavigationManager
 
 <PageTitle>Ma situation</PageTitle>
 
@@ -48,7 +47,7 @@ else if (_uiState == UiState.MultipleClientsRequireSelection)
 					@foreach (var client in _selectableClients)
 					{
 						<P360Card>
-							<div class="selectable-client-card" @onclick="() => NavigateToClient(client.ClientId)">
+							<a class="selectable-client-card" href="@($"/patrimoine/{client.ClientId}")">
 								<div class="client-info">
 									<span class="client-name">@client.DisplayName</span>
 									@if (client.DateOfBirth.HasValue)
@@ -57,7 +56,7 @@ else if (_uiState == UiState.MultipleClientsRequireSelection)
 									}
 								</div>
 								<div class="chevron-icon">›</div>
-							</div>
+							</a>
 						</P360Card>
 					}
 				}
@@ -265,19 +264,35 @@ else if (_uiState == UiState.ClientLoaded && _situation != null)
 				{
 					case Praxis360_v1.Models.SituationAssuranceVieLoadStatus.ClientLoaded:
 						_situation = result.Situation;
-						_uiState = UiState.ClientLoaded;
+						if (_situation is not null)
+						{
+							_uiState = UiState.ClientLoaded;
+						}
+						else
+						{
+							_situation = null;
+							_uiState = UiState.ClientNotFound;
+						}
 						break;
 
 					case Praxis360_v1.Models.SituationAssuranceVieLoadStatus.NoClientsAvailable:
+						_situation = null;
 						_uiState = UiState.NoClientsAvailable;
 						break;
 
 					case Praxis360_v1.Models.SituationAssuranceVieLoadStatus.MultipleClientsRequireSelection:
+						_situation = null;
 						_selectableClients = await ClientSelectionService.GetSelectableClientsAsync();
 						_uiState = UiState.MultipleClientsRequireSelection;
 						break;
 
+					case Praxis360_v1.Models.SituationAssuranceVieLoadStatus.ClientNotFound:
+						_situation = null;
+						_uiState = UiState.ClientNotFound;
+						break;
+
 					default:
+						_situation = null;
 						_uiState = UiState.ErrorLoading;
 						break;
 				}
@@ -287,11 +302,6 @@ else if (_uiState == UiState.ClientLoaded && _situation != null)
 		{
 			_uiState = UiState.ErrorLoading;
 		}
-	}
-
-	private void NavigateToClient(Guid clientId)
-	{
-		NavigationManager.NavigateTo($"/patrimoine/{clientId}");
 	}
 
 	private static string FormatMoney(Praxis360_v1.Domain.ValueObjects.Money? money)

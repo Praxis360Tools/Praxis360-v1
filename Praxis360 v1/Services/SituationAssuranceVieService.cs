@@ -72,6 +72,12 @@ public class SituationAssuranceVieService
         {
             var client = clientsList[0];
             var situation = await GetSituationForClientAsync(client.Id);
+
+            if (situation is null)
+            {
+                return new SituationAssuranceVieLoadResult(null, SituationAssuranceVieLoadStatus.ClientNotFound);
+            }
+
             return new SituationAssuranceVieLoadResult(situation, SituationAssuranceVieLoadStatus.ClientLoaded);
         }
 

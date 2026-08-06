@@ -105,7 +105,7 @@ The Sprint is complete when:
   - Post-import "Voir Ma situation" link when BrioContractApplicationResult has ClientId and applied contracts
   - SituationAssuranceVieLoadResult wrapper with typed outcome enum
   - Full end-to-end integration test: BRIO import → persistence → service recreation → situation reload → exact assertion
-  - 106 test cases: 106 passed, 0 failed, 0 skipped
+  - 110 test cases: 110 passed, 0 failed, 0 skipped
   - Insurer fallback: Insurer.DisplayName → most recent BRIO provenance RawInsurerName → "Compagnie non disponible"
   - SituationAssuranceVieService registered as scoped lifetime (aligned with scoped repositories)
   - DemoSituationAssuranceVieDataService removed from runtime DI registration

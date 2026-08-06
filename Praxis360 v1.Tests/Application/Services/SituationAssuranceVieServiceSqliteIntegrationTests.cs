@@ -230,6 +230,68 @@ public sealed class SituationAssuranceVieServiceSqliteIntegrationTests : IAsyncD
     }
 
     [Fact]
+    public async Task GetSituationForDefaultClientAsync_WhenSingleClientExistsButGetSituationReturnsNull_ShouldReturnClientNotFound()
+    {
+        // Arrange: Create a stub repository that returns one client but simulates deletion in GetByIdAsync
+        var clientId = Guid.NewGuid();
+        var stubClientRepository = new StubClientRepositoryWithDeletionRace(clientId);
+        var contractRepository = new EfCoreContractRepository(_contextFactory);
+        var situationService = new SituationAssuranceVieService(stubClientRepository, contractRepository);
+
+        //Act
+        var result = await situationService.GetSituationForDefaultClientAsync();
+
+        // Assert: Status should be ClientNotFound when situation is null
+        Assert.NotNull(result);
+        Assert.Equal(Praxis360_v1.Models.SituationAssuranceVieLoadStatus.ClientNotFound, result.Status);
+        Assert.Null(result.Situation);
+    }
+
+    // Stub repository to simulate race condition where client exists in GetAllAsync but is deleted before GetByIdAsync
+    private class StubClientRepositoryWithDeletionRace : Praxis360_v1.Application.Interfaces.IClientRepository
+    {
+        private readonly Guid _clientId;
+
+        public StubClientRepositoryWithDeletionRace(Guid clientId)
+        {
+            _clientId = clientId;
+        }
+
+        public Task<IReadOnlyCollection<Praxis360_v1.Domain.Entities.Client>> GetAllAsync()
+        {
+            // Return one client to simulate "one client exists"
+            var client = new Praxis360_v1.Domain.Entities.Client(
+                _clientId,
+                "Test",
+                "Client",
+                null,
+                Praxis360.Domain.Types.Language.French);
+            return Task.FromResult<IReadOnlyCollection<Praxis360_v1.Domain.Entities.Client>>(new[] { client });
+        }
+
+        public Task<Praxis360_v1.Domain.Entities.Client?> GetByIdAsync(Guid id)
+        {
+            // Return null to simulate client was deleted after GetAllAsync
+            return Task.FromResult<Praxis360_v1.Domain.Entities.Client?>(null);
+        }
+
+        public Task<IReadOnlyCollection<Praxis360_v1.Domain.Entities.Client>> SearchByIdentityAsync(string firstName, string lastName, DateOnly? dateOfBirth)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SaveAsync(Praxis360_v1.Domain.Entities.Client client)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateAsync(Praxis360_v1.Domain.Entities.Client client)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    [Fact]
     public async Task GetSituationForClientAsync_WhenClientDoesNotExist_ShouldReturnNull()
     {
         // Arrange

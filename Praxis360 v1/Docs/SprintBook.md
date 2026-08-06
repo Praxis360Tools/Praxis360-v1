@@ -515,7 +515,7 @@ Build validation:
 - Test history:
   - Story 3.2.7A baseline: 51/51 tests passing
   - Story 3.2.7B baseline: 97/97 tests passing
-  - Story 3.2.8 current: 109/109 tests passing (12 new integration tests)
+  - Story 3.2.8 current: 110/110 tests passing (12 integration tests + 1 defensive service test)
 
 Manual validation (pre-corrections):
 - Empty state verified on /patrimoine
